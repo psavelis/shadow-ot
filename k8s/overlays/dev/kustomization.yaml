@@ -6,13 +6,13 @@ namespace: shadow-ot-dev
 resources:
   - ../../base
 
-patchesStrategicMerge:
-  - deployment-server-patch.yaml
-  - deployment-web-patch.yaml
-  - ingress-patch.yaml
-  - service-nodeports-patch.yaml
+patches:
+  - path: deployment-server-patch.yaml
+  - path: deployment-web-patch.yaml
+  - path: ingress-patch.yaml
+  - path: service-nodeports-patch.yaml
 
-patchesJson6902:
+patches:
   - target:
       version: v1
       kind: Deployment
@@ -20,5 +20,6 @@ patchesJson6902:
       namespace: shadow-ot-dev
     path: deployment-download-jsonpatch.yaml
 
-commonLabels:
-  environment: dev
+labels:
+  - pairs:
+      environment: dev
