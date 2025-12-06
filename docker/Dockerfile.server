@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy manifests
-COPY Cargo.toml Cargo.lock ./
+# Copy manifest (lockfile will be generated in container)
+COPY Cargo.toml ./
 COPY crates ./crates
 
 # Build dependencies (cached layer)

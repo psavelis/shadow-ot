@@ -79,6 +79,19 @@ deploy_stack() {
   kubectl apply -k k8s/overlays/dev
 }
 
+build_and_load_images() {
+  echo "Building local images and loading into kind..."
+  docker build -f docker/Dockerfile.server -t shadow-ot/server:local .
+  docker build -f web/landing/Dockerfile -t shadow-ot/web:local web/landing
+  docker build -f web/admin/Dockerfile -t shadow-ot/admin:local web/admin
+  kind load docker-image shadow-ot/server:local --name "$CLUSTER_NAME"
+  kind load docker-image shadow-ot/web:local --name "$CLUSTER_NAME"
+  kind load docker-image shadow-ot/admin:local --name "$CLUSTER_NAME"
+  kubectl -n shadow-ot set image deploy/shadow-server shadow-server=shadow-ot/server:local || true
+  kubectl -n shadow-ot set image deploy/shadow-web shadow-web=shadow-ot/web:local || true
+  kubectl -n shadow-ot set image deploy/shadow-admin shadow-admin=shadow-ot/admin:local || true
+}
+
 wait_ready() {
   kubectl wait --for=condition=available deploy/shadow-server -n shadow-ot --timeout=300s || true
   kubectl wait --for=condition=available deploy/shadow-web -n shadow-ot --timeout=300s || true
@@ -107,6 +120,7 @@ install_kubectl
 create_cluster
 setup_metallb
 deploy_stack
+build_and_load_images
 wait_ready
 show_ips
 smoke_tests
