@@ -77,6 +77,37 @@ Shadow OT is the most advanced, feature-complete Open Tibia server platform ever
 - Next.js landing site safely rewrites `/api/*` using `NEXT_PUBLIC_API_URL` with fallback.
 - No mocks policy: infrastructure and downloads are using real implementations and assets.
 
+### Critical Path to Players Gaming (Reality Check Dec 2025)
+
+**🟢 COMPLETE - Ready for Use:**
+| Component | Status | Details |
+|-----------|--------|---------|
+| Web Frontend | ✅ 100% | 96 TSX files across 6 Next.js apps |
+| Shared Library | ✅ 100% | 161 React Query hooks, types, utilities |
+| Database Schema | ✅ 100% | 7 SQL migrations (84k+ lines) |
+| K8s/Docker | ✅ 100% | Base, overlays, Helm charts, E2E workflow |
+| Game Data JSON | ✅ 100% | Items (759), Monsters (696), NPCs (453), Spells (567), Quests (367) |
+| Rust Crates | ✅ Code | 12 crates, 37k+ lines (shadow-core, protocol, combat, world, etc.) |
+| Client Source | ✅ Code | OTClient-based C++ with Shadow OT modules |
+| Realm Configs | ✅ 100% | 6 themed realms with configs and scripts |
+
+**🔴 BLOCKING - Required for Players to Play:**
+| Blocker | Issue | Solution |
+|---------|-------|----------|
+| Map Files | `data/maps/` is EMPTY | Download OTBM from TibiaMaps or create starter maps |
+| Sprite Files | No `.spr`, `.dat`, `.pic` files | Download from OTClient assets or Tibia installation |
+| Server Binary | Rust crates not compiled | Run `cargo build --release` (requires Rust toolchain) |
+| E2E Test | Client → Server not validated | Connect client binary to running server |
+
+**🟡 RECOMMENDED - Polish Before Launch:**
+| Item | Priority | Notes |
+|------|----------|-------|
+| Vocations data | Medium | `data/vocations/` is empty |
+| Achievements data | Medium | `data/achievements/` is empty |
+| Mounts/Outfits data | Low | `data/mounts/`, `data/outfits/` are empty |
+
+---
+
 Known gaps (Resolved Dec 2025)
 - ~~Asset URL curation~~: ✅ Replaced with curated OTClient releases, Canary server, and TibiaMaps sprites in `download-assets-config` ConfigMap
 - ~~Frontend lint/typecheck~~: ✅ Added `.github/workflows/web-ci.yml` with lint, type-check, and build jobs for all web apps
@@ -2606,11 +2637,34 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 3.1.0*
+*Version: 3.2.0*
 
 ---
 
 ## Recent Updates
+
+### v3.2.0 - Reality Check & Critical Path (2025-12-06)
+
+**Status Audit - What Actually Exists:**
+```
+✅ Web Frontend:     96 TSX files, 6 Next.js apps
+✅ Shared Library:   161 hooks, full type coverage
+✅ Database:         7 migrations (84k+ lines SQL)
+✅ Rust Crates:      12 crates, 37k+ lines
+✅ Client Source:    OTClient C++ with modules
+✅ Game Data:        2,842 lines JSON (items/monsters/NPCs/spells/quests)
+✅ Infrastructure:   K8s base/overlays, E2E workflow
+
+🔴 MISSING (Blockers):
+   - data/maps/*.otbm      → No map files for world
+   - *.spr, *.dat, *.pic   → No sprite assets
+   - Server binary         → Rust not compiled
+   - E2E validation        → Client-server untested
+```
+
+**PRD Updated with Critical Path Table**
+
+---
 
 ### v3.1.0 - Web Frontend Integration (2025-12-06)
 
