@@ -8,16 +8,14 @@
   },
   {
     "op": "add",
-    "path": "/spec/template/spec/initContainers",
-    "value": [
-      {
-        "name": "init-index",
-        "image": "busybox:1.36",
-        "command": ["sh", "-c", "echo '<h1>Shadow OT Downloads</h1><p>Client installers will appear here.</p>' > /tmp/index.html && cp /tmp/index.html /usr/share/nginx/html/index.html"],
-        "volumeMounts": [
-          { "name": "download-data", "mountPath": "/usr/share/nginx/html" }
-        ]
-      }
-    ]
+    "path": "/spec/template/spec/initContainers/-",
+    "value": {
+      "name": "init-index",
+      "image": "busybox:1.36",
+      "command": ["sh", "-c", "echo '<h1>Shadow OT Downloads</h1><p>Client installers will appear here.</p>' > /tmp/index.html && cp /tmp/index.html /usr/share/nginx/html/index.html"],
+      "volumeMounts": [
+        { "name": "download-data", "mountPath": "/usr/share/nginx/html" }
+      ]
+    }
   }
 ]
