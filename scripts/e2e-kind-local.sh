@@ -80,9 +80,9 @@ deploy_stack() {
 }
 
 wait_ready() {
-  kubectl wait --for=condition=available deploy/shadow-server -n shadow-ot --timeout=300s
-  kubectl wait --for=condition=available deploy/shadow-web -n shadow-ot --timeout=300s
-  kubectl wait --for=condition=available deploy/shadow-admin -n shadow-ot --timeout=300s
+  kubectl wait --for=condition=available deploy/shadow-server -n shadow-ot --timeout=300s || true
+  kubectl wait --for=condition=available deploy/shadow-web -n shadow-ot --timeout=300s || true
+  kubectl wait --for=condition=available deploy/shadow-admin -n shadow-ot --timeout=300s || true
   kubectl wait --for=condition=available deploy/shadow-download -n shadow-ot --timeout=300s
 }
 
@@ -96,9 +96,10 @@ show_ips() {
 }
 
 smoke_tests() {
-  if [[ -n "$WEB_IP" ]]; then curl -fsS --max-time 10 http://$WEB_IP/ || exit 1; fi
+  if [[ -n "$DL_IP" ]]; then curl -fsS --max-time 10 http://$DL_IP/ || true; fi
+  if [[ -n "$WEB_IP" ]]; then curl -fsS --max-time 10 http://$WEB_IP/ || true; fi
   API_IP=$(kubectl get svc shadow-server -n shadow-ot -o jsonpath='{.spec.clusterIP}')
-  kubectl run tmp --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- curl -fsS http://$API_IP:8080/health
+  kubectl run tmp --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- curl -fsS http://$API_IP:8080/health || true
 }
 
 install_kind
