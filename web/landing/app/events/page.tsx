@@ -5,151 +5,82 @@ import { motion } from 'framer-motion'
 import { 
   Calendar, Clock, Star, Flame, Trophy, Gift, Sparkles,
   ChevronLeft, ChevronRight, Users, MapPin, Swords, Crown,
-  Zap, Target, PartyPopper, Timer, CalendarDays, Bell
+  Zap, Target, PartyPopper, Timer, CalendarDays, Bell,
+  Loader2, AlertCircle
 } from 'lucide-react'
+import { useDailyBoosted } from '@/shared/hooks/useBoosted'
+import { useActiveWorldQuests } from '@/shared/hooks/useWorldQuests'
+import { eventApi } from '@/shared/api/endpoints'
+import { useQuery } from '@tanstack/react-query'
+import { getCreatureSprite, getTimeUntilReset } from '@/shared/utils/assets'
+import type { GameEvent, RealmId } from '@/shared/types'
 
-// Today's boosted creature and boss
-const boostedCreature = {
-  name: 'Dragon Lord',
-  image: '/creatures/dragon-lord.png',
-  loot: '+100%',
-  experience: '+50%',
-  spawn: 'Draconia, Ferumbras Tower',
-  difficulty: 'Hard',
+// Event type icons mapping
+const eventTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  double_exp: Zap,
+  rapid_respawn: Timer,
+  world_boss: Crown,
+  invasion: Swords,
+  seasonal: Sparkles,
+  pvp_tournament: Trophy,
+  community: Users,
 }
 
-const boostedBoss = {
-  name: 'Ghazbaran',
-  image: '/bosses/ghazbaran.png',
-  loot: '+200%',
-  charm: '+50 points',
-  spawn: 'The Pits of Inferno',
-  difficulty: 'Extreme',
+const eventTypeColors: Record<string, string> = {
+  double_exp: 'from-purple-500 to-violet-600',
+  rapid_respawn: 'from-green-500 to-emerald-600',
+  world_boss: 'from-amber-500 to-red-500',
+  invasion: 'from-red-500 to-rose-600',
+  seasonal: 'from-cyan-400 to-blue-500',
+  pvp_tournament: 'from-red-500 to-orange-500',
+  community: 'from-blue-500 to-indigo-600',
 }
-
-// Current and upcoming events
-const events = [
-  {
-    id: '1',
-    name: 'Double Experience Weekend',
-    type: 'experience',
-    status: 'active',
-    startDate: '2024-12-06',
-    endDate: '2024-12-08',
-    description: 'Earn double experience from all monster kills this weekend!',
-    multiplier: '2x',
-    icon: Zap,
-    color: 'from-purple-500 to-violet-600',
-    realms: ['All Realms'],
-  },
-  {
-    id: '2',
-    name: 'Winter Solstice Festival',
-    type: 'seasonal',
-    status: 'active',
-    startDate: '2024-12-01',
-    endDate: '2024-12-31',
-    description: 'Collect snowflakes, defeat the Ice King, and earn exclusive winter rewards!',
-    icon: Sparkles,
-    color: 'from-cyan-400 to-blue-500',
-    realms: ['All Realms'],
-    rewards: ['Ice Crown', 'Frost Wings', 'Winter Mount'],
-  },
-  {
-    id: '3',
-    name: 'PvP Arena Tournament',
-    type: 'tournament',
-    status: 'upcoming',
-    startDate: '2024-12-14',
-    endDate: '2024-12-15',
-    description: 'Compete in the monthly PvP tournament for glory and exclusive rewards!',
-    icon: Swords,
-    color: 'from-red-500 to-orange-500',
-    realms: ['Nova', 'Eldoria'],
-    prizePool: '10,000,000 gold',
-  },
-  {
-    id: '4',
-    name: 'World Boss: Ancient Dragon',
-    type: 'world_boss',
-    status: 'upcoming',
-    startDate: '2024-12-10',
-    endDate: '2024-12-10',
-    description: 'A legendary dragon awakens! Unite with other players to defeat it.',
-    icon: Crown,
-    color: 'from-amber-500 to-red-500',
-    realms: ['Shadowlands'],
-    rewards: ['Dragon Slayer Title', 'Ancient Scale Armor'],
-  },
-  {
-    id: '5',
-    name: 'Treasure Hunt',
-    type: 'hunt',
-    status: 'upcoming',
-    startDate: '2024-12-20',
-    endDate: '2024-12-22',
-    description: 'Hidden chests spawn across all realms. Find them for rare loot!',
-    icon: Gift,
-    color: 'from-yellow-400 to-amber-500',
-    realms: ['All Realms'],
-  },
-]
-
-// World quests
-const worldQuests = [
-  {
-    id: '1',
-    name: 'The Demon\'s Forge',
-    progress: 78,
-    goal: 10000,
-    current: 7823,
-    description: 'Defeat demons in the Demon Forge to unlock the Infernal Armory.',
-    reward: 'Access to Infernal Armory + Demon Slayer achievement',
-    endsIn: '2 days',
-    realm: 'Nova',
-  },
-  {
-    id: '2',
-    name: 'Ocean\'s Bounty',
-    progress: 45,
-    goal: 5000,
-    current: 2250,
-    description: 'Collect sea shells from Quara to cleanse the Coral Reef.',
-    reward: '500k gold realm treasury + Coral Mount',
-    endsIn: '5 days',
-    realm: 'Eldoria',
-  },
-  {
-    id: '3',
-    name: 'The Undead Purge',
-    progress: 92,
-    goal: 20000,
-    current: 18400,
-    description: 'Eliminate undead creatures to seal the Lich King\'s tomb.',
-    reward: 'Anti-Undead enchantment available for 7 days',
-    endsIn: '6 hours',
-    realm: 'Shadowlands',
-  },
-]
-
-// Calendar days for December 2024
-const calendarDays = Array.from({ length: 31 }, (_, i) => i + 1)
-const eventDays = [1, 6, 7, 8, 10, 14, 15, 20, 21, 22, 25, 31] // Days with events
 
 export default function EventsPage() {
-  const [selectedMonth, setSelectedMonth] = useState(11) // December
-  const [selectedYear, setSelectedYear] = useState(2024)
+  const [selectedMonth] = useState(new Date().getMonth())
+  const [selectedYear] = useState(new Date().getFullYear())
+
+  // Fetch real data from API
+  const { creature: boostedCreature, boss: boostedBoss, isLoading: boostedLoading, error: boostedError } = useDailyBoosted()
+  
+  const { data: worldQuests, isLoading: questsLoading } = useActiveWorldQuests()
+  
+  const { data: activeEvents, isLoading: eventsLoading } = useQuery({
+    queryKey: ['events', 'active'],
+    queryFn: () => eventApi.getActive(),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const { data: upcomingEvents, isLoading: upcomingLoading } = useQuery({
+    queryKey: ['events', 'upcoming'],
+    queryFn: () => eventApi.getUpcoming(),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const allEvents = [...(activeEvents || []), ...(upcomingEvents || [])]
 
   const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case 'experience': return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-      case 'seasonal': return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
-      case 'tournament': return 'bg-red-500/20 text-red-400 border-red-500/30'
-      case 'world_boss': return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-      case 'hunt': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-      default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+    const colors: Record<string, string> = {
+      experience: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+      seasonal: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+      tournament: 'bg-red-500/20 text-red-400 border-red-500/30',
+      world_boss: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+      hunt: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     }
+    return colors[type] || 'bg-slate-500/20 text-slate-400 border-slate-500/30'
   }
+
+  // Generate calendar days
+  const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate()
+  const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay()
+  const calendarDays = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+  const today = new Date().getDate()
+  const isCurrentMonth = selectedMonth === new Date().getMonth() && selectedYear === new Date().getFullYear()
+
+  // Get days with events
+  const eventDays = allEvents.map(event => new Date(event.startAt).getDate())
+
+  const timeUntilReset = getTimeUntilReset()
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -196,30 +127,48 @@ export default function EventsPage() {
               </div>
               <div className="flex items-center gap-1 text-slate-500 text-sm">
                 <Timer className="w-4 h-4" />
-                Resets in 14h 32m
+                Resets in {timeUntilReset}
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/50">
-                <Target className="w-12 h-12 text-emerald-400" />
+            {boostedLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-1">{boostedCreature.name}</h3>
-                <p className="text-slate-400 text-sm mb-3">{boostedCreature.spawn}</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">
-                    Loot {boostedCreature.loot}
-                  </span>
-                  <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm font-medium">
-                    XP {boostedCreature.experience}
-                  </span>
-                  <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium">
-                    {boostedCreature.difficulty}
-                  </span>
+            ) : boostedError ? (
+              <div className="flex items-center justify-center gap-2 py-8 text-red-400">
+                <AlertCircle className="w-5 h-5" />
+                <span>Failed to load</span>
+              </div>
+            ) : boostedCreature && (
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/50 overflow-hidden">
+                  <img 
+                    src={getCreatureSprite(boostedCreature.name)} 
+                    alt={boostedCreature.name}
+                    className="w-16 h-16 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/icons/creatures/default.png'
+                    }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-1">{boostedCreature.name}</h3>
+                  <p className="text-slate-400 text-sm mb-3">{boostedCreature.spawn}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">
+                      Loot +{boostedCreature.lootBonus}%
+                    </span>
+                    <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm font-medium">
+                      XP +{boostedCreature.experienceBonus}%
+                    </span>
+                    <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium">
+                      {boostedCreature.difficulty}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </motion.div>
 
           {/* Boosted Boss */}
@@ -237,30 +186,48 @@ export default function EventsPage() {
               </div>
               <div className="flex items-center gap-1 text-slate-500 text-sm">
                 <Timer className="w-4 h-4" />
-                Resets in 14h 32m
+                Resets in {timeUntilReset}
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/50">
-                <Crown className="w-12 h-12 text-purple-400" />
+            {boostedLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-1">{boostedBoss.name}</h3>
-                <p className="text-slate-400 text-sm mb-3">{boostedBoss.spawn}</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">
-                    Loot {boostedBoss.loot}
-                  </span>
-                  <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium">
-                    Charm {boostedBoss.charm}
-                  </span>
-                  <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium">
-                    {boostedBoss.difficulty}
-                  </span>
+            ) : boostedError ? (
+              <div className="flex items-center justify-center gap-2 py-8 text-red-400">
+                <AlertCircle className="w-5 h-5" />
+                <span>Failed to load</span>
+              </div>
+            ) : boostedBoss && (
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/50 overflow-hidden">
+                  <img 
+                    src={getCreatureSprite(boostedBoss.name)} 
+                    alt={boostedBoss.name}
+                    className="w-16 h-16 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/icons/bosses/default.png'
+                    }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-1">{boostedBoss.name}</h3>
+                  <p className="text-slate-400 text-sm mb-3">{boostedBoss.spawn}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">
+                      Loot +{boostedBoss.lootBonus}%
+                    </span>
+                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium">
+                      Charm +{boostedBoss.charmBonus} pts
+                    </span>
+                    <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium">
+                      {boostedBoss.difficulty}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -278,82 +245,88 @@ export default function EventsPage() {
           </button>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-4">
-          {events.map((event, idx) => {
-            const Icon = event.icon
-            return (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`relative overflow-hidden rounded-xl border ${
-                  event.status === 'active' 
-                    ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-transparent' 
-                    : 'border-slate-700/50 bg-slate-800/50'
-                }`}
-              >
-                {event.status === 'active' && (
-                  <div className="absolute top-4 right-4">
-                    <span className="flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">
-                      <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                      Active Now
-                    </span>
-                  </div>
-                )}
-                
-                <div className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${event.color} flex items-center justify-center shrink-0`}>
-                      <Icon className="w-7 h-7 text-white" />
+        {eventsLoading || upcomingLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-10 h-10 animate-spin text-amber-400" />
+          </div>
+        ) : allEvents.length > 0 ? (
+          <div className="grid lg:grid-cols-2 gap-4">
+            {allEvents.map((event, idx) => {
+              const Icon = eventTypeIcons[event.type] || PartyPopper
+              const colorClass = eventTypeColors[event.type] || 'from-slate-500 to-slate-600'
+              const isActive = event.status === 'active'
+              
+              return (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className={`relative overflow-hidden rounded-xl border ${
+                    isActive 
+                      ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-transparent' 
+                      : 'border-slate-700/50 bg-slate-800/50'
+                  }`}
+                >
+                  {isActive && (
+                    <div className="absolute top-4 right-4">
+                      <span className="flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">
+                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                        Active Now
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-1">{event.name}</h3>
-                      <p className="text-slate-400 text-sm mb-3">{event.description}</p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className={`px-2 py-1 text-xs rounded border ${getEventTypeColor(event.type)}`}>
-                          {event.type.replace('_', ' ').toUpperCase()}
-                        </span>
-                        {event.multiplier && (
-                          <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded border border-purple-500/30">
-                            {event.multiplier} XP
-                          </span>
-                        )}
-                        {event.prizePool && (
-                          <span className="px-2 py-1 bg-amber-500/20 text-amber-400 text-xs rounded border border-amber-500/30">
-                            Prize: {event.prizePool}
-                          </span>
-                        )}
+                  )}
+                  
+                  <div className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center shrink-0`}>
+                        <Icon className="w-7 h-7 text-white" />
                       </div>
-
-                      {event.rewards && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {event.rewards.map((reward, i) => (
-                            <span key={i} className="px-2 py-0.5 bg-slate-700/50 text-slate-300 text-xs rounded">
-                              {reward}
-                            </span>
-                          ))}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-1">{event.name}</h3>
+                        <p className="text-slate-400 text-sm mb-3">{event.description}</p>
+                        
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <span className={`px-2 py-1 text-xs rounded border ${getEventTypeColor(event.type)}`}>
+                            {event.type.replace('_', ' ').toUpperCase()}
+                          </span>
                         </div>
-                      )}
 
-                      <div className="flex items-center gap-4 text-xs text-slate-500">
-                        <span className="flex items-center gap-1">
-                          <CalendarDays className="w-3 h-3" />
-                          {event.startDate} - {event.endDate}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {event.realms.join(', ')}
-                        </span>
+                        {event.rewards && event.rewards.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {event.rewards.map((reward, i) => (
+                              <span key={i} className="px-2 py-0.5 bg-slate-700/50 text-slate-300 text-xs rounded">
+                                {typeof reward.value === 'string' ? reward.value : `${reward.type}: ${reward.value}`}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <CalendarDays className="w-3 h-3" />
+                            {new Date(event.startAt).toLocaleDateString()} - {new Date(event.endAt).toLocaleDateString()}
+                          </span>
+                          {event.realm && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {event.realm}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-400">
+            <PartyPopper className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No active events at the moment</p>
+          </div>
+        )}
       </section>
 
       {/* World Quests */}
@@ -363,54 +336,65 @@ export default function EventsPage() {
           Active World Quests
         </h2>
 
-        <div className="grid lg:grid-cols-3 gap-4">
-          {worldQuests.map((quest, idx) => (
-            <motion.div
-              key={quest.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded border border-cyan-500/30">
-                  {quest.realm}
-                </span>
-                <span className="text-amber-400 text-sm flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {quest.endsIn}
-                </span>
-              </div>
-
-              <h3 className="text-lg font-bold text-white mb-2">{quest.name}</h3>
-              <p className="text-slate-400 text-sm mb-4">{quest.description}</p>
-
-              {/* Progress Bar */}
-              <div className="mb-3">
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-slate-400">Progress</span>
-                  <span className="text-white font-medium">{quest.current.toLocaleString()} / {quest.goal.toLocaleString()}</span>
+        {questsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-10 h-10 animate-spin text-cyan-400" />
+          </div>
+        ) : worldQuests && worldQuests.length > 0 ? (
+          <div className="grid lg:grid-cols-3 gap-4">
+            {worldQuests.map((quest, idx) => (
+              <motion.div
+                key={quest.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded border border-cyan-500/30 capitalize">
+                    {quest.realm}
+                  </span>
+                  <span className="text-amber-400 text-sm flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {new Date(quest.endsAt).toLocaleDateString()}
+                  </span>
                 </div>
-                <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all ${
-                      quest.progress >= 90 ? 'bg-gradient-to-r from-emerald-500 to-green-400' :
-                      quest.progress >= 50 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' :
-                      'bg-gradient-to-r from-cyan-500 to-blue-400'
-                    }`}
-                    style={{ width: `${quest.progress}%` }}
-                  />
-                </div>
-                <p className="text-right text-xs text-slate-500 mt-1">{quest.progress}% complete</p>
-              </div>
 
-              <div className="p-3 bg-slate-900/50 rounded-lg">
-                <p className="text-xs text-slate-500 mb-1">Reward:</p>
-                <p className="text-sm text-emerald-400">{quest.reward}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                <h3 className="text-lg font-bold text-white mb-2">{quest.name}</h3>
+                <p className="text-slate-400 text-sm mb-4">{quest.description}</p>
+
+                {/* Progress Bar */}
+                <div className="mb-3">
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="text-slate-400">Progress</span>
+                    <span className="text-white font-medium">{quest.current.toLocaleString()} / {quest.goal.toLocaleString()}</span>
+                  </div>
+                  <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all ${
+                        quest.progress >= 90 ? 'bg-gradient-to-r from-emerald-500 to-green-400' :
+                        quest.progress >= 50 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' :
+                        'bg-gradient-to-r from-cyan-500 to-blue-400'
+                      }`}
+                      style={{ width: `${quest.progress}%` }}
+                    />
+                  </div>
+                  <p className="text-right text-xs text-slate-500 mt-1">{quest.progress}% complete</p>
+                </div>
+
+                <div className="p-3 bg-slate-900/50 rounded-lg">
+                  <p className="text-xs text-slate-500 mb-1">Reward:</p>
+                  <p className="text-sm text-emerald-400">{quest.reward}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-400">
+            <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No active world quests</p>
+          </div>
+        )}
       </section>
 
       {/* Calendar */}
@@ -425,7 +409,9 @@ export default function EventsPage() {
               <button className="p-2 text-slate-400 hover:text-white transition">
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className="text-white font-medium">December 2024</span>
+              <span className="text-white font-medium">
+                {new Date(selectedYear, selectedMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
+              </span>
               <button className="p-2 text-slate-400 hover:text-white transition">
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -444,10 +430,14 @@ export default function EventsPage() {
 
             {/* Calendar grid */}
             <div className="grid grid-cols-7 gap-2">
-              {/* Empty cells for December 2024 starting on Sunday */}
+              {/* Empty cells for offset */}
+              {Array.from({ length: firstDayOfMonth }, (_, i) => (
+                <div key={`empty-${i}`} className="aspect-square" />
+              ))}
+              
               {calendarDays.map(day => {
                 const hasEvent = eventDays.includes(day)
-                const isToday = day === 6 // Assuming today is Dec 6
+                const isToday = isCurrentMonth && day === today
                 return (
                   <div
                     key={day}
@@ -484,4 +474,3 @@ export default function EventsPage() {
     </main>
   )
 }
-

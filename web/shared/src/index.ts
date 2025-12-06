@@ -30,4 +30,5 @@ export * from './types'
 export * from './utils/cn'
 export * from './utils/format'
 export * from './utils/validation'
+export * from './utils/assets'
 

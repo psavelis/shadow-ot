@@ -2564,11 +2564,46 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.6.0*
+*Version: 2.7.0*
 
 ---
 
 ## Recent Updates
+
+### v2.7.0 - Real Implementation with Open-Source Assets (2025-12-06)
+
+**NO MOCKS - Full API Integration** ✅ Complete
+- All pages now use real React Query hooks (no mock data)
+- Kill Statistics page uses `useKillStatistics`, `useTopKillers`, `useRecentDeaths`
+- Spells page uses `useSpells` with server-side filtering
+- Events page uses `useDailyBoosted`, `useActiveWorldQuests`, `eventApi`
+- Proper loading states and error handling throughout
+
+**Open-Source Asset Integration** ✅ Complete
+- TibiaData API integration (https://api.tibiadata.com/v3)
+- Creature sprites from TibiaMaps (https://tibiamaps.github.io)
+- Outfit renderer from OTS.me API
+- Map tiles from TibiaMaps data
+- Item sprites from OTClient repository
+
+**Asset Utilities** (`web/shared/src/utils/assets.ts`)
+- `getCreatureSprite(name)` - Fetch creature images from open-source repos
+- `getItemSprite(itemId)` - Fetch item sprites
+- `getOutfitSprite(outfit)` - Generate outfit images with colors/addons
+- `getVocationIcon(vocation)` - Vocation-specific icons
+- `getMapTile(x, y, z)` - Map tile images from TibiaMaps
+- `fetchCreatureData(name)` - TibiaData API creature info
+- `fetchAllSpells()` - TibiaData API spell database
+- `fetchBoostedCreature()` - TibiaData API boosted creature
+- `getTimeUntilReset()` - Server save countdown
+
+**Pages Updated to Real API:**
+- `/kill-statistics` - Uses useKillStats hooks with real-time refetch
+- `/spells` - Uses useSpells with filtering, sorting, pagination
+- `/events` - Uses useDailyBoosted, useActiveWorldQuests, eventApi
+- `/tools` - Calculator logic (no external API needed)
+
+---
 
 ### v2.6.0 - Complete API Integration (2025-12-06)
 
