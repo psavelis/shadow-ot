@@ -1,126 +1,38 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
-  Home, Search, Filter, MapPin, Users, Clock, Coins,
-  ChevronRight, Star, Heart, Eye, Key, Calendar, Crown
+  Home, Search, MapPin, Bed, Square, Coins, Clock, User,
+  Gavel, ChevronRight, Loader2, AlertTriangle
 } from 'lucide-react'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as Dialog from '@radix-ui/react-dialog'
+import { useHouses, useMyHouses, useBidOnHouse, useLeaveHouse } from '@/shared/hooks/useDashboard'
+import type { House } from '@/shared/api/endpoints'
 
-const houses = [
-  {
-    id: 1,
-    name: 'Thais Manor',
-    town: 'Thais',
-    type: 'house',
-    size: 'Large',
-    sqm: 156,
-    beds: 8,
-    rent: 15000,
-    status: 'available',
-    auctionEnd: null,
-    currentBid: null,
-    owner: null,
-    realm: 'Shadowlands',
-    position: { x: 32369, y: 32241, z: 7 },
-  },
-  {
-    id: 2,
-    name: 'Venore Shop',
-    town: 'Venore',
-    type: 'guildhall',
-    size: 'Extra Large',
-    sqm: 324,
-    beds: 15,
-    rent: 45000,
-    status: 'auction',
-    auctionEnd: '2h 15m',
-    currentBid: 125000,
-    owner: null,
-    realm: 'Shadowlands',
-    position: { x: 32954, y: 32076, z: 6 },
-  },
-  {
-    id: 3,
-    name: 'Edron Villa',
-    town: 'Edron',
-    type: 'house',
-    size: 'Medium',
-    sqm: 89,
-    beds: 4,
-    rent: 8500,
-    status: 'rented',
-    auctionEnd: null,
-    currentBid: null,
-    owner: 'ShadowKnight',
-    realm: 'Shadowlands',
-    position: { x: 33217, y: 31814, z: 8 },
-  },
-  {
-    id: 4,
-    name: 'Carlin Cottage',
-    town: 'Carlin',
-    type: 'house',
-    size: 'Small',
-    sqm: 42,
-    beds: 2,
-    rent: 3500,
-    status: 'available',
-    auctionEnd: null,
-    currentBid: null,
-    owner: null,
-    realm: 'Mythara',
-    position: { x: 32360, y: 31782, z: 7 },
-  },
-  {
-    id: 5,
-    name: 'Ab\'Dendriel Treehouse',
-    town: 'Ab\'Dendriel',
-    type: 'house',
-    size: 'Medium',
-    sqm: 78,
-    beds: 3,
-    rent: 7200,
-    status: 'auction',
-    auctionEnd: '5d 12h',
-    currentBid: 85000,
-    owner: null,
-    realm: 'Aetheria',
-    position: { x: 32732, y: 31634, z: 7 },
-  },
-]
-
-const myHouses = [
-  {
-    id: 3,
-    name: 'Edron Villa',
-    town: 'Edron',
-    character: 'ShadowKnight',
-    rent: 8500,
-    nextPayment: '12 days',
-    paidUntil: '2025-01-15',
-  },
-]
-
-const towns = ['All Towns', 'Thais', 'Venore', 'Edron', 'Carlin', 'Ab\'Dendriel', 'Kazordoon', 'Darashia', 'Ankrahmun', 'Port Hope', 'Liberty Bay', 'Yalahar']
-const sizes = ['All Sizes', 'Small', 'Medium', 'Large', 'Extra Large']
-const statuses = ['All Status', 'Available', 'Auction', 'Rented']
-const types = ['All Types', 'House', 'Guildhall']
+const towns = ['All Towns', 'Thais', 'Venore', 'Edron', 'Carlin', "Ab'Dendriel", 'Kazordoon', 'Darashia', 'Ankrahmun', 'Port Hope', 'Liberty Bay', 'Yalahar']
+const sizes = ['All Sizes', 'small', 'medium', 'large', 'extra_large']
+const statuses = ['All Status', 'available', 'auction', 'rented']
+const types = ['All Types', 'house', 'guildhall']
 
 const sizeColors: Record<string, string> = {
-  'Small': 'bg-slate-500/20 text-slate-400',
-  'Medium': 'bg-blue-500/20 text-blue-400',
-  'Large': 'bg-purple-500/20 text-purple-400',
-  'Extra Large': 'bg-amber-500/20 text-amber-400',
+  'small': 'bg-slate-500/20 text-slate-400',
+  'medium': 'bg-blue-500/20 text-blue-400',
+  'large': 'bg-purple-500/20 text-purple-400',
+  'extra_large': 'bg-amber-500/20 text-amber-400',
 }
 
-const statusColors: Record<string, { bg: string; text: string }> = {
-  'available': { bg: 'bg-emerald-500/20', text: 'text-emerald-400' },
-  'auction': { bg: 'bg-amber-500/20', text: 'text-amber-400' },
-  'rented': { bg: 'bg-slate-500/20', text: 'text-slate-400' },
+const statusColors: Record<string, string> = {
+  'available': 'bg-emerald-500/20 text-emerald-400',
+  'auction': 'bg-amber-500/20 text-amber-400',
+  'rented': 'bg-slate-500/20 text-slate-400',
+}
+
+function formatGold(amount: number) {
+  if (amount >= 1000000) return `${(amount / 1000000).toFixed(2)}kk`
+  if (amount >= 1000) return `${(amount / 1000).toFixed(1)}k`
+  return amount.toLocaleString()
 }
 
 export default function HousesPage() {
@@ -129,18 +41,43 @@ export default function HousesPage() {
   const [selectedSize, setSelectedSize] = useState('All Sizes')
   const [selectedStatus, setSelectedStatus] = useState('All Status')
   const [selectedType, setSelectedType] = useState('All Types')
-  const [showBidDialog, setShowBidDialog] = useState(false)
-  const [selectedHouse, setSelectedHouse] = useState<any>(null)
+  const [selectedHouse, setSelectedHouse] = useState<House | null>(null)
+  const [bidAmount, setBidAmount] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 12
 
-  const filteredHouses = houses.filter(house => {
-    const matchesSearch = house.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         house.town.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesTown = selectedTown === 'All Towns' || house.town === selectedTown
-    const matchesSize = selectedSize === 'All Sizes' || house.size === selectedSize
-    const matchesStatus = selectedStatus === 'All Status' || house.status === selectedStatus.toLowerCase()
-    const matchesType = selectedType === 'All Types' || house.type === selectedType.toLowerCase()
-    return matchesSearch && matchesTown && matchesSize && matchesStatus && matchesType
+  // Real API hooks
+  const { data: housesData, isLoading, error } = useHouses({
+    town: selectedTown === 'All Towns' ? undefined : selectedTown,
+    size: selectedSize === 'All Sizes' ? undefined : selectedSize as House['size'],
+    status: selectedStatus === 'All Status' ? undefined : selectedStatus as House['status'],
+    type: selectedType === 'All Types' ? undefined : selectedType as House['type'],
+    page: currentPage,
+    pageSize,
   })
+  const { data: myHousesData, isLoading: myHousesLoading } = useMyHouses()
+  const bidOnHouse = useBidOnHouse()
+  const leaveHouse = useLeaveHouse()
+
+  const houses = housesData?.data || []
+  const myHouses = myHousesData || []
+
+  const filteredHouses = houses.filter(house =>
+    house.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const handleBid = async () => {
+    if (!selectedHouse || !bidAmount) return
+    await bidOnHouse.mutateAsync({ id: selectedHouse.id, amount: parseInt(bidAmount) })
+    setSelectedHouse(null)
+    setBidAmount('')
+  }
+
+  const handleLeave = async (houseId: string) => {
+    if (confirm('Are you sure you want to leave this house?')) {
+      await leaveHouse.mutateAsync(houseId)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -148,9 +85,12 @@ export default function HousesPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-white mb-1">House Browser</h1>
-        <p className="text-slate-400">Find and rent houses across all realms</p>
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1">Houses</h1>
+          <p className="text-slate-400">Browse and manage your houses</p>
+        </div>
       </motion.div>
 
       {/* Stats */}
@@ -160,91 +100,106 @@ export default function HousesPage() {
         transition={{ delay: 0.1 }}
         className="grid grid-cols-4 gap-4"
       >
-        {[
-          { label: 'Available Houses', value: '142', icon: Home, color: 'emerald' },
-          { label: 'Active Auctions', value: '23', icon: Clock, color: 'amber' },
-          { label: 'Your Houses', value: myHouses.length.toString(), icon: Key, color: 'blue' },
-          { label: 'Total Rent/Month', value: `${(myHouses.reduce((sum, h) => sum + h.rent, 0) / 1000).toFixed(1)}k`, icon: Coins, color: 'purple' },
-        ].map((stat, idx) => (
-          <div key={idx} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <stat.icon className={`w-5 h-5 text-${stat.color}-400`} />
-            </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
-            <p className="text-xs text-slate-500">{stat.label}</p>
-          </div>
-        ))}
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <Home className="w-5 h-5 text-amber-400 mb-2" />
+          <p className="text-2xl font-bold text-white">{houses.length}</p>
+          <p className="text-xs text-slate-500">Total Houses</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <Gavel className="w-5 h-5 text-blue-400 mb-2" />
+          <p className="text-2xl font-bold text-white">{houses.filter(h => h.status === 'auction').length}</p>
+          <p className="text-xs text-slate-500">On Auction</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <MapPin className="w-5 h-5 text-emerald-400 mb-2" />
+          <p className="text-2xl font-bold text-white">{houses.filter(h => h.status === 'available').length}</p>
+          <p className="text-xs text-slate-500">Available</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <User className="w-5 h-5 text-purple-400 mb-2" />
+          <p className="text-2xl font-bold text-white">{myHouses.length}</p>
+          <p className="text-xs text-slate-500">Owned</p>
+        </div>
       </motion.div>
 
-      {/* Main Content */}
+      {/* Tabs */}
       <Tabs.Root defaultValue="browse">
         <Tabs.List className="flex gap-1 bg-slate-800/50 border border-slate-700/50 rounded-xl p-1 mb-6">
           <Tabs.Trigger
             value="browse"
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=inactive]:text-slate-400 data-[state=inactive]:hover:text-white"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=inactive]:text-slate-400"
           >
-            <Search className="w-4 h-4" />
+            <Home className="w-4 h-4" />
             Browse Houses
           </Tabs.Trigger>
           <Tabs.Trigger
-            value="my"
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=inactive]:text-slate-400 data-[state=inactive]:hover:text-white"
+            value="mine"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=inactive]:text-slate-400"
           >
-            <Key className="w-4 h-4" />
+            <User className="w-4 h-4" />
             My Houses
           </Tabs.Trigger>
         </Tabs.List>
 
         {/* Browse Tab */}
         <Tabs.Content value="browse">
+          {/* Filters */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap gap-4 mb-6"
           >
-            {/* Filters */}
-            <div className="flex flex-wrap gap-3">
-              <div className="flex-1 min-w-[200px] relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Search houses..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
-                />
-              </div>
-              <select
-                value={selectedTown}
-                onChange={e => setSelectedTown(e.target.value)}
-                className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
-              >
-                {towns.map(town => <option key={town} value={town}>{town}</option>)}
-              </select>
-              <select
-                value={selectedSize}
-                onChange={e => setSelectedSize(e.target.value)}
-                className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
-              >
-                {sizes.map(size => <option key={size} value={size}>{size}</option>)}
-              </select>
-              <select
-                value={selectedStatus}
-                onChange={e => setSelectedStatus(e.target.value)}
-                className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
-              >
-                {statuses.map(status => <option key={status} value={status}>{status}</option>)}
-              </select>
-              <select
-                value={selectedType}
-                onChange={e => setSelectedType(e.target.value)}
-                className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
-              >
-                {types.map(type => <option key={type} value={type}>{type}</option>)}
-              </select>
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search houses..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
+              />
             </div>
+            <select
+              value={selectedTown}
+              onChange={e => setSelectedTown(e.target.value)}
+              className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none"
+            >
+              {towns.map(town => <option key={town} value={town}>{town}</option>)}
+            </select>
+            <select
+              value={selectedSize}
+              onChange={e => setSelectedSize(e.target.value)}
+              className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none capitalize"
+            >
+              {sizes.map(size => <option key={size} value={size}>{size.replace('_', ' ')}</option>)}
+            </select>
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value)}
+              className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none capitalize"
+            >
+              {statuses.map(status => <option key={status} value={status}>{status}</option>)}
+            </select>
+          </motion.div>
 
-            {/* House Grid */}
+          {/* Houses Grid */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-12 text-red-400">
+              <AlertTriangle className="w-5 h-5 mr-2" />
+              Failed to load houses
+            </div>
+          ) : filteredHouses.length === 0 ? (
+            <div className="text-center py-16 bg-slate-800/50 border border-slate-700/50 rounded-xl">
+              <Home className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No houses found</h3>
+              <p className="text-slate-500">Try adjusting your filters</p>
+            </div>
+          ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredHouses.map((house, idx) => (
                 <motion.div
@@ -252,245 +207,223 @@ export default function HousesPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden hover:border-amber-500/30 transition group"
+                  className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 hover:border-amber-500/30 transition cursor-pointer"
+                  onClick={() => setSelectedHouse(house)}
                 >
-                  {/* House Image Placeholder */}
-                  <div className="h-32 bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center relative">
-                    <Home className="w-12 h-12 text-slate-600" />
-                    <div className="absolute top-3 left-3 flex gap-2">
-                      <span className={`px-2 py-0.5 rounded text-xs ${statusColors[house.status].bg} ${statusColors[house.status].text}`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-white font-medium">{house.name}</h3>
+                      <div className="flex items-center gap-1 text-slate-400 text-sm">
+                        <MapPin className="w-3 h-3" />
+                        {house.town}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1 items-end">
+                      <span className={`px-2 py-0.5 rounded text-xs capitalize ${sizeColors[house.size] || 'bg-slate-500/20 text-slate-400'}`}>
+                        {house.size.replace('_', ' ')}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-xs capitalize ${statusColors[house.status] || 'bg-slate-500/20 text-slate-400'}`}>
                         {house.status}
                       </span>
-                      {house.type === 'guildhall' && (
-                        <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-xs">
-                          Guildhall
-                        </span>
-                      )}
                     </div>
-                    <span className={`absolute top-3 right-3 px-2 py-0.5 rounded text-xs ${sizeColors[house.size]}`}>
-                      {house.size}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 mb-3 text-sm">
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Square className="w-4 h-4" />
+                      {house.sqm} sqm
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Bed className="w-4 h-4" />
+                      {house.beds} beds
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Coins className="w-4 h-4" />
+                      {formatGold(house.rent)}/mo
+                    </div>
+                  </div>
+
+                  {house.status === 'auction' && house.auction && (
+                    <div className="bg-slate-900/50 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-slate-500 text-xs">Current Bid</p>
+                          <p className="text-amber-400 font-bold">{formatGold(house.auction.currentBid)}</p>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-400 text-sm">
+                          <Clock className="w-4 h-4" />
+                          Ends soon
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {house.status === 'rented' && house.owner && (
+                    <div className="text-slate-400 text-sm">
+                      Owner: <span className="text-white">{house.owner.name}</span>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </Tabs.Content>
+
+        {/* My Houses Tab */}
+        <Tabs.Content value="mine">
+          {myHousesLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+            </div>
+          ) : myHouses.length === 0 ? (
+            <div className="text-center py-16 bg-slate-800/50 border border-slate-700/50 rounded-xl">
+              <Home className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No houses owned</h3>
+              <p className="text-slate-500">Browse available houses to find your perfect home</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-4">
+              {myHouses.map((house, idx) => (
+                <motion.div
+                  key={house.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-white font-medium">{house.name}</h3>
+                      <p className="text-slate-400 text-sm">
+                        {house.town} • Character: {house.character}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded text-xs capitalize ${sizeColors[house.size]}`}>
+                      {house.size.replace('_', ' ')}
                     </span>
                   </div>
 
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="text-white font-bold group-hover:text-amber-400 transition">{house.name}</h3>
-                        <p className="text-slate-500 text-sm flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {house.town}, {house.realm}
-                        </p>
-                      </div>
+                  <div className="grid grid-cols-3 gap-2 mb-4 text-sm">
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Square className="w-4 h-4" />
+                      {house.sqm} sqm
                     </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      <div className="bg-slate-900/50 rounded-lg p-2 text-center">
-                        <p className="text-white font-bold text-sm">{house.sqm}</p>
-                        <p className="text-slate-500 text-xs">SQM</p>
-                      </div>
-                      <div className="bg-slate-900/50 rounded-lg p-2 text-center">
-                        <p className="text-white font-bold text-sm">{house.beds}</p>
-                        <p className="text-slate-500 text-xs">Beds</p>
-                      </div>
-                      <div className="bg-slate-900/50 rounded-lg p-2 text-center">
-                        <p className="text-amber-400 font-bold text-sm">{(house.rent / 1000).toFixed(1)}k</p>
-                        <p className="text-slate-500 text-xs">Rent</p>
-                      </div>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Bed className="w-4 h-4" />
+                      {house.beds} beds
                     </div>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Coins className="w-4 h-4" />
+                      {formatGold(house.rent)}/mo
+                    </div>
+                  </div>
 
-                    {/* Actions */}
-                    {house.status === 'available' && (
-                      <button
-                        onClick={() => {
-                          setSelectedHouse(house)
-                          setShowBidDialog(true)
-                        }}
-                        className="w-full py-2 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-400 transition"
-                      >
-                        Rent Now
-                      </button>
-                    )}
-                    {house.status === 'auction' && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-400">Current Bid:</span>
-                          <span className="text-white font-bold">{house.currentBid?.toLocaleString()} gold</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-400">Ends in:</span>
-                          <span className="text-red-400">{house.auctionEnd}</span>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setSelectedHouse(house)
-                            setShowBidDialog(true)
-                          }}
-                          className="w-full py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-400 transition"
-                        >
-                          Place Bid
-                        </button>
-                      </div>
-                    )}
-                    {house.status === 'rented' && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-400">Owner:</span>
-                        <Link href={`/characters/${house.owner}`} className="text-amber-400 hover:text-amber-300">
-                          {house.owner}
-                        </Link>
-                      </div>
-                    )}
+                  <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400 text-sm">Paid Until</span>
+                      <span className="text-white">{house.paidUntil}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button className="flex-1 px-4 py-2 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-600/50 transition">
+                      Pay Rent
+                    </button>
+                    <button
+                      onClick={() => handleLeave(house.id)}
+                      disabled={leaveHouse.isPending}
+                      className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition disabled:opacity-50"
+                    >
+                      Leave
+                    </button>
                   </div>
                 </motion.div>
               ))}
             </div>
-          </motion.div>
-        </Tabs.Content>
-
-        {/* My Houses Tab */}
-        <Tabs.Content value="my">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {myHouses.length > 0 ? (
-              <div className="space-y-4">
-                {myHouses.map((house, idx) => (
-                  <div
-                    key={house.id}
-                    className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl flex items-center justify-center">
-                          <Home className="w-8 h-8 text-amber-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold text-lg">{house.name}</h3>
-                          <p className="text-slate-400 text-sm flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {house.town}
-                          </p>
-                          <p className="text-slate-500 text-sm">Owned by: {house.character}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-slate-400 text-sm">Monthly Rent</p>
-                        <p className="text-2xl font-bold text-amber-400">{house.rent.toLocaleString()} <span className="text-sm">gold</span></p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-slate-700/50 grid grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-slate-500 text-sm">Next Payment</p>
-                        <p className="text-white font-medium flex items-center gap-1">
-                          <Calendar className="w-4 h-4 text-amber-400" />
-                          {house.nextPayment}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-slate-500 text-sm">Paid Until</p>
-                        <p className="text-white font-medium">{house.paidUntil}</p>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <button className="px-4 py-2 bg-slate-700/50 text-slate-300 rounded-lg text-sm hover:bg-slate-700 transition">
-                          Pay Rent
-                        </button>
-                        <button className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm hover:bg-red-500/30 transition">
-                          Leave House
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-12 text-center">
-                <Home className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                <h3 className="text-white font-bold text-lg mb-2">No Houses Yet</h3>
-                <p className="text-slate-400 text-sm mb-6">
-                  You don't own any houses. Browse available houses to find your perfect home!
-                </p>
-                <button className="px-6 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-400 transition">
-                  Browse Houses
-                </button>
-              </div>
-            )}
-          </motion.div>
+          )}
         </Tabs.Content>
       </Tabs.Root>
 
-      {/* Bid/Rent Dialog */}
-      <Dialog.Root open={showBidDialog} onOpenChange={setShowBidDialog}>
+      {/* House Detail / Bid Dialog */}
+      <Dialog.Root open={!!selectedHouse} onOpenChange={() => setSelectedHouse(null)}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md">
-            <Dialog.Title className="text-xl font-bold text-white mb-2">
-              {selectedHouse?.status === 'available' ? 'Rent House' : 'Place Bid'}
-            </Dialog.Title>
-            <Dialog.Description className="text-slate-400 text-sm mb-6">
-              {selectedHouse?.name} in {selectedHouse?.town}
-            </Dialog.Description>
-
+          <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md z-50">
             {selectedHouse && (
-              <div className="space-y-4 mb-6">
-                <div className="bg-slate-900/50 rounded-lg p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-slate-500 text-sm">Size</p>
-                      <p className="text-white font-medium">{selectedHouse.sqm} SQM</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500 text-sm">Beds</p>
-                      <p className="text-white font-medium">{selectedHouse.beds}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500 text-sm">Monthly Rent</p>
-                      <p className="text-amber-400 font-medium">{selectedHouse.rent.toLocaleString()} gold</p>
-                    </div>
-                    {selectedHouse.status === 'auction' && (
-                      <div>
-                        <p className="text-slate-500 text-sm">Current Bid</p>
-                        <p className="text-white font-medium">{selectedHouse.currentBid?.toLocaleString()} gold</p>
-                      </div>
-                    )}
+              <>
+                <Dialog.Title className="text-xl font-bold text-white mb-2">
+                  {selectedHouse.name}
+                </Dialog.Title>
+                <p className="text-slate-400 text-sm mb-4">{selectedHouse.town}</p>
+
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="bg-slate-900/50 rounded-lg p-3 text-center">
+                    <Square className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                    <p className="text-white font-medium">{selectedHouse.sqm}</p>
+                    <p className="text-slate-500 text-xs">sqm</p>
+                  </div>
+                  <div className="bg-slate-900/50 rounded-lg p-3 text-center">
+                    <Bed className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                    <p className="text-white font-medium">{selectedHouse.beds}</p>
+                    <p className="text-slate-500 text-xs">beds</p>
+                  </div>
+                  <div className="bg-slate-900/50 rounded-lg p-3 text-center">
+                    <Coins className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                    <p className="text-white font-medium">{formatGold(selectedHouse.rent)}</p>
+                    <p className="text-slate-500 text-xs">rent/mo</p>
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-slate-300 text-sm mb-2 block">Select Character</label>
-                  <select className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50">
-                    <option value="1">ShadowKnight (342 EK)</option>
-                    <option value="2">MysticDruid (298 ED)</option>
-                  </select>
-                </div>
+                {selectedHouse.status === 'auction' && selectedHouse.auction && (
+                  <>
+                    <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
+                      <p className="text-slate-400 text-sm mb-2">Current Bid</p>
+                      <p className="text-2xl font-bold text-amber-400">
+                        {formatGold(selectedHouse.auction.currentBid)}
+                      </p>
+                      {selectedHouse.auction.highestBidder && (
+                        <p className="text-slate-500 text-sm">
+                          by {selectedHouse.auction.highestBidder.name}
+                        </p>
+                      )}
+                    </div>
 
-                {selectedHouse.status === 'auction' && (
-                  <div>
-                    <label className="text-slate-300 text-sm mb-2 block">Your Bid</label>
-                    <input
-                      type="number"
-                      placeholder="Enter bid amount"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
-                    />
-                    <p className="text-slate-500 text-xs mt-1">Minimum bid: {((selectedHouse.currentBid || 0) + 1000).toLocaleString()} gold</p>
-                  </div>
+                    <div className="mb-4">
+                      <label className="block text-sm text-slate-400 mb-2">Your Bid</label>
+                      <input
+                        type="number"
+                        value={bidAmount}
+                        onChange={e => setBidAmount(e.target.value)}
+                        placeholder="Enter amount..."
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
+                      />
+                    </div>
+                  </>
                 )}
-              </div>
-            )}
 
-            <div className="flex gap-3">
-              <Dialog.Close className="flex-1 px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition">
-                Cancel
-              </Dialog.Close>
-              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-400 hover:to-orange-500 transition">
-                {selectedHouse?.status === 'available' ? 'Rent Now' : 'Place Bid'}
-              </button>
-            </div>
+                <div className="flex gap-3">
+                  <Dialog.Close className="flex-1 px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition">
+                    Close
+                  </Dialog.Close>
+                  {selectedHouse.status === 'auction' && (
+                    <button
+                      onClick={handleBid}
+                      disabled={!bidAmount || bidOnHouse.isPending}
+                      className="flex-1 px-4 py-2 bg-amber-500 text-black rounded-lg hover:bg-amber-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {bidOnHouse.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Place Bid'
+                      )}
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
     </div>
   )
 }
-
