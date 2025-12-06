@@ -2,18 +2,12 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FileText, Search, Filter, AlertTriangle, AlertCircle, Info, CheckCircle, RefreshCw } from 'lucide-react'
-
-const logs = [
-  { id: '1', type: 'error', message: 'Database connection timeout', source: 'shadow-db', timestamp: '2024-12-05T10:45:23Z', details: { query: 'SELECT * FROM characters WHERE online = true', timeout: 30000 } },
-  { id: '2', type: 'warning', message: 'High memory usage detected on Aetheria (85%)', source: 'shadow-world', timestamp: '2024-12-05T10:44:12Z', details: { realm: 'aetheria', memory: '85%', threshold: '80%' } },
-  { id: '3', type: 'info', message: 'Player DragonSlayer logged in', source: 'shadow-api', timestamp: '2024-12-05T10:43:45Z', details: { playerId: '12345', ip: '192.168.1.1' } },
-  { id: '4', type: 'info', message: 'Scheduled backup completed successfully', source: 'shadow-db', timestamp: '2024-12-05T10:30:00Z', details: { size: '2.4GB', duration: '45s' } },
-  { id: '5', type: 'critical', message: 'Failed to process payment transaction', source: 'shadow-api', timestamp: '2024-12-05T10:28:15Z', details: { transactionId: 'TXN-123456', error: 'Gateway timeout' } },
-  { id: '6', type: 'warning', message: 'Rate limit exceeded for IP 10.0.0.5', source: 'shadow-api', timestamp: '2024-12-05T10:25:00Z', details: { ip: '10.0.0.5', requests: 150, limit: 100 } },
-  { id: '7', type: 'info', message: 'New account registered: test_user@email.com', source: 'shadow-api', timestamp: '2024-12-05T10:20:33Z', details: { email: 'test_user@email.com' } },
-  { id: '8', type: 'error', message: 'Anti-cheat detection: possible speed hack', source: 'shadow-anticheat', timestamp: '2024-12-05T10:15:00Z', details: { characterId: '67890', speed: 250, maxSpeed: 100 } },
-]
+import { 
+  FileText, Search, AlertTriangle, AlertCircle, Info, RefreshCw,
+  Loader2, ChevronDown, ChevronUp
+} from 'lucide-react'
+import { useAdminLogs } from '@/shared/hooks/useAdmin'
+import type { AdminLog } from '@/shared/types'
 
 const typeConfig = {
   info: { color: 'text-blue-400', bg: 'bg-blue-500/20', icon: Info },
@@ -32,15 +26,24 @@ function formatTime(date: string) {
 
 export default function LogsPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedType, setSelectedType] = useState<'all' | 'info' | 'warning' | 'error' | 'critical'>('all')
+  const [selectedType, setSelectedType] = useState<'all' | AdminLog['type']>('all')
   const [selectedSource, setSelectedSource] = useState('all')
   const [expandedLog, setExpandedLog] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 50
+  
+  const { data: logsData, isLoading, error, refetch, isRefetching } = useAdminLogs({
+    type: selectedType === 'all' ? undefined : selectedType,
+    page: currentPage,
+    pageSize,
+  })
+  
+  const logs = logsData?.data || []
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = log.message.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = selectedType === 'all' || log.type === selectedType
     const matchesSource = selectedSource === 'all' || log.source === selectedSource
-    return matchesSearch && matchesType && matchesSource
+    return matchesSearch && matchesSource
   })
 
   return (
@@ -48,115 +51,169 @@ export default function LogsPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-display font-bold mb-1">System Logs</h1>
-            <p className="text-shadow-400">Monitor server activity and errors</p>
+            <h1 className="text-2xl font-bold text-white mb-1">System Logs</h1>
+            <p className="text-slate-400">Real-time server logs and alerts</p>
           </div>
-          <button className="btn-secondary flex items-center gap-2">
-            <RefreshCw className="w-4 h-4" />
+          <button
+            onClick={() => refetch()}
+            disabled={isRefetching}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-600/50 transition disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
       </motion.div>
 
-      {/* Stats */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid sm:grid-cols-4 gap-4">
-        <div className="stat-card">
-          <FileText className="w-5 h-5 text-accent-500 mb-2" />
-          <h3 className="text-2xl font-bold text-white">{logs.length}</h3>
-          <p className="text-shadow-400 text-sm">Total Logs (24h)</p>
-        </div>
-        <div className="stat-card">
-          <AlertCircle className="w-5 h-5 text-red-500 mb-2" />
-          <h3 className="text-2xl font-bold text-red-400">{logs.filter(l => l.type === 'error' || l.type === 'critical').length}</h3>
-          <p className="text-shadow-400 text-sm">Errors</p>
-        </div>
-        <div className="stat-card">
-          <AlertTriangle className="w-5 h-5 text-yellow-500 mb-2" />
-          <h3 className="text-2xl font-bold text-yellow-400">{logs.filter(l => l.type === 'warning').length}</h3>
-          <p className="text-shadow-400 text-sm">Warnings</p>
-        </div>
-        <div className="stat-card">
-          <Info className="w-5 h-5 text-blue-500 mb-2" />
-          <h3 className="text-2xl font-bold text-blue-400">{logs.filter(l => l.type === 'info').length}</h3>
-          <p className="text-shadow-400 text-sm">Info</p>
-        </div>
-      </motion.div>
-
-      {/* Filters */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="card">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-shadow-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search logs..."
-              className="w-full pl-12 pr-4 py-2.5 bg-shadow-800 border border-shadow-600 rounded-lg text-white placeholder:text-shadow-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
-            />
-          </div>
-          <select
-            value={selectedSource}
-            onChange={(e) => setSelectedSource(e.target.value)}
-            className="px-4 py-2.5 bg-shadow-800 border border-shadow-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50"
-          >
-            {sources.map((source) => (
-              <option key={source} value={source}>{source === 'all' ? 'All Sources' : source}</option>
-            ))}
-          </select>
-          <div className="flex rounded-lg overflow-hidden border border-shadow-600">
-            {(['all', 'info', 'warning', 'error', 'critical'] as const).map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-2.5 text-sm capitalize transition-colors ${
-                  selectedType === type
-                    ? 'bg-accent-500 text-white'
-                    : 'bg-shadow-800 text-shadow-400 hover:text-white'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Logs */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-2">
-        {filteredLogs.map((log) => {
-          const config = typeConfig[log.type as keyof typeof typeConfig]
-          const Icon = config.icon
-          const isExpanded = expandedLog === log.id
-
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.1 }}
+        className="flex flex-wrap gap-3"
+      >
+        {(['all', 'info', 'warning', 'error', 'critical'] as const).map((type) => {
+          const config = type !== 'all' ? typeConfig[type] : null
+          const Icon = config?.icon || FileText
+          const count = type === 'all' ? logs.length : logs.filter(l => l.type === type).length
           return (
-            <div key={log.id} className="card cursor-pointer" onClick={() => setExpandedLog(isExpanded ? null : log.id)}>
-              <div className="flex items-start gap-4">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${config.bg}`}>
-                  <Icon className={`w-4 h-4 ${config.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs font-medium uppercase ${config.color}`}>{log.type}</span>
-                    <span className="text-xs text-shadow-500">{log.source}</span>
-                  </div>
-                  <p className="text-white">{log.message}</p>
-                  <p className="text-shadow-500 text-xs mt-1">{formatTime(log.timestamp)}</p>
-                </div>
-              </div>
-              {isExpanded && log.details && (
-                <div className="mt-4 pt-4 border-t border-shadow-700">
-                  <p className="text-xs text-shadow-500 mb-2">Details:</p>
-                  <pre className="bg-shadow-800 rounded-lg p-3 text-sm text-shadow-300 overflow-x-auto">
-                    {JSON.stringify(log.details, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
+            <button
+              key={type}
+              onClick={() => setSelectedType(type)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                selectedType === type 
+                  ? config ? `${config.bg} ${config.color}` : 'bg-slate-700 text-white'
+                  : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="capitalize">{type}</span>
+              <span className="px-1.5 py-0.5 text-xs rounded bg-slate-900/50">{count}</span>
+            </button>
           )
         })}
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.2 }}
+        className="flex flex-wrap items-center gap-4 bg-slate-800/50 border border-slate-700/50 rounded-xl p-4"
+      >
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search logs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-slate-900/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+          />
+        </div>
+        <select
+          value={selectedSource}
+          onChange={(e) => setSelectedSource(e.target.value)}
+          className="appearance-none bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500/50"
+        >
+          {sources.map(source => (
+            <option key={source} value={source}>{source === 'all' ? 'All Sources' : source}</option>
+          ))}
+        </select>
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.3 }}
+        className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden"
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-12 text-red-400">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            Failed to load logs
+          </div>
+        ) : filteredLogs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+            <FileText className="w-12 h-12 mb-4 opacity-50" />
+            <p>No logs found</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-700/50">
+            {filteredLogs.map(log => {
+              const config = typeConfig[log.type]
+              const Icon = config.icon
+              const isExpanded = expandedLog === log.id
+              
+              return (
+                <div 
+                  key={log.id}
+                  className="hover:bg-slate-700/20 transition cursor-pointer"
+                  onClick={() => setExpandedLog(isExpanded ? null : log.id)}
+                >
+                  <div className="p-4 flex items-start gap-4">
+                    <div className={`p-2 rounded-lg ${config.bg}`}>
+                      <Icon className={`w-4 h-4 ${config.color}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium">{log.message}</p>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+                        <span className="text-slate-400">{log.source}</span>
+                        <span>-</span>
+                        <span>{formatTime(log.timestamp)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 text-xs rounded ${config.bg} ${config.color} capitalize`}>
+                        {log.type}
+                      </span>
+                      {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-slate-500" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                      )}
+                    </div>
+                  </div>
+                  
+                  {isExpanded && log.details && (
+                    <div className="px-4 pb-4">
+                      <pre className="bg-slate-900/50 rounded-lg p-4 text-sm font-mono text-slate-300 overflow-x-auto">
+                        {JSON.stringify(log.details, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {logsData && logsData.totalPages > 1 && (
+          <div className="p-4 border-t border-slate-700 flex items-center justify-between">
+            <p className="text-slate-500 text-sm">
+              Page {currentPage} of {logsData.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded hover:bg-slate-600/50 transition disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(logsData.totalPages, p + 1))}
+                disabled={currentPage === logsData.totalPages}
+                className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded hover:bg-slate-600/50 transition disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   )
 }
-

@@ -18,6 +18,7 @@ export * from './hooks/useBoosted'
 export * from './hooks/useWorldQuests'
 export * from './hooks/useCreatures'
 export * from './hooks/useRealms'
+export * from './hooks/useAdmin'
 
 // Stores
 export * from './stores/authStore'

@@ -2561,11 +2561,64 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.12.0*
+*Version: 2.13.0*
 
 ---
 
 ## Recent Updates
+
+### v2.13.0 - Admin Panel API Integration (2025-12-06)
+
+**Admin Bans Page** (`/admin/bans`) ✅
+- Removed hardcoded `bans` array
+- Uses `useBans()` hook with pagination
+- Uses `useBanPlayer()` mutation for issuing bans
+- Uses `useUnbanPlayer()` mutation for lifting bans
+- Real-time ban statistics from API
+
+**Admin Logs Page** (`/admin/logs`) ✅
+- Removed hardcoded `logs` array
+- Uses `useAdminLogs()` hook with type/source filtering
+- Auto-refresh every 15 seconds
+- Expandable log details with JSON viewer
+- Pagination support
+
+**Admin Events Page** (`/admin/events`) ✅
+- Removed hardcoded `events` array
+- Uses `useAdminEvents()` hook with status filtering
+- Uses `useCreateEvent()` mutation
+- Uses `useUpdateEvent()` for status toggles
+- Uses `useDeleteEvent()` mutation
+- Full CRUD modal for event creation
+
+**Admin Players Page** (`/admin/players`) ✅
+- Removed hardcoded `players` array
+- Uses `usePlayerSearch()` for real-time search
+- Uses `useOnlinePlayersAdmin()` for live count
+- Uses `useAdminStats()` for dashboard stats
+- Uses `useBanPlayer()` and `useWarnPlayer()` mutations
+- Dropdown actions menu with ban/warn options
+
+**New Admin Hooks** (`web/shared/src/hooks/useAdmin.ts`) ✅
+- `useAdminStats()` - Dashboard statistics
+- `useAdminLogs(params)` - Filtered logs with pagination
+- `useAdminAlerts()` - System alerts with acknowledgment
+- `useBans(params)` - Ban list with pagination
+- `useBanPlayer()` - Issue ban mutation
+- `useUnbanPlayer()` - Lift ban mutation
+- `useWarnPlayer()` - Send warning mutation
+- `usePlayerSearch(query)` - Player search
+- `usePlayerDetails(id)` - Player details
+- `useRealmStatus(realmId)` - Server status
+- `useRestartRealm()` - Server restart mutation
+- `useBroadcast()` - Server broadcast mutation
+- `useCreateEvent()` - Event creation mutation
+- `useUpdateEvent()` - Event update mutation
+- `useDeleteEvent()` - Event deletion mutation
+- `useAdminEvents(params)` - Events list
+- `useOnlinePlayersAdmin()` - Live online count
+
+---
 
 ### v2.12.0 - Security Page API Integration (2025-12-06)
 
