@@ -130,6 +130,28 @@ public:
     void sendRequestQuestLine(uint16_t questId);
     void sendBugReport(const std::string& comment);
 
+    // Modern Tibia operations (12.x+)
+    void sendRequestBestiary();
+    void sendRequestBestiaryMonsterData(uint16_t monsterId);
+    void sendRequestBosstiary();
+    void sendRequestBossSlots();
+    void sendSelectBossSlot(uint8_t slotId, uint32_t bossId);
+    void sendRequestPreyData();
+    void sendSelectPreyMonster(uint8_t slotId, uint16_t monsterId);
+    void sendPreyAction(uint8_t slotId, uint8_t action);
+    void sendRequestImbuingData(const Position& pos, uint16_t itemId, uint8_t stackPos);
+    void sendApplyImbuement(uint8_t slotId, uint32_t imbuementId, bool protectionCharm);
+    void sendClearImbuement(uint8_t slotId);
+    void sendRequestForge();
+    void sendForgeItem(uint16_t itemId, uint8_t tier, bool success);
+    void sendRequestStoreCoins();
+    void sendOpenStore(uint8_t categoryId);
+    void sendRequestCyclopediaData(uint8_t type);
+    void sendRequestSupplyStash();
+    void sendStashAction(uint8_t action, uint16_t itemId, uint32_t count);
+    void sendPartyAnalyzerAction(uint8_t action);
+    void sendClientCheck(const std::vector<uint8_t>& data);
+
     // XTEA key
     void setXTEAKey(const std::array<uint32_t, 4>& key);
 
@@ -207,6 +229,22 @@ private:
     void parseVipLogin(framework::NetworkMessage& msg);
     void parseVipLogout(framework::NetworkMessage& msg);
     void parseVipState(framework::NetworkMessage& msg);
+
+    // Modern Tibia packets (12.x+)
+    void parseBestiaryData(framework::NetworkMessage& msg);
+    void parseBosstiaryData(framework::NetworkMessage& msg);
+    void parsePreyData(framework::NetworkMessage& msg);
+    void parseImbuementData(framework::NetworkMessage& msg);
+    void parseForgeResult(framework::NetworkMessage& msg);
+    void parseStoreCoins(framework::NetworkMessage& msg);
+    void parseCyclopediaCharacterInfo(framework::NetworkMessage& msg);
+    void parseCyclopediaMapData(framework::NetworkMessage& msg);
+    void parseExaltationForge(framework::NetworkMessage& msg);
+    void parseFamiliarData(framework::NetworkMessage& msg);
+    void parseSupplyStash(framework::NetworkMessage& msg);
+    void parsePartyAnalyzer(framework::NetworkMessage& msg);
+    void parseClientCheck(framework::NetworkMessage& msg);
+    void parseBosstiaryCooldown(framework::NetworkMessage& msg);
 
     // Helper methods for parsing
     Position parsePosition(framework::NetworkMessage& msg);

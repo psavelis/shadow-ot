@@ -8,10 +8,12 @@
 
 #include "localplayer.h"
 #include "position.h"
+#include "creature.h"
 #include <string>
 #include <memory>
 #include <functional>
 #include <vector>
+#include <utility>
 
 namespace shadow {
 namespace client {
@@ -146,13 +148,35 @@ public:
     // Callbacks
     using LoginCallback = std::function<void()>;
     using LogoutCallback = std::function<void()>;
-    using DeathCallback = std::function<void(uint8_t penalty)>;
+    using DeathCallback = std::function<void(uint8_t deathType, uint8_t penalty)>;
     using TextMessageCallback = std::function<void(uint8_t type, const std::string& message)>;
+    using AnimatedTextCallback = std::function<void(const Position& pos, uint8_t color, const std::string& text)>;
+    using TalkCallback = std::function<void(const std::string& name, uint16_t level, uint8_t speakType,
+                                            const Position& pos, uint16_t channelId, const std::string& text)>;
+    using ChannelListCallback = std::function<void(const std::vector<std::pair<uint16_t, std::string>>& channels)>;
+    using OpenChannelCallback = std::function<void(uint16_t channelId, const std::string& name)>;
+    using CloseChannelCallback = std::function<void(uint16_t channelId)>;
+    using VipStateCallback = std::function<void(uint32_t playerId, bool online)>;
+    using OutfitDialogCallback = std::function<void(const Outfit& current,
+                                                     const std::vector<std::pair<uint16_t, std::string>>& outfits,
+                                                     const std::vector<std::pair<uint16_t, std::string>>& mounts)>;
 
     void setOnLogin(LoginCallback cb) { m_onLogin = cb; }
     void setOnLogout(LogoutCallback cb) { m_onLogout = cb; }
     void setOnDeath(DeathCallback cb) { m_onDeath = cb; }
     void setOnTextMessage(TextMessageCallback cb) { m_onTextMessage = cb; }
+
+    // Public callbacks used by protocol parser
+    DeathCallback onDeath;
+    AnimatedTextCallback onAnimatedText;
+    TalkCallback onTalk;
+    ChannelListCallback onChannelList;
+    OpenChannelCallback onOpenChannel;
+    OpenChannelCallback onOpenPrivateChannel;
+    CloseChannelCallback onCloseChannel;
+    TextMessageCallback onTextMessage;
+    VipStateCallback onVipStateChange;
+    OutfitDialogCallback onOutfitDialog;
 
     // For module connection
     using GameStartCallback = std::function<void()>;

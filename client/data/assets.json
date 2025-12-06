@@ -1,0 +1,73 @@
+{
+  "version": "12.85",
+  "protocol": 1285,
+  "sources": {
+    "otclient_redemption": {
+      "url": "https://github.com/mehah/otclient",
+      "branch": "main",
+      "description": "OTClient Redemption - Modern Tibia client"
+    },
+    "otservbr_global": {
+      "url": "https://github.com/opentibiabr/canary",
+      "branch": "main",
+      "description": "OpenTibiaBR Canary - Complete server with assets"
+    },
+    "tibia_assets": {
+      "url": "https://github.com/AnakinSpiff/tibia-assets",
+      "branch": "main",
+      "description": "Extracted Tibia assets"
+    }
+  },
+  "files": {
+    "dat": {
+      "name": "Tibia.dat",
+      "description": "Item/creature/effect metadata",
+      "required": true
+    },
+    "spr": {
+      "name": "Tibia.spr",
+      "description": "Sprite graphics data",
+      "required": true
+    },
+    "otb": {
+      "name": "items.otb",
+      "description": "Server item database",
+      "required": true
+    },
+    "xml": {
+      "name": "items.xml",
+      "description": "Item definitions",
+      "required": true
+    }
+  },
+  "fonts": [
+    {"name": "verdana-11px-rounded", "file": "verdana-11px-rounded.otfont"},
+    {"name": "verdana-11px-antialised", "file": "verdana-11px-antialised.otfont"},
+    {"name": "terminus-14px-bold", "file": "terminus-14px-bold.otfont"}
+  ],
+  "sprites": {
+    "ui": [
+      "background.png",
+      "button_normal.png",
+      "button_hover.png",
+      "button_pressed.png",
+      "window.png",
+      "scrollbar.png",
+      "checkbox.png",
+      "textinput.png"
+    ],
+    "game": [
+      "gamewindow.png",
+      "healthbar.png",
+      "manabar.png",
+      "skulls.png",
+      "shields.png",
+      "emblems.png",
+      "icons.png"
+    ],
+    "inventory": [
+      "inventory_slots.png",
+      "container.png"
+    ]
+  }
+}

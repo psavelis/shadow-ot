@@ -936,7 +936,7 @@ void ProtocolGame::parseIcons(NetworkMessage& msg) {
 
     auto player = g_game.getLocalPlayer();
     if (player) {
-        player->setStateFlags(icons);
+        player->setStates(icons);
     }
 }
 
@@ -1667,6 +1667,441 @@ void ProtocolGame::sendBugReport(const std::string& comment) {
     }
 
     m_connection->send(m_sendBuffer);
+}
+
+// Modern Tibia operations (12.x+)
+
+void ProtocolGame::sendRequestBestiary() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xD8); // RequestBestiary opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestBestiaryMonsterData(uint16_t monsterId) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xD9); // RequestBestiaryMonsterData opcode
+    m_sendBuffer.writeU16(monsterId);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestBosstiary() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xDA); // RequestBosstiary opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestBossSlots() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xDB); // RequestBossSlots opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendSelectBossSlot(uint8_t slotId, uint32_t bossId) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xDC); // SelectBossSlot opcode
+    m_sendBuffer.writeByte(slotId);
+    m_sendBuffer.writeU32(bossId);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestPreyData() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xED); // RequestPreyData opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendSelectPreyMonster(uint8_t slotId, uint16_t monsterId) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xEE); // SelectPreyMonster opcode
+    m_sendBuffer.writeByte(slotId);
+    m_sendBuffer.writeU16(monsterId);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendPreyAction(uint8_t slotId, uint8_t action) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xEF); // PreyAction opcode
+    m_sendBuffer.writeByte(slotId);
+    m_sendBuffer.writeByte(action);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestImbuingData(const Position& pos, uint16_t itemId, uint8_t stackPos) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xCF); // RequestImbuingData opcode
+    m_sendBuffer.writeU16(pos.x);
+    m_sendBuffer.writeU16(pos.y);
+    m_sendBuffer.writeByte(pos.z);
+    m_sendBuffer.writeU16(itemId);
+    m_sendBuffer.writeByte(stackPos);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendApplyImbuement(uint8_t slotId, uint32_t imbuementId, bool protectionCharm) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xD0); // ApplyImbuement opcode
+    m_sendBuffer.writeByte(slotId);
+    m_sendBuffer.writeU32(imbuementId);
+    m_sendBuffer.writeByte(protectionCharm ? 1 : 0);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendClearImbuement(uint8_t slotId) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xD1); // ClearImbuement opcode
+    m_sendBuffer.writeByte(slotId);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestForge() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xE8); // RequestForge opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendForgeItem(uint16_t itemId, uint8_t tier, bool success) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xE9); // ForgeItem opcode
+    m_sendBuffer.writeU16(itemId);
+    m_sendBuffer.writeByte(tier);
+    m_sendBuffer.writeByte(success ? 1 : 0);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestStoreCoins() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xFA); // RequestStoreCoins opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendOpenStore(uint8_t categoryId) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xFB); // OpenStore opcode
+    m_sendBuffer.writeByte(categoryId);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestCyclopediaData(uint8_t type) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xE5); // RequestCyclopedia opcode
+    m_sendBuffer.writeByte(type);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendRequestSupplyStash() {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xDD); // RequestSupplyStash opcode
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendStashAction(uint8_t action, uint16_t itemId, uint32_t count) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xDE); // StashAction opcode
+    m_sendBuffer.writeByte(action);
+    m_sendBuffer.writeU16(itemId);
+    m_sendBuffer.writeU32(count);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendPartyAnalyzerAction(uint8_t action) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0xDF); // PartyAnalyzerAction opcode
+    m_sendBuffer.writeByte(action);
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+void ProtocolGame::sendClientCheck(const std::vector<uint8_t>& data) {
+    m_sendBuffer.reset();
+    m_sendBuffer.writeByte(0x63); // ClientCheck opcode
+    m_sendBuffer.writeU16(static_cast<uint16_t>(data.size()));
+    for (uint8_t byte : data) {
+        m_sendBuffer.writeByte(byte);
+    }
+
+    if (m_xtea.isEnabled()) {
+        m_xtea.encrypt(m_sendBuffer);
+    }
+
+    m_connection->send(m_sendBuffer);
+}
+
+// Parse methods for modern Tibia packets
+
+void ProtocolGame::parseBestiaryData(NetworkMessage& msg) {
+    // Parse bestiary overview data
+    uint16_t raceCount = msg.readU16();
+    for (uint16_t i = 0; i < raceCount; ++i) {
+        std::string raceName = msg.readString();
+        uint16_t monsterCount = msg.readU16();
+        for (uint16_t j = 0; j < monsterCount; ++j) {
+            uint16_t monsterId = msg.readU16();
+            uint8_t progress = msg.readByte(); // 0=none, 1=started, 2=complete
+            uint16_t killCount = msg.readU16();
+            (void)monsterId; (void)progress; (void)killCount;
+        }
+        (void)raceName;
+    }
+}
+
+void ProtocolGame::parseBosstiaryData(NetworkMessage& msg) {
+    uint16_t bossCount = msg.readU16();
+    for (uint16_t i = 0; i < bossCount; ++i) {
+        uint32_t bossId = msg.readU32();
+        std::string bossName = msg.readString();
+        uint8_t tier = msg.readByte(); // 0=bane, 1=prowess, 2=expertise
+        uint16_t killsToUnlock = msg.readU16();
+        uint16_t currentKills = msg.readU16();
+        (void)bossId; (void)bossName; (void)tier;
+        (void)killsToUnlock; (void)currentKills;
+    }
+}
+
+void ProtocolGame::parsePreyData(NetworkMessage& msg) {
+    uint8_t slotCount = msg.readByte();
+    for (uint8_t i = 0; i < slotCount; ++i) {
+        uint8_t slotId = msg.readByte();
+        uint8_t slotState = msg.readByte(); // 0=locked, 1=inactive, 2=active
+        if (slotState == 2) { // Active
+            uint16_t monsterId = msg.readU16();
+            uint8_t bonusType = msg.readByte();
+            uint16_t bonusValue = msg.readU16();
+            uint8_t bonusGrade = msg.readByte();
+            uint16_t timeLeft = msg.readU16();
+            (void)monsterId; (void)bonusType; (void)bonusValue;
+            (void)bonusGrade; (void)timeLeft;
+        }
+        (void)slotId;
+    }
+}
+
+void ProtocolGame::parseImbuementData(NetworkMessage& msg) {
+    uint16_t itemId = msg.readU16();
+    uint8_t slotCount = msg.readByte();
+    for (uint8_t i = 0; i < slotCount; ++i) {
+        uint8_t slotId = msg.readByte();
+        bool hasImbuement = msg.readByte() != 0;
+        if (hasImbuement) {
+            uint32_t imbuementId = msg.readU32();
+            std::string imbuementName = msg.readString();
+            uint32_t duration = msg.readU32();
+            uint8_t removeRequired = msg.readByte();
+            (void)imbuementId; (void)imbuementName;
+            (void)duration; (void)removeRequired;
+        }
+        (void)slotId;
+    }
+    (void)itemId;
+}
+
+void ProtocolGame::parseForgeResult(NetworkMessage& msg) {
+    uint8_t resultType = msg.readByte();
+    if (resultType == 0) { // Success
+        uint16_t itemId = msg.readU16();
+        uint8_t newTier = msg.readByte();
+        (void)itemId; (void)newTier;
+    } else { // Failed
+        uint64_t dustUsed = msg.readU64();
+        (void)dustUsed;
+    }
+}
+
+void ProtocolGame::parseStoreCoins(NetworkMessage& msg) {
+    uint32_t coins = msg.readU32();
+    uint32_t transferableCoins = msg.readU32();
+    // Update local player
+    auto player = g_game.getLocalPlayer();
+    if (player) {
+        player->setStoreCoins(coins);
+        player->setTransferableCoins(transferableCoins);
+    }
+}
+
+void ProtocolGame::parseCyclopediaCharacterInfo(NetworkMessage& msg) {
+    uint8_t infoType = msg.readByte();
+    switch (infoType) {
+        case 0: { // Basic info
+            std::string name = msg.readString();
+            std::string vocation = msg.readString();
+            uint16_t level = msg.readU16();
+            (void)name; (void)vocation; (void)level;
+            break;
+        }
+        case 1: { // Stats
+            uint64_t experience = msg.readU64();
+            uint16_t level = msg.readU16();
+            uint8_t levelPercent = msg.readByte();
+            (void)experience; (void)level; (void)levelPercent;
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void ProtocolGame::parseCyclopediaMapData(NetworkMessage& msg) {
+    uint8_t mapType = msg.readByte();
+    uint32_t tilesExplored = msg.readU32();
+    uint32_t totalTiles = msg.readU32();
+    (void)mapType; (void)tilesExplored; (void)totalTiles;
+}
+
+void ProtocolGame::parseExaltationForge(NetworkMessage& msg) {
+    uint64_t dustAmount = msg.readU64();
+    uint8_t dustLevel = msg.readByte();
+    uint8_t sliverAmount = msg.readByte();
+    uint8_t coreAmount = msg.readByte();
+    auto player = g_game.getLocalPlayer();
+    if (player) {
+        player->setForgeDust(dustAmount);
+        player->setForgeDustLevel(dustLevel);
+    }
+    (void)sliverAmount; (void)coreAmount;
+}
+
+void ProtocolGame::parseFamiliarData(NetworkMessage& msg) {
+    uint8_t familiarCount = msg.readByte();
+    for (uint8_t i = 0; i < familiarCount; ++i) {
+        uint16_t familiarId = msg.readU16();
+        std::string familiarName = msg.readString();
+        (void)familiarId; (void)familiarName;
+    }
+}
+
+void ProtocolGame::parseSupplyStash(NetworkMessage& msg) {
+    uint16_t itemCount = msg.readU16();
+    for (uint16_t i = 0; i < itemCount; ++i) {
+        uint16_t itemId = msg.readU16();
+        uint32_t count = msg.readU32();
+        (void)itemId; (void)count;
+    }
+}
+
+void ProtocolGame::parsePartyAnalyzer(NetworkMessage& msg) {
+    uint8_t memberCount = msg.readByte();
+    for (uint8_t i = 0; i < memberCount; ++i) {
+        uint32_t playerId = msg.readU32();
+        std::string playerName = msg.readString();
+        uint64_t damage = msg.readU64();
+        uint64_t healing = msg.readU64();
+        uint64_t lootValue = msg.readU64();
+        (void)playerId; (void)playerName;
+        (void)damage; (void)healing; (void)lootValue;
+    }
+}
+
+void ProtocolGame::parseClientCheck(NetworkMessage& msg) {
+    // Client needs to respond with a hash based on the data
+    uint16_t dataSize = msg.readU16();
+    std::vector<uint8_t> checkData(dataSize);
+    for (uint16_t i = 0; i < dataSize; ++i) {
+        checkData[i] = msg.readByte();
+    }
+    // Respond to client check
+    sendClientCheck(checkData);
+}
+
+void ProtocolGame::parseBosstiaryCooldown(NetworkMessage& msg) {
+    uint16_t bossCount = msg.readU16();
+    for (uint16_t i = 0; i < bossCount; ++i) {
+        uint32_t bossId = msg.readU32();
+        uint32_t cooldownTime = msg.readU32();
+        (void)bossId; (void)cooldownTime;
+    }
 }
 
 } // namespace client
