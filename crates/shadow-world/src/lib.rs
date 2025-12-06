@@ -5,7 +5,10 @@
 
 pub mod actions;
 pub mod creature;
+pub mod forge;
 pub mod house;
+pub mod hunting_task;
+pub mod imbuement;
 pub mod item;
 pub mod map;
 pub mod npc;
@@ -14,13 +17,17 @@ pub mod otbm;
 pub mod pathfinding;
 pub mod position;
 pub mod spawn;
+pub mod store;
 pub mod tile;
 pub mod town;
 
 // Re-exports
 pub use actions::{ItemActionRegistry, ItemActionHandler, ItemActionResult, ItemActionContext};
 pub use creature::{Creature, CreatureType, Monster, MonsterLoader};
+pub use forge::{ForgeManager, ForgeableItem, ForgeClassification, ForgeResult, TierBonuses};
 pub use house::{House, HouseManager};
+pub use hunting_task::{TaskManager, HuntingTask, TaskDifficulty, TaskRank, PlayerTaskProgress};
+pub use imbuement::{ImbuementManager, ImbuementType, ImbuementTier, ActiveImbuement};
 pub use item::{Item, ItemLoader, ItemType};
 pub use map::{Map, MapLayer};
 pub use npc::{Npc, NpcLoader};
@@ -29,6 +36,7 @@ pub use otbm::OtbmLoader;
 pub use pathfinding::{Pathfinder, PathResult};
 pub use position::{Direction, Position};
 pub use spawn::{SpawnManager, SpawnPoint};
+pub use store::{StoreManager, StoreOffer, StoreCategory, CoinBalance, PurchaseResult};
 pub use tile::{SharedTile, Tile, TileFlags};
 pub use town::{Town, TownManager};
 
