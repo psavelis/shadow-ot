@@ -646,13 +646,13 @@ Shadow OT is blockchain-native, enabling true ownership of in-game assets throug
 
 | Chain | Type | Use Case | Status |
 |-------|------|----------|--------|
-| Ethereum | L1 | High-value NFTs, governance | 🔴 TODO |
-| Polygon | L2 | Daily transactions, gaming | 🔴 TODO |
-| Starknet | L2 (ZK) | Scalable minting | 🔴 TODO |
-| Bitcoin | L1 | Ordinals, store of value | 🔴 TODO |
-| Spark | L2 | Gaming optimized | 🔴 TODO |
-| Base | L2 | Low-cost transactions | 🔴 TODO |
-| Arbitrum | L2 | DeFi integration | 🔴 TODO |
+| Ethereum | L1 | High-value NFTs, governance | 🟢 DONE |
+| Polygon | L2 | Daily transactions, gaming | 🟢 DONE |
+| Starknet | L2 (ZK) | Scalable minting | 🟢 DONE |
+| Bitcoin | L1 | Ordinals, store of value | 🟢 DONE |
+| Spark | L2 | Gaming optimized | 🟢 DONE |
+| Base | L2 | Low-cost transactions | 🟢 DONE |
+| Arbitrum | L2 | DeFi integration | 🟢 DONE |
 
 ## 3.3 Wallet Integration
 
@@ -2310,14 +2310,14 @@ Security and secrets
 | Housing System | ✅ | 🟢 DONE |
 | Guild System | ✅ | 🟢 DONE |
 | Market System | ✅ | 🟢 DONE |
-| Bestiary | ✅ | 🟡 IN PROGRESS |
-| Prey System | ✅ | 🔴 TODO |
-| Bosstiary | ✅ | 🔴 TODO |
+| Bestiary | ✅ | 🟢 DONE |
+| Prey System | ✅ | 🟢 DONE |
+| Bosstiary | ✅ | 🟢 DONE |
 | Achievements | ✅ | 🟢 DONE |
 | Cyclopedia | ✅ | 🟡 IN PROGRESS |
 | Imbuements | ✅ | 🟢 DONE |
 | Store | ✅ | 🟢 DONE |
-| Tournament | ✅ | 🔴 TODO |
+| Tournament | ✅ | 🟢 DONE |
 
 ### Beyond Official Features (Shadow OT Exclusive)
 | Feature | Description |

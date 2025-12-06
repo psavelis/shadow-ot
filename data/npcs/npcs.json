@@ -1,0 +1,453 @@
+{
+  "version": "1.0.0",
+  "npcs": [
+    {
+      "id": 1,
+      "name": "Cipfried",
+      "title": "Monk",
+      "description": "A peaceful monk who heals adventurers.",
+      "position": { "x": 32369, "y": 32241, "z": 7 },
+      "lookType": 57,
+      "lookHead": 0,
+      "lookBody": 0,
+      "lookLegs": 0,
+      "lookFeet": 0,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 2000,
+      "walkRadius": 3,
+      "speechBubble": "normal",
+      "floorChange": false,
+      "services": ["heal"],
+      "greetings": [
+        "Welcome, traveler. May the gods bless you.",
+        "Greetings, young one. How may I assist you?"
+      ],
+      "farewells": [
+        "May your path be free of dangers.",
+        "Farewell, and stay safe in your travels."
+      ],
+      "dialog": {
+        "keywords": {
+          "heal": {
+            "response": "Let me heal your wounds, child.",
+            "action": "heal"
+          },
+          "blessing": {
+            "response": "I can offer you a blessing for 5000 gold coins. Do you wish one?",
+            "action": "blessing"
+          },
+          "name": {
+            "response": "I am Cipfried, a humble monk of the gods."
+          },
+          "job": {
+            "response": "I heal and bless those who come to our temple."
+          },
+          "temple": {
+            "response": "This temple is a sanctuary for all peaceful beings."
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "Tom",
+      "title": "Weapon Shopkeeper",
+      "description": "A burly weapon merchant.",
+      "position": { "x": 32370, "y": 32251, "z": 7 },
+      "lookType": 128,
+      "lookHead": 78,
+      "lookBody": 69,
+      "lookLegs": 87,
+      "lookFeet": 94,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 2000,
+      "walkRadius": 2,
+      "speechBubble": "trade",
+      "floorChange": false,
+      "services": ["trade"],
+      "greetings": [
+        "Welcome! Looking for weapons?",
+        "Greetings! I have the finest blades in town!"
+      ],
+      "farewells": [
+        "Good luck on your adventures!",
+        "Come back when you need more steel!"
+      ],
+      "shopItems": {
+        "buy": [
+          { "itemId": 3264, "price": 85, "name": "sword" },
+          { "itemId": 3265, "price": 450, "name": "two handed sword" },
+          { "itemId": 3267, "price": 5, "name": "dagger" },
+          { "itemId": 3268, "price": 8, "name": "hand axe" },
+          { "itemId": 3270, "price": 3, "name": "club" },
+          { "itemId": 3271, "price": 60, "name": "pike" },
+          { "itemId": 3277, "price": 9, "name": "spear" },
+          { "itemId": 3286, "price": 120, "name": "battle hammer" },
+          { "itemId": 3294, "price": 26, "name": "short sword" }
+        ],
+        "sell": [
+          { "itemId": 3264, "price": 25, "name": "sword" },
+          { "itemId": 3265, "price": 125, "name": "two handed sword" },
+          { "itemId": 3267, "price": 2, "name": "dagger" },
+          { "itemId": 3268, "price": 4, "name": "hand axe" },
+          { "itemId": 3270, "price": 1, "name": "club" },
+          { "itemId": 3271, "price": 25, "name": "pike" },
+          { "itemId": 3277, "price": 3, "name": "spear" },
+          { "itemId": 3286, "price": 50, "name": "battle hammer" },
+          { "itemId": 3294, "price": 10, "name": "short sword" }
+        ]
+      },
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I'm Tom, the best weapon dealer in town!"
+          },
+          "job": {
+            "response": "I buy and sell weapons. Looking for something specific?"
+          },
+          "trade": {
+            "response": "Take a look at my wares!",
+            "action": "openTrade"
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "Rachel",
+      "title": "Armor Shopkeeper",
+      "description": "A skilled armorer and merchant.",
+      "position": { "x": 32365, "y": 32251, "z": 7 },
+      "lookType": 140,
+      "lookHead": 94,
+      "lookBody": 19,
+      "lookLegs": 85,
+      "lookFeet": 94,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 2000,
+      "walkRadius": 2,
+      "speechBubble": "trade",
+      "floorChange": false,
+      "services": ["trade"],
+      "greetings": [
+        "Welcome to my armor shop!",
+        "Hello! Need some protection?"
+      ],
+      "farewells": [
+        "Stay safe out there!",
+        "Come back soon!"
+      ],
+      "shopItems": {
+        "buy": [
+          { "itemId": 3356, "price": 25, "name": "leather armor" },
+          { "itemId": 3357, "price": 150, "name": "brass armor" },
+          { "itemId": 3358, "price": 200, "name": "chain armor" },
+          { "itemId": 3359, "price": 100, "name": "brass legs" },
+          { "itemId": 3360, "price": 80, "name": "chain legs" },
+          { "itemId": 3374, "price": 110, "name": "viking helmet" },
+          { "itemId": 3381, "price": 290, "name": "steel helmet" },
+          { "itemId": 3405, "price": 500, "name": "plate shield" },
+          { "itemId": 3411, "price": 65, "name": "brass shield" },
+          { "itemId": 3412, "price": 15, "name": "wooden shield" }
+        ],
+        "sell": [
+          { "itemId": 3356, "price": 12, "name": "leather armor" },
+          { "itemId": 3357, "price": 75, "name": "brass armor" },
+          { "itemId": 3358, "price": 100, "name": "chain armor" },
+          { "itemId": 3359, "price": 49, "name": "brass legs" },
+          { "itemId": 3360, "price": 40, "name": "chain legs" },
+          { "itemId": 3374, "price": 50, "name": "viking helmet" },
+          { "itemId": 3381, "price": 140, "name": "steel helmet" },
+          { "itemId": 3405, "price": 250, "name": "plate shield" },
+          { "itemId": 3411, "price": 35, "name": "brass shield" },
+          { "itemId": 3412, "price": 5, "name": "wooden shield" }
+        ]
+      },
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I am Rachel, the armor dealer."
+          },
+          "job": {
+            "response": "I sell armor and shields to protect adventurers."
+          },
+          "trade": {
+            "response": "Here's what I have for sale!",
+            "action": "openTrade"
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "Frodo",
+      "title": "Innkeeper",
+      "description": "The friendly innkeeper of the local tavern.",
+      "position": { "x": 32380, "y": 32243, "z": 7 },
+      "lookType": 128,
+      "lookHead": 114,
+      "lookBody": 116,
+      "lookLegs": 114,
+      "lookFeet": 95,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 3000,
+      "walkRadius": 4,
+      "speechBubble": "trade",
+      "floorChange": false,
+      "services": ["trade", "rooms"],
+      "greetings": [
+        "Welcome to my humble inn!",
+        "Hello friend! Need a drink or a room?"
+      ],
+      "farewells": [
+        "Safe travels!",
+        "Come back soon, traveler!"
+      ],
+      "shopItems": {
+        "buy": [
+          { "itemId": 3578, "price": 6, "name": "cheese" },
+          { "itemId": 3581, "price": 25, "name": "dragon ham" },
+          { "itemId": 3725, "price": 10, "name": "brown mushroom" }
+        ],
+        "sell": []
+      },
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I'm Frodo, the innkeeper."
+          },
+          "job": {
+            "response": "I run this tavern. I offer food, drinks and rooms for weary travelers."
+          },
+          "room": {
+            "response": "A room costs 50 gold per night. Shall I prepare one for you?",
+            "action": "room"
+          },
+          "trade": {
+            "response": "Here's what we have in stock!",
+            "action": "openTrade"
+          },
+          "food": {
+            "response": "I have the finest food in town. Just ask me to trade!"
+          },
+          "drink": {
+            "response": "We have many beverages available!"
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "Seymour",
+      "title": "Spell Teacher",
+      "description": "An elderly mage who teaches spells.",
+      "position": { "x": 32360, "y": 32235, "z": 7 },
+      "lookType": 130,
+      "lookHead": 2,
+      "lookBody": 127,
+      "lookLegs": 87,
+      "lookFeet": 95,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 4000,
+      "walkRadius": 2,
+      "speechBubble": "normal",
+      "floorChange": false,
+      "services": ["spells"],
+      "greetings": [
+        "Greetings, young mage. Seek knowledge?",
+        "Welcome. The arcane arts await."
+      ],
+      "farewells": [
+        "May magic guide your path.",
+        "Use your spells wisely."
+      ],
+      "spells": [
+        { "spellId": 1, "name": "Light Healing", "price": 100 },
+        { "spellId": 2, "name": "Find Person", "price": 80 },
+        { "spellId": 3, "name": "Light", "price": 0 },
+        { "spellId": 4, "name": "Magic Rope", "price": 200 },
+        { "spellId": 5, "name": "Levitate", "price": 500 }
+      ],
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I am Seymour, master of the arcane."
+          },
+          "job": {
+            "response": "I teach spells to those with the gift of magic."
+          },
+          "spell": {
+            "response": "I can teach you various spells. Which one interests you?",
+            "action": "listSpells"
+          },
+          "magic": {
+            "response": "Magic is the manipulation of mystical energies. It requires years of study."
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "name": "Xodet",
+      "title": "Magic Shopkeeper",
+      "description": "A mysterious dealer of magical goods.",
+      "position": { "x": 32355, "y": 32235, "z": 7 },
+      "lookType": 130,
+      "lookHead": 79,
+      "lookBody": 38,
+      "lookLegs": 87,
+      "lookFeet": 95,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 2500,
+      "walkRadius": 2,
+      "speechBubble": "trade",
+      "floorChange": false,
+      "services": ["trade"],
+      "greetings": [
+        "The arcane market is open.",
+        "Seeking magical artifacts?"
+      ],
+      "farewells": [
+        "Use them wisely.",
+        "May fortune favor you."
+      ],
+      "shopItems": {
+        "buy": [
+          { "itemId": 3061, "price": 200, "name": "magic wand" },
+          { "itemId": 3051, "price": 2000, "name": "energy ring" },
+          { "itemId": 3052, "price": 900, "name": "life ring" },
+          { "itemId": 2854, "price": 50, "name": "mana potion" },
+          { "itemId": 2874, "price": 50, "name": "health potion" }
+        ],
+        "sell": [
+          { "itemId": 3061, "price": 80, "name": "magic wand" },
+          { "itemId": 3051, "price": 100, "name": "energy ring" },
+          { "itemId": 3052, "price": 50, "name": "life ring" }
+        ]
+      },
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I am Xodet, dealer of mystical goods."
+          },
+          "job": {
+            "response": "I sell magical equipment and potions."
+          },
+          "trade": {
+            "response": "Browse my magical wares!",
+            "action": "openTrade"
+          },
+          "potions": {
+            "response": "I have mana and health potions. Very useful for adventurers."
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "name": "Captain Bluebear",
+      "title": "Ship Captain",
+      "description": "A seasoned ship captain who travels between cities.",
+      "position": { "x": 32390, "y": 32260, "z": 7 },
+      "lookType": 129,
+      "lookHead": 19,
+      "lookBody": 69,
+      "lookLegs": 95,
+      "lookFeet": 114,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 3000,
+      "walkRadius": 3,
+      "speechBubble": "normal",
+      "floorChange": false,
+      "services": ["travel"],
+      "greetings": [
+        "Ahoy! Looking to sail the seas?",
+        "Welcome aboard, traveler!"
+      ],
+      "farewells": [
+        "Fair winds to ye!",
+        "Safe travels, landlubber!"
+      ],
+      "destinations": [
+        { "name": "Thais", "price": 100, "position": { "x": 32310, "y": 32210, "z": 7 } },
+        { "name": "Carlin", "price": 130, "position": { "x": 32360, "y": 31782, "z": 7 } },
+        { "name": "Ab'Dendriel", "price": 90, "position": { "x": 32659, "y": 31691, "z": 7 } },
+        { "name": "Venore", "price": 110, "position": { "x": 32954, "y": 32023, "z": 7 } }
+      ],
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I'm Captain Bluebear, finest sailor of the seven seas!"
+          },
+          "job": {
+            "response": "I sail between the major cities. Need passage somewhere?"
+          },
+          "passage": {
+            "response": "Where would you like to go? I sail to Thais, Carlin, Ab'Dendriel, and Venore.",
+            "action": "listDestinations"
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "Bank Clerk",
+      "title": "Banker",
+      "description": "The local bank clerk.",
+      "position": { "x": 32375, "y": 32250, "z": 7 },
+      "lookType": 132,
+      "lookHead": 114,
+      "lookBody": 95,
+      "lookLegs": 95,
+      "lookFeet": 95,
+      "health": 100,
+      "maxHealth": 100,
+      "walkInterval": 0,
+      "walkRadius": 0,
+      "speechBubble": "normal",
+      "floorChange": false,
+      "services": ["bank"],
+      "greetings": [
+        "Welcome to the bank. How may I assist you?",
+        "Hello! What banking services do you need?"
+      ],
+      "farewells": [
+        "Thank you for using our services.",
+        "Good day!"
+      ],
+      "dialog": {
+        "keywords": {
+          "name": {
+            "response": "I am a clerk of the Shadow Bank."
+          },
+          "job": {
+            "response": "I manage deposits and withdrawals from your bank account."
+          },
+          "balance": {
+            "response": "Your current balance is {balance} gold.",
+            "action": "checkBalance"
+          },
+          "deposit": {
+            "response": "How much would you like to deposit?",
+            "action": "deposit"
+          },
+          "withdraw": {
+            "response": "How much would you like to withdraw?",
+            "action": "withdraw"
+          },
+          "transfer": {
+            "response": "To whom would you like to transfer money?",
+            "action": "transfer"
+          }
+        }
+      }
+    }
+  ]
+}

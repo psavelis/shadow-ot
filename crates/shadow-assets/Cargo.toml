@@ -1,0 +1,47 @@
+[package]
+name = "shadow-assets"
+version.workspace = true
+edition.workspace = true
+description = "Asset loading and parsing for Shadow OT (SPR, DAT, PNG, OTB)"
+
+[dependencies]
+# Async runtime
+tokio.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Image processing
+image.workspace = true
+png = "0.17"
+
+# Compression
+flate2.workspace = true
+lzma-rs.workspace = true
+
+# Error handling
+thiserror.workspace = true
+anyhow.workspace = true
+
+# Logging
+tracing.workspace = true
+
+# Binary parsing
+byteorder.workspace = true
+
+# Hashing
+sha2 = "0.10"
+hex = "0.4"
+
+# Collections
+indexmap = "2"
+
+[dev-dependencies]
+mockall.workspace = true
+
+# Flags
+bitflags = "2.4"
+
+[dev-dependencies]
+tempfile = "3"

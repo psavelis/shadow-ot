@@ -1,0 +1,31 @@
+[realm]
+name = "Warbound"
+theme = "war"
+description = "Non-stop PvP action in a realm designed for combat"
+protocol_version = "12.70"
+max_players = 300
+
+[rates]
+experience = 10.0
+skill = 5.0
+loot = 3.0
+spawn = 2.0
+
+[pvp]
+enabled = true
+type = "hardcore"
+protection_level = 30
+skull_duration_hours = 12
+
+[features]
+cross_realm_trading = false
+seasonal_events = true
+custom_sprites = true
+instant_respawn = true
+no_loot_loss = true
+
+[branding]
+primary_color = "#8B0000"
+secondary_color = "#FF4500"
+logo = "assets/warbound-logo.png"
+tagline = "Only the Strong Survive"

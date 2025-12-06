@@ -1,0 +1,32 @@
+//! Shadow OT Protocol Implementation
+//!
+//! Complete implementation of the Tibia protocol supporting multiple versions
+//! from 8.6 to 12.x+. Handles packet encoding/decoding, encryption, and
+//! network communication.
+
+pub mod codec;
+pub mod crypto;
+pub mod error;
+pub mod login;
+pub mod game;
+pub mod packets;
+pub mod network;
+pub mod version;
+
+pub use error::{ProtocolError, Result};
+pub use version::ProtocolVersion;
+pub use network::{LoginServer, GameServer};
+
+/// Default RSA key modulus for OT servers
+pub const RSA_MODULUS: &str = "109120132967399429278860960508995541528237502902798129123468757937266291492576446330739696001110603907230888610072655818825358503429057592827629436413108566029093628212635953836686562675849720620786279431090218017681061521755056710823876476444260558147179707119674283982419152118103759076030616683978566631413";
+pub const RSA_EXPONENT: &str = "65537";
+pub const RSA_PRIVATE_EXPONENT: &str = "46730330223584118622160180015036832148732986808519344675210555262940258739805766860224610646919605860206328024326703361630109888417839241959507572247284807035235569619173792292786907845791904955103601652822519121908367187885509270025388641700821735345222087940578381210879116823013776808975766851829020659073";
+
+/// XTEA key size in u32 words
+pub const XTEA_KEY_SIZE: usize = 4;
+
+/// Maximum packet size
+pub const MAX_PACKET_SIZE: usize = 65535;
+
+/// Protocol header size
+pub const HEADER_SIZE: usize = 2;

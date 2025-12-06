@@ -1,0 +1,696 @@
+{
+  "version": "1.0.0",
+  "monsters": [
+    {
+      "id": 1,
+      "name": "Rat",
+      "description": "A large, disease-ridden rat.",
+      "race": "blood",
+      "experience": 5,
+      "speed": 80,
+      "outfit": {
+        "lookType": 21,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 20,
+        "max": 20
+      },
+      "corpse": 5967,
+      "targetDistance": 1,
+      "runAwayHealth": 5,
+      "pushable": true,
+      "pushCreatures": false,
+      "staticAttack": 95,
+      "targetChange": {
+        "interval": 4000,
+        "chance": 10
+      },
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 8
+        }
+      ],
+      "defenses": {
+        "armor": 1,
+        "defense": 2
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 100,
+        "earth": 80,
+        "energy": 100,
+        "ice": 100,
+        "holy": 100,
+        "death": 105
+      },
+      "immunities": [],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 4, "name": "gold coin" },
+        { "itemId": 3578, "chance": 25000, "count": 1, "name": "cheese" }
+      ],
+      "flags": {
+        "canPushItems": false,
+        "canPushCreatures": false,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": true,
+        "summonable": true,
+        "summonCost": 250
+      }
+    },
+    {
+      "id": 2,
+      "name": "Cave Rat",
+      "description": "A cave rat dwelling in dark tunnels.",
+      "race": "blood",
+      "experience": 10,
+      "speed": 85,
+      "outfit": {
+        "lookType": 56,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 30,
+        "max": 30
+      },
+      "corpse": 5970,
+      "targetDistance": 1,
+      "runAwayHealth": 8,
+      "pushable": true,
+      "pushCreatures": false,
+      "staticAttack": 90,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 12
+        }
+      ],
+      "defenses": {
+        "armor": 2,
+        "defense": 3
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 100,
+        "earth": 80,
+        "energy": 100,
+        "ice": 100,
+        "holy": 100,
+        "death": 105
+      },
+      "immunities": [],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 6, "name": "gold coin" },
+        { "itemId": 3578, "chance": 30000, "count": 1, "name": "cheese" },
+        { "itemId": 3267, "chance": 5000, "count": 1, "name": "dagger" }
+      ],
+      "flags": {
+        "canPushItems": false,
+        "canPushCreatures": false,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": true,
+        "summonable": true,
+        "summonCost": 300
+      }
+    },
+    {
+      "id": 3,
+      "name": "Troll",
+      "description": "A brutish troll wielding a crude club.",
+      "race": "blood",
+      "experience": 20,
+      "speed": 110,
+      "outfit": {
+        "lookType": 15,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 50,
+        "max": 50
+      },
+      "corpse": 5982,
+      "targetDistance": 1,
+      "runAwayHealth": 10,
+      "pushable": false,
+      "pushCreatures": false,
+      "staticAttack": 85,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 25
+        },
+        {
+          "type": "distance",
+          "subType": "spear",
+          "interval": 2000,
+          "chance": 20,
+          "range": 5,
+          "minDamage": 0,
+          "maxDamage": 25
+        }
+      ],
+      "defenses": {
+        "armor": 4,
+        "defense": 9
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 105,
+        "earth": 80,
+        "energy": 100,
+        "ice": 100,
+        "holy": 100,
+        "death": 100
+      },
+      "immunities": [],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 12, "name": "gold coin" },
+        { "itemId": 3003, "chance": 5000, "count": 1, "name": "rope" },
+        { "itemId": 3277, "chance": 15000, "count": 1, "name": "spear" },
+        { "itemId": 3268, "chance": 12000, "count": 1, "name": "hand axe" },
+        { "itemId": 3412, "chance": 8000, "count": 1, "name": "wooden shield" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": false,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": true,
+        "summonable": true,
+        "summonCost": 350
+      }
+    },
+    {
+      "id": 4,
+      "name": "Skeleton",
+      "description": "An animated skeleton of a fallen warrior.",
+      "race": "undead",
+      "experience": 35,
+      "speed": 93,
+      "outfit": {
+        "lookType": 33,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 50,
+        "max": 50
+      },
+      "corpse": 5977,
+      "targetDistance": 1,
+      "runAwayHealth": 0,
+      "pushable": false,
+      "pushCreatures": false,
+      "staticAttack": 90,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 30
+        }
+      ],
+      "defenses": {
+        "armor": 4,
+        "defense": 8
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 100,
+        "earth": 100,
+        "energy": 100,
+        "ice": 100,
+        "holy": 130,
+        "death": 0
+      },
+      "immunities": ["death", "drunk"],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 10, "name": "gold coin" },
+        { "itemId": 3264, "chance": 10000, "count": 1, "name": "sword" },
+        { "itemId": 3411, "chance": 20000, "count": 1, "name": "brass shield" },
+        { "itemId": 3374, "chance": 8000, "count": 1, "name": "viking helmet" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": false,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": false,
+        "summonable": false
+      }
+    },
+    {
+      "id": 5,
+      "name": "Rotworm",
+      "description": "A giant carnivorous worm.",
+      "race": "blood",
+      "experience": 40,
+      "speed": 72,
+      "outfit": {
+        "lookType": 26,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 65,
+        "max": 65
+      },
+      "corpse": 5967,
+      "targetDistance": 1,
+      "runAwayHealth": 0,
+      "pushable": false,
+      "pushCreatures": false,
+      "staticAttack": 90,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 40
+        }
+      ],
+      "defenses": {
+        "armor": 8,
+        "defense": 8
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 110,
+        "earth": 0,
+        "energy": 100,
+        "ice": 100,
+        "holy": 100,
+        "death": 100
+      },
+      "immunities": ["earth"],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 17, "name": "gold coin" },
+        { "itemId": 3492, "chance": 30000, "count": 1, "name": "worm" },
+        { "itemId": 3294, "chance": 5000, "count": 1, "name": "short sword" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": true,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": false,
+        "summonable": false
+      }
+    },
+    {
+      "id": 6,
+      "name": "Orc",
+      "description": "A savage orc warrior.",
+      "race": "blood",
+      "experience": 25,
+      "speed": 100,
+      "outfit": {
+        "lookType": 5,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 70,
+        "max": 70
+      },
+      "corpse": 5975,
+      "targetDistance": 1,
+      "runAwayHealth": 15,
+      "pushable": false,
+      "pushCreatures": false,
+      "staticAttack": 90,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 25
+        }
+      ],
+      "defenses": {
+        "armor": 5,
+        "defense": 10
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 100,
+        "earth": 80,
+        "energy": 105,
+        "ice": 100,
+        "holy": 110,
+        "death": 95
+      },
+      "immunities": [],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 14, "name": "gold coin" },
+        { "itemId": 3277, "chance": 10000, "count": 1, "name": "spear" },
+        { "itemId": 3412, "chance": 8000, "count": 1, "name": "wooden shield" },
+        { "itemId": 3356, "chance": 12000, "count": 1, "name": "leather armor" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": false,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": true,
+        "summonable": true,
+        "summonCost": 400
+      }
+    },
+    {
+      "id": 7,
+      "name": "Cyclops",
+      "description": "A one-eyed giant with tremendous strength.",
+      "race": "blood",
+      "experience": 150,
+      "speed": 115,
+      "outfit": {
+        "lookType": 22,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 260,
+        "max": 260
+      },
+      "corpse": 5968,
+      "targetDistance": 1,
+      "runAwayHealth": 0,
+      "pushable": false,
+      "pushCreatures": true,
+      "staticAttack": 90,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 105
+        }
+      ],
+      "defenses": {
+        "armor": 22,
+        "defense": 25
+      },
+      "elements": {
+        "physical": 95,
+        "fire": 100,
+        "earth": 110,
+        "energy": 85,
+        "ice": 100,
+        "holy": 100,
+        "death": 95
+      },
+      "immunities": [],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 50, "name": "gold coin" },
+        { "itemId": 3286, "chance": 10000, "count": 1, "name": "battle hammer" },
+        { "itemId": 3358, "chance": 5000, "count": 1, "name": "chain armor" },
+        { "itemId": 3271, "chance": 8000, "count": 1, "name": "pike" },
+        { "itemId": 3405, "chance": 1500, "count": 1, "name": "plate shield" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": true,
+        "hostile": true,
+        "illusionable": false,
+        "convinceable": false,
+        "summonable": false
+      }
+    },
+    {
+      "id": 8,
+      "name": "Dragon",
+      "description": "A mighty fire-breathing dragon.",
+      "race": "blood",
+      "experience": 700,
+      "speed": 190,
+      "outfit": {
+        "lookType": 34,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 1000,
+        "max": 1000
+      },
+      "corpse": 5973,
+      "targetDistance": 1,
+      "runAwayHealth": 300,
+      "pushable": false,
+      "pushCreatures": true,
+      "staticAttack": 70,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 120
+        },
+        {
+          "type": "area",
+          "subType": "fireWave",
+          "interval": 2000,
+          "chance": 15,
+          "minDamage": 130,
+          "maxDamage": 250,
+          "element": "fire"
+        },
+        {
+          "type": "distance",
+          "subType": "fireball",
+          "interval": 2000,
+          "chance": 15,
+          "range": 7,
+          "minDamage": 75,
+          "maxDamage": 150,
+          "element": "fire"
+        }
+      ],
+      "defenses": {
+        "armor": 35,
+        "defense": 30
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 0,
+        "earth": 80,
+        "energy": 80,
+        "ice": 110,
+        "holy": 100,
+        "death": 100
+      },
+      "immunities": ["fire", "paralysis"],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 100, "name": "gold coin" },
+        { "itemId": 3028, "chance": 3000, "count": 1, "name": "small diamond" },
+        { "itemId": 3052, "chance": 10000, "count": 1, "name": "life ring" },
+        { "itemId": 3051, "chance": 3000, "count": 1, "name": "energy ring" },
+        { "itemId": 3061, "chance": 8000, "count": 1, "name": "magic wand" },
+        { "itemId": 5882, "chance": 1000, "count": 1, "name": "dragon scale mail" },
+        { "itemId": 3581, "chance": 50000, "count": 1, "name": "dragon ham" },
+        { "itemId": 11444, "chance": 5000, "count": 1, "name": "dragonbone staff" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": true,
+        "hostile": true,
+        "illusionable": false,
+        "convinceable": false,
+        "summonable": false
+      }
+    },
+    {
+      "id": 9,
+      "name": "Demon",
+      "description": "A terrifying demon from the depths of hell.",
+      "race": "fire",
+      "experience": 6000,
+      "speed": 280,
+      "outfit": {
+        "lookType": 35,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 8200,
+        "max": 8200
+      },
+      "corpse": 5995,
+      "targetDistance": 1,
+      "runAwayHealth": 0,
+      "pushable": false,
+      "pushCreatures": true,
+      "staticAttack": 70,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 500
+        },
+        {
+          "type": "distance",
+          "subType": "fireball",
+          "interval": 2000,
+          "chance": 20,
+          "range": 7,
+          "minDamage": 150,
+          "maxDamage": 250,
+          "element": "fire"
+        },
+        {
+          "type": "area",
+          "subType": "fireWave",
+          "interval": 2000,
+          "chance": 15,
+          "minDamage": 200,
+          "maxDamage": 350,
+          "element": "fire"
+        },
+        {
+          "type": "distance",
+          "subType": "energyBeam",
+          "interval": 2000,
+          "chance": 15,
+          "range": 5,
+          "minDamage": 210,
+          "maxDamage": 300,
+          "element": "energy"
+        }
+      ],
+      "defenses": {
+        "armor": 55,
+        "defense": 45
+      },
+      "elements": {
+        "physical": 75,
+        "fire": 0,
+        "earth": 50,
+        "energy": 50,
+        "ice": 110,
+        "holy": 115,
+        "death": 20
+      },
+      "immunities": ["fire", "paralysis", "drunk", "invisible"],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 200, "name": "gold coin" },
+        { "itemId": 3027, "chance": 10000, "count": 3, "name": "small ruby" },
+        { "itemId": 3028, "chance": 10000, "count": 3, "name": "small diamond" },
+        { "itemId": 3029, "chance": 10000, "count": 3, "name": "small sapphire" },
+        { "itemId": 3030, "chance": 10000, "count": 3, "name": "small emerald" },
+        { "itemId": 3369, "chance": 3000, "count": 1, "name": "golden armor" },
+        { "itemId": 3392, "chance": 5000, "count": 1, "name": "fire axe" },
+        { "itemId": 3420, "chance": 5000, "count": 1, "name": "demon shield" },
+        { "itemId": 5954, "chance": 1000, "count": 1, "name": "demon horn" },
+        { "itemId": 3415, "chance": 2000, "count": 1, "name": "guardian shield" },
+        { "itemId": 5944, "chance": 500, "count": 1, "name": "soul orb" }
+      ],
+      "flags": {
+        "canPushItems": true,
+        "canPushCreatures": true,
+        "hostile": true,
+        "illusionable": false,
+        "convinceable": false,
+        "summonable": false
+      }
+    },
+    {
+      "id": 10,
+      "name": "Spider",
+      "description": "A giant venomous spider.",
+      "race": "blood",
+      "experience": 12,
+      "speed": 78,
+      "outfit": {
+        "lookType": 30,
+        "lookHead": 0,
+        "lookBody": 0,
+        "lookLegs": 0,
+        "lookFeet": 0,
+        "lookAddons": 0
+      },
+      "health": {
+        "current": 26,
+        "max": 26
+      },
+      "corpse": 5975,
+      "targetDistance": 1,
+      "runAwayHealth": 0,
+      "pushable": true,
+      "pushCreatures": false,
+      "staticAttack": 90,
+      "attacks": [
+        {
+          "type": "melee",
+          "minDamage": 0,
+          "maxDamage": 20
+        },
+        {
+          "type": "condition",
+          "subType": "poison",
+          "interval": 3000,
+          "chance": 15,
+          "startDamage": 2,
+          "tick": 2000
+        }
+      ],
+      "defenses": {
+        "armor": 2,
+        "defense": 4
+      },
+      "elements": {
+        "physical": 100,
+        "fire": 110,
+        "earth": 0,
+        "energy": 100,
+        "ice": 110,
+        "holy": 100,
+        "death": 100
+      },
+      "immunities": ["earth"],
+      "loot": [
+        { "itemId": 3031, "chance": 100000, "count": 5, "name": "gold coin" },
+        { "itemId": 3026, "chance": 5000, "count": 1, "name": "small amethyst" }
+      ],
+      "flags": {
+        "canPushItems": false,
+        "canPushCreatures": false,
+        "hostile": true,
+        "illusionable": true,
+        "convinceable": true,
+        "summonable": true,
+        "summonCost": 290
+      }
+    }
+  ]
+}

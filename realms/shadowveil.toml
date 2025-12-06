@@ -1,0 +1,29 @@
+[realm]
+name = "Shadowveil"
+theme = "dark"
+description = "A realm shrouded in eternal darkness, where only the brave survive"
+protocol_version = "12.70"
+max_players = 500
+
+[rates]
+experience = 5.0
+skill = 3.0
+loot = 2.0
+spawn = 1.5
+
+[pvp]
+enabled = true
+type = "open"
+protection_level = 50
+skull_duration_hours = 24
+
+[features]
+cross_realm_trading = true
+seasonal_events = true
+custom_sprites = true
+
+[branding]
+primary_color = "#1a1a2e"
+secondary_color = "#e94560"
+logo = "assets/shadowveil-logo.png"
+tagline = "Embrace the Darkness"

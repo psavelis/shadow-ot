@@ -1,0 +1,261 @@
+# Shadow OT Server Configuration
+# Version: 1.0.0
+
+[server]
+name = "Shadow OT"
+description = "Next-generation Open Tibia server"
+motd = "Welcome to Shadow OT! Enjoy your adventure."
+owner = "Shadow OT Team"
+website = "https://shadow-ot.com"
+location = "Cloud"
+
+# Server status
+status_port = 7171
+login_port = 7171
+game_port = 7172
+admin_port = 7173
+
+# Limits
+max_players_per_account = 5
+max_characters_per_account = 10
+max_players_online = 1000
+
+# Client version support
+client_version_min = 1200
+client_version_max = 1320
+
+[database]
+host = "localhost"
+port = 5432
+name = "shadow_ot"
+user = "shadow"
+password = "${DB_PASSWORD}"
+pool_size = 20
+connection_timeout = 30
+
+[redis]
+host = "localhost"
+port = 6379
+password = "${REDIS_PASSWORD}"
+db = 0
+pool_size = 10
+
+[security]
+# RSA keys for client encryption
+rsa_key_bits = 1024
+rsa_private_key = "config/rsa_private.pem"
+rsa_public_key = "config/rsa_public.pem"
+
+# JWT settings
+jwt_secret = "${JWT_SECRET}"
+jwt_access_expiry = 3600
+jwt_refresh_expiry = 604800
+
+# Rate limiting
+rate_limit_requests = 100
+rate_limit_window = 60
+
+# Anti-cheat
+anticheat_enabled = true
+anticheat_kick_threshold = 5
+anticheat_ban_threshold = 10
+
+[gameplay]
+# Experience rates
+exp_rate = 1.0
+exp_rate_skill = 1.0
+exp_rate_magic = 1.0
+
+# Loot rates
+loot_rate = 1.0
+loot_rare_rate = 1.0
+
+# Combat settings
+combat_pvp_enabled = true
+combat_pvp_skulls = true
+combat_protection_level = 50
+combat_kill_points = true
+
+# Death penalty
+death_lose_exp = true
+death_exp_rate = 0.10
+death_lose_skills = true
+death_skills_rate = 0.10
+death_lose_items = true
+death_bless_reduction = 0.30
+
+# Regeneration
+regen_health = 1.0
+regen_mana = 1.0
+regen_soul = 1.0
+
+# Monster spawns
+spawn_rate = 1.0
+spawn_max_creatures = 10000
+
+# House settings
+house_rent_period = "monthly"
+house_rent_rate = 1.0
+house_kick_delay = 7
+
+# Market
+market_enabled = true
+market_fee_percent = 2
+market_offer_duration = 30
+
+# Party
+party_share_exp = true
+party_share_exp_radius = 30
+party_level_difference = 66.67
+
+[realms]
+default_realm = 1
+
+[[realms.list]]
+id = 1
+name = "Shadowveil"
+type = "dark"
+description = "A realm of shadows and mystery"
+max_players = 300
+pvp_type = "open"
+exp_rate = 1.0
+loot_rate = 1.0
+
+[[realms.list]]
+id = 2
+name = "Aetheria"
+type = "mythic"
+description = "A realm of ancient myths and legends"
+max_players = 300
+pvp_type = "optional"
+exp_rate = 1.5
+loot_rate = 1.2
+
+[[realms.list]]
+id = 3
+name = "Warbound"
+type = "pvp"
+description = "A realm of constant warfare"
+max_players = 200
+pvp_type = "hardcore"
+exp_rate = 2.0
+loot_rate = 1.5
+
+[[realms.list]]
+id = 4
+name = "Eternal Legacy"
+type = "classic"
+description = "Experience the classic adventure"
+max_players = 300
+pvp_type = "open"
+exp_rate = 1.0
+loot_rate = 1.0
+
+[vocation]
+[[vocation.list]]
+id = 0
+name = "None"
+description = "No vocation"
+hp_gain = 5
+mana_gain = 5
+cap_gain = 10
+hp_regen = 1.0
+mana_regen = 1.0
+melee_damage = 1.0
+magic_damage = 1.0
+distance_damage = 1.0
+armor = 1.0
+
+[[vocation.list]]
+id = 1
+name = "Sorcerer"
+description = "Master of destructive magic"
+hp_gain = 5
+mana_gain = 30
+cap_gain = 10
+hp_regen = 1.0
+mana_regen = 3.0
+melee_damage = 0.5
+magic_damage = 1.5
+distance_damage = 0.5
+armor = 0.8
+
+[[vocation.list]]
+id = 2
+name = "Druid"
+description = "Healer and nature mage"
+hp_gain = 5
+mana_gain = 30
+cap_gain = 10
+hp_regen = 1.0
+mana_regen = 3.0
+melee_damage = 0.5
+magic_damage = 1.4
+distance_damage = 0.5
+armor = 0.8
+
+[[vocation.list]]
+id = 3
+name = "Paladin"
+description = "Holy warrior with ranged skills"
+hp_gain = 10
+mana_gain = 15
+cap_gain = 20
+hp_regen = 1.5
+mana_regen = 1.5
+melee_damage = 0.9
+magic_damage = 0.8
+distance_damage = 1.4
+armor = 1.1
+
+[[vocation.list]]
+id = 4
+name = "Knight"
+description = "Master of melee combat"
+hp_gain = 15
+mana_gain = 5
+cap_gain = 25
+hp_regen = 2.0
+mana_regen = 1.0
+melee_damage = 1.4
+magic_damage = 0.4
+distance_damage = 0.6
+armor = 1.3
+
+[logging]
+level = "info"
+file = "logs/server.log"
+max_size = 100
+max_files = 10
+format = "json"
+
+[monitoring]
+metrics_enabled = true
+metrics_port = 9090
+tracing_enabled = true
+tracing_endpoint = "http://localhost:4317"
+
+[api]
+enabled = true
+port = 8080
+cors_origins = ["http://localhost:3000", "https://shadow-ot.com"]
+rate_limit = 1000
+
+[blockchain]
+enabled = true
+networks = ["starknet", "ethereum", "polygon"]
+
+[blockchain.starknet]
+rpc_url = "${STARKNET_RPC_URL}"
+contract_address = "${STARKNET_CONTRACT}"
+private_key = "${STARKNET_PRIVATE_KEY}"
+
+[blockchain.ethereum]
+rpc_url = "${ETHEREUM_RPC_URL}"
+contract_address = "${ETHEREUM_CONTRACT}"
+private_key = "${ETHEREUM_PRIVATE_KEY}"
+
+[blockchain.polygon]
+rpc_url = "${POLYGON_RPC_URL}"
+contract_address = "${POLYGON_CONTRACT}"
+private_key = "${POLYGON_PRIVATE_KEY}"

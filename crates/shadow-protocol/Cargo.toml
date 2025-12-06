@@ -1,0 +1,34 @@
+[package]
+name = "shadow-protocol"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Tibia protocol implementation for Shadow OT - handles packet encoding/decoding and network communication"
+
+[dependencies]
+tokio.workspace = true
+tokio-util.workspace = true
+bytes.workspace = true
+futures.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+# Crypto for XTEA and RSA
+aes = "0.8"
+rsa = { version = "0.9", features = ["sha2"] }
+sha2.workspace = true
+rand.workspace = true
+
+# Compression
+flate2.workspace = true
+
+[dev-dependencies]
+mockall.workspace = true
+tokio-test = "0.4"

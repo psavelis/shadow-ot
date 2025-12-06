@@ -1,0 +1,567 @@
+{
+  "version": "1.0.0",
+  "spells": [
+    {
+      "id": 1,
+      "name": "Light Healing",
+      "words": "exura",
+      "group": "healing",
+      "type": "instant",
+      "cooldown": 1000,
+      "groupCooldown": 1000,
+      "mana": 20,
+      "level": 8,
+      "premium": false,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "heal",
+        "formula": {
+          "base": 10,
+          "levelMultiplier": 0.5,
+          "magicMultiplier": 1.0,
+          "min": 20,
+          "max": 40
+        }
+      },
+      "description": "Heals a small amount of health."
+    },
+    {
+      "id": 2,
+      "name": "Intense Healing",
+      "words": "exura gran",
+      "group": "healing",
+      "type": "instant",
+      "cooldown": 1000,
+      "groupCooldown": 1000,
+      "mana": 70,
+      "level": 20,
+      "premium": false,
+      "vocations": ["druid", "sorcerer", "paladin"],
+      "aggressive": false,
+      "effect": {
+        "type": "heal",
+        "formula": {
+          "base": 40,
+          "levelMultiplier": 1.0,
+          "magicMultiplier": 3.0,
+          "min": 95,
+          "max": 150
+        }
+      },
+      "description": "Heals a moderate amount of health."
+    },
+    {
+      "id": 3,
+      "name": "Ultimate Healing",
+      "words": "exura vita",
+      "group": "healing",
+      "type": "instant",
+      "cooldown": 1000,
+      "groupCooldown": 1000,
+      "mana": 160,
+      "level": 30,
+      "premium": false,
+      "vocations": ["druid", "sorcerer"],
+      "aggressive": false,
+      "effect": {
+        "type": "heal",
+        "formula": {
+          "base": 100,
+          "levelMultiplier": 1.5,
+          "magicMultiplier": 5.0,
+          "min": 250,
+          "max": 400
+        }
+      },
+      "description": "Heals a large amount of health."
+    },
+    {
+      "id": 4,
+      "name": "Heal Friend",
+      "words": "exura sio",
+      "group": "healing",
+      "type": "instant",
+      "cooldown": 1000,
+      "groupCooldown": 1000,
+      "mana": 140,
+      "level": 18,
+      "premium": true,
+      "vocations": ["druid"],
+      "aggressive": false,
+      "needTarget": true,
+      "effect": {
+        "type": "heal",
+        "target": "other",
+        "formula": {
+          "base": 50,
+          "levelMultiplier": 1.2,
+          "magicMultiplier": 4.0,
+          "min": 150,
+          "max": 300
+        }
+      },
+      "description": "Heals another player."
+    },
+    {
+      "id": 10,
+      "name": "Fire Wave",
+      "words": "exevo flam hur",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 4000,
+      "groupCooldown": 2000,
+      "mana": 25,
+      "level": 18,
+      "premium": false,
+      "vocations": ["sorcerer"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "fire",
+        "area": "wave",
+        "direction": true,
+        "formula": {
+          "base": 0,
+          "levelMultiplier": 0.8,
+          "magicMultiplier": 2.5,
+          "min": 30,
+          "max": 60
+        }
+      },
+      "description": "Unleashes a wave of fire."
+    },
+    {
+      "id": 11,
+      "name": "Great Fireball",
+      "words": "adori gran flam",
+      "group": "attack",
+      "type": "rune",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 530,
+      "level": 30,
+      "runeLevel": 30,
+      "premium": false,
+      "vocations": ["sorcerer", "druid"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "fire",
+        "area": "circle",
+        "radius": 3,
+        "formula": {
+          "base": 50,
+          "levelMultiplier": 0.6,
+          "magicMultiplier": 2.0,
+          "min": 120,
+          "max": 200
+        }
+      },
+      "description": "Creates a powerful fireball rune."
+    },
+    {
+      "id": 12,
+      "name": "Sudden Death",
+      "words": "adori gran mort",
+      "group": "attack",
+      "type": "rune",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 985,
+      "level": 45,
+      "runeLevel": 45,
+      "premium": true,
+      "vocations": ["sorcerer"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "death",
+        "area": "single",
+        "formula": {
+          "base": 100,
+          "levelMultiplier": 1.0,
+          "magicMultiplier": 3.0,
+          "min": 200,
+          "max": 380
+        }
+      },
+      "description": "Creates a deadly death rune."
+    },
+    {
+      "id": 20,
+      "name": "Haste",
+      "words": "utani hur",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 60,
+      "level": 14,
+      "premium": true,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "speed",
+        "duration": 33000,
+        "formula": {
+          "base": 30,
+          "levelMultiplier": 1.0
+        }
+      },
+      "description": "Increases your movement speed."
+    },
+    {
+      "id": 21,
+      "name": "Strong Haste",
+      "words": "utani gran hur",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 100,
+      "level": 20,
+      "premium": true,
+      "vocations": ["druid", "sorcerer"],
+      "aggressive": false,
+      "effect": {
+        "type": "speed",
+        "duration": 22000,
+        "formula": {
+          "base": 70,
+          "levelMultiplier": 1.3
+        }
+      },
+      "description": "Greatly increases your movement speed."
+    },
+    {
+      "id": 22,
+      "name": "Invisible",
+      "words": "utana vid",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 440,
+      "level": 35,
+      "premium": false,
+      "vocations": ["druid", "sorcerer"],
+      "aggressive": false,
+      "effect": {
+        "type": "invisible",
+        "duration": 200000
+      },
+      "description": "Makes you invisible to most creatures."
+    },
+    {
+      "id": 30,
+      "name": "Light",
+      "words": "utevo lux",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 20,
+      "level": 8,
+      "premium": false,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "light",
+        "level": 6,
+        "color": 215,
+        "duration": 360000
+      },
+      "description": "Creates a magical light."
+    },
+    {
+      "id": 31,
+      "name": "Great Light",
+      "words": "utevo gran lux",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 60,
+      "level": 13,
+      "premium": false,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "light",
+        "level": 8,
+        "color": 215,
+        "duration": 660000
+      },
+      "description": "Creates a bright magical light."
+    },
+    {
+      "id": 32,
+      "name": "Ultimate Light",
+      "words": "utevo vis lux",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 140,
+      "level": 26,
+      "premium": true,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "light",
+        "level": 9,
+        "color": 215,
+        "duration": 1800000
+      },
+      "description": "Creates the brightest magical light."
+    },
+    {
+      "id": 40,
+      "name": "Magic Rope",
+      "words": "exani tera",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 20,
+      "level": 9,
+      "premium": true,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "teleport",
+        "direction": "up",
+        "checkRopeSpot": true
+      },
+      "description": "Allows you to climb rope spots."
+    },
+    {
+      "id": 41,
+      "name": "Levitate",
+      "words": "exani hur",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 50,
+      "level": 12,
+      "premium": true,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "effect": {
+        "type": "levitate",
+        "direction": "up"
+      },
+      "description": "Allows you to levitate up or down."
+    },
+    {
+      "id": 50,
+      "name": "Summon Creature",
+      "words": "utevo res",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 0,
+      "level": 25,
+      "premium": false,
+      "vocations": ["druid", "sorcerer"],
+      "aggressive": false,
+      "needParameter": true,
+      "effect": {
+        "type": "summon",
+        "maxSummons": 2
+      },
+      "description": "Summons a creature to fight for you."
+    },
+    {
+      "id": 60,
+      "name": "Find Person",
+      "words": "exiva",
+      "group": "support",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 20,
+      "level": 8,
+      "premium": false,
+      "vocations": ["druid", "sorcerer", "paladin", "knight"],
+      "aggressive": false,
+      "needParameter": true,
+      "effect": {
+        "type": "findPerson"
+      },
+      "description": "Tells you the direction of a player."
+    },
+    {
+      "id": 70,
+      "name": "Exori",
+      "words": "exori",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 20,
+      "level": 23,
+      "premium": false,
+      "vocations": ["knight"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "physical",
+        "area": "circle",
+        "radius": 1,
+        "formula": {
+          "base": 10,
+          "levelMultiplier": 0.5,
+          "skillMultiplier": 1.5,
+          "min": 30,
+          "max": 60
+        }
+      },
+      "description": "Physical attack hitting nearby enemies."
+    },
+    {
+      "id": 71,
+      "name": "Exori Gran",
+      "words": "exori gran",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 4000,
+      "groupCooldown": 2000,
+      "mana": 30,
+      "level": 28,
+      "premium": false,
+      "vocations": ["knight"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "physical",
+        "area": "circle",
+        "radius": 1,
+        "formula": {
+          "base": 20,
+          "levelMultiplier": 0.6,
+          "skillMultiplier": 2.0,
+          "min": 50,
+          "max": 100
+        }
+      },
+      "description": "Powerful physical attack hitting nearby enemies."
+    },
+    {
+      "id": 72,
+      "name": "Berserk",
+      "words": "exori mas",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 4000,
+      "groupCooldown": 2000,
+      "mana": 115,
+      "level": 35,
+      "premium": true,
+      "vocations": ["knight"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "physical",
+        "area": "circle",
+        "radius": 2,
+        "formula": {
+          "base": 30,
+          "levelMultiplier": 0.7,
+          "skillMultiplier": 2.5,
+          "min": 80,
+          "max": 150
+        }
+      },
+      "description": "Devastating physical attack hitting all nearby enemies."
+    },
+    {
+      "id": 80,
+      "name": "Ethereal Spear",
+      "words": "exori con",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 2000,
+      "groupCooldown": 2000,
+      "mana": 25,
+      "level": 23,
+      "premium": true,
+      "vocations": ["paladin"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "physical",
+        "area": "single",
+        "range": 5,
+        "needTarget": true,
+        "formula": {
+          "base": 15,
+          "levelMultiplier": 0.4,
+          "skillMultiplier": 1.8,
+          "min": 40,
+          "max": 80
+        }
+      },
+      "description": "Throws a magical spear at the target."
+    },
+    {
+      "id": 90,
+      "name": "Energy Beam",
+      "words": "exevo vis lux",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 4000,
+      "groupCooldown": 2000,
+      "mana": 40,
+      "level": 23,
+      "premium": false,
+      "vocations": ["sorcerer"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "energy",
+        "area": "beam",
+        "length": 8,
+        "formula": {
+          "base": 30,
+          "levelMultiplier": 0.6,
+          "magicMultiplier": 2.0,
+          "min": 60,
+          "max": 110
+        }
+      },
+      "description": "Shoots a beam of pure energy."
+    },
+    {
+      "id": 91,
+      "name": "Great Energy Beam",
+      "words": "exevo gran vis lux",
+      "group": "attack",
+      "type": "instant",
+      "cooldown": 6000,
+      "groupCooldown": 2000,
+      "mana": 110,
+      "level": 29,
+      "premium": false,
+      "vocations": ["sorcerer"],
+      "aggressive": true,
+      "effect": {
+        "type": "damage",
+        "element": "energy",
+        "area": "beam",
+        "length": 8,
+        "formula": {
+          "base": 60,
+          "levelMultiplier": 0.8,
+          "magicMultiplier": 3.0,
+          "min": 120,
+          "max": 200
+        }
+      },
+      "description": "Shoots a powerful beam of energy."
+    }
+  ]
+}

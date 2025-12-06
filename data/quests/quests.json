@@ -1,0 +1,367 @@
+{
+  "version": "1.0.0",
+  "quests": [
+    {
+      "id": 1,
+      "name": "The Rookie Guard",
+      "description": "Help the Thais guards clear out the rat infestation in the sewers.",
+      "startNpc": "Guard Captain Marcus",
+      "minLevel": 1,
+      "maxLevel": 20,
+      "premium": false,
+      "repeatable": false,
+      "missions": [
+        {
+          "id": 1,
+          "name": "Exterminate the Rats",
+          "description": "Kill 10 rats in the Thais sewers.",
+          "type": "kill",
+          "target": "Rat",
+          "count": 10,
+          "rewards": [
+            { "type": "experience", "amount": 100 },
+            { "type": "gold", "amount": 50 }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Deeper Problems",
+          "description": "Investigate the cave rat nest and kill 5 cave rats.",
+          "type": "kill",
+          "target": "Cave Rat",
+          "count": 5,
+          "rewards": [
+            { "type": "experience", "amount": 200 },
+            { "type": "item", "itemId": 3264, "count": 1, "name": "sword" }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Report Back",
+          "description": "Report your success to Guard Captain Marcus.",
+          "type": "speak",
+          "npc": "Guard Captain Marcus",
+          "keyword": "mission",
+          "rewards": [
+            { "type": "experience", "amount": 150 },
+            { "type": "gold", "amount": 100 }
+          ]
+        }
+      ],
+      "finalReward": {
+        "experience": 500,
+        "items": [
+          { "itemId": 3412, "count": 1, "name": "wooden shield" }
+        ],
+        "title": "Rat Slayer"
+      }
+    },
+    {
+      "id": 2,
+      "name": "The Troll Champion",
+      "description": "A group of trolls has been attacking travelers. Put an end to their threat.",
+      "startNpc": "Merchant Bill",
+      "minLevel": 8,
+      "maxLevel": 50,
+      "premium": false,
+      "repeatable": false,
+      "missions": [
+        {
+          "id": 1,
+          "name": "Troll Hunting",
+          "description": "Kill 15 trolls in the troll camp.",
+          "type": "kill",
+          "target": "Troll",
+          "count": 15,
+          "rewards": [
+            { "type": "experience", "amount": 500 },
+            { "type": "gold", "amount": 200 }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "The Troll Chief",
+          "description": "Defeat the troll chief and retrieve his necklace.",
+          "type": "collect",
+          "itemId": 9999,
+          "itemName": "Troll Chief's Necklace",
+          "count": 1,
+          "rewards": [
+            { "type": "experience", "amount": 1000 }
+          ]
+        }
+      ],
+      "finalReward": {
+        "experience": 1500,
+        "gold": 500,
+        "items": [
+          { "itemId": 3277, "count": 10, "name": "spear" }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "name": "The Undead Menace",
+      "description": "Investigate reports of undead activity in the ancient cemetery.",
+      "startNpc": "Priest Abraham",
+      "minLevel": 15,
+      "maxLevel": 100,
+      "premium": false,
+      "repeatable": false,
+      "missions": [
+        {
+          "id": 1,
+          "name": "Cleanse the Cemetery",
+          "description": "Destroy 20 skeletons in the ancient cemetery.",
+          "type": "kill",
+          "target": "Skeleton",
+          "count": 20,
+          "rewards": [
+            { "type": "experience", "amount": 1200 },
+            { "type": "gold", "amount": 300 }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "The Necromancer's Lair",
+          "description": "Find and enter the hidden necromancer's lair beneath the cemetery.",
+          "type": "explore",
+          "location": { "x": 32400, "y": 32300, "z": 10 },
+          "radius": 5,
+          "rewards": [
+            { "type": "experience", "amount": 800 }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Defeat the Necromancer",
+          "description": "Defeat Necromancer Mortem and destroy his phylactery.",
+          "type": "kill",
+          "target": "Necromancer Mortem",
+          "count": 1,
+          "bossKill": true,
+          "rewards": [
+            { "type": "experience", "amount": 3000 }
+          ]
+        }
+      ],
+      "finalReward": {
+        "experience": 5000,
+        "gold": 2000,
+        "items": [
+          { "itemId": 3411, "count": 1, "name": "brass shield" },
+          { "itemId": 3374, "count": 1, "name": "viking helmet" }
+        ],
+        "title": "Undead Slayer"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Dragon Slayer",
+      "description": "The ultimate challenge for brave adventurers. Slay the great dragon of Shadowveil.",
+      "startNpc": "King Tibianus",
+      "minLevel": 50,
+      "maxLevel": 0,
+      "premium": true,
+      "repeatable": true,
+      "repeatCooldown": 604800,
+      "missions": [
+        {
+          "id": 1,
+          "name": "Gathering Intel",
+          "description": "Speak with the dragon researcher in the academy.",
+          "type": "speak",
+          "npc": "Dragon Researcher",
+          "keyword": "dragon lair",
+          "rewards": [
+            { "type": "experience", "amount": 5000 }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "The Dragon's Hoard",
+          "description": "Navigate through the dragon's lair and reach its hoard.",
+          "type": "explore",
+          "location": { "x": 32500, "y": 32400, "z": 12 },
+          "radius": 10,
+          "rewards": [
+            { "type": "experience", "amount": 10000 }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Slay the Dragon",
+          "description": "Defeat the mighty dragon Shadowscale.",
+          "type": "kill",
+          "target": "Shadowscale",
+          "count": 1,
+          "bossKill": true,
+          "rewards": [
+            { "type": "experience", "amount": 50000 }
+          ]
+        }
+      ],
+      "finalReward": {
+        "experience": 100000,
+        "gold": 50000,
+        "items": [
+          { "itemId": 5882, "count": 1, "name": "dragon scale mail" }
+        ],
+        "title": "Dragon Slayer",
+        "achievement": "Dragon Slayer"
+      }
+    },
+    {
+      "id": 5,
+      "name": "The Demon Gate",
+      "description": "Close the demon gate before the forces of hell overrun the realm.",
+      "startNpc": "Archmage Eldreth",
+      "minLevel": 100,
+      "maxLevel": 0,
+      "premium": true,
+      "repeatable": true,
+      "repeatCooldown": 2592000,
+      "missions": [
+        {
+          "id": 1,
+          "name": "The Prophecy",
+          "description": "Learn about the demon gate from the ancient texts in the library.",
+          "type": "collect",
+          "itemId": 9998,
+          "itemName": "Ancient Demon Scroll",
+          "count": 1,
+          "rewards": [
+            { "type": "experience", "amount": 25000 }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "The Gate Key Fragments",
+          "description": "Collect 5 Gate Key Fragments from demon lieutenants.",
+          "type": "collect",
+          "itemId": 9997,
+          "itemName": "Gate Key Fragment",
+          "count": 5,
+          "rewards": [
+            { "type": "experience", "amount": 50000 }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Into the Inferno",
+          "description": "Enter the demon realm through the gate.",
+          "type": "explore",
+          "location": { "x": 32600, "y": 32600, "z": 14 },
+          "radius": 5,
+          "rewards": [
+            { "type": "experience", "amount": 30000 }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "The Demon Lord",
+          "description": "Defeat the Demon Lord Mephisto and close the gate forever.",
+          "type": "kill",
+          "target": "Demon Lord Mephisto",
+          "count": 1,
+          "bossKill": true,
+          "rewards": [
+            { "type": "experience", "amount": 200000 }
+          ]
+        }
+      ],
+      "finalReward": {
+        "experience": 500000,
+        "gold": 250000,
+        "items": [
+          { "itemId": 3420, "count": 1, "name": "demon shield" },
+          { "itemId": 3369, "count": 1, "name": "golden armor" }
+        ],
+        "title": "Demon Vanquisher",
+        "achievement": "Hero of the Realm"
+      }
+    }
+  ],
+  "dailyQuests": [
+    {
+      "id": 1001,
+      "name": "Monster Bounty",
+      "description": "Kill a variety of monsters for rewards.",
+      "resetTime": "00:00:00",
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "any",
+          "count": 50,
+          "reward": {
+            "experience": 5000,
+            "gold": 1000
+          }
+        },
+        {
+          "type": "kill",
+          "target": "any",
+          "count": 100,
+          "reward": {
+            "experience": 15000,
+            "gold": 3000
+          }
+        },
+        {
+          "type": "kill",
+          "target": "any",
+          "count": 200,
+          "reward": {
+            "experience": 40000,
+            "gold": 8000
+          }
+        }
+      ]
+    },
+    {
+      "id": 1002,
+      "name": "Resource Gathering",
+      "description": "Collect resources from around the world.",
+      "resetTime": "00:00:00",
+      "tasks": [
+        {
+          "type": "collect",
+          "itemId": 3031,
+          "count": 10000,
+          "reward": {
+            "experience": 3000
+          }
+        }
+      ]
+    }
+  ],
+  "worldQuests": [
+    {
+      "id": 2001,
+      "name": "The Great Hunt",
+      "description": "A server-wide event to hunt down a legendary beast.",
+      "triggerType": "scheduled",
+      "schedule": "*/7 * * * *",
+      "duration": 86400,
+      "goal": {
+        "type": "kill",
+        "target": "Legendary Behemoth",
+        "count": 1
+      },
+      "participation": {
+        "minDamage": 1000,
+        "minHeal": 500
+      },
+      "rewards": {
+        "participants": {
+          "experience": 50000,
+          "gold": 10000
+        },
+        "topDamage": {
+          "experience": 200000,
+          "items": [{ "itemId": 3280, "count": 1, "name": "fire sword" }]
+        }
+      }
+    }
+  ]
+}

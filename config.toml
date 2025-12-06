@@ -1,0 +1,250 @@
+# Shadow OT Server Configuration
+# ================================
+# This is the main configuration file for the Shadow OT game server.
+# All paths are relative to the server data directory unless absolute.
+
+[server]
+# Server name displayed to clients
+name = "Shadow OT"
+# Server owner contact
+owner = "Admin"
+# Server website URL
+website = "https://shadowot.com"
+# Server location for display
+location = "US-East"
+# Maximum players across all realms
+max_players = 10000
+# Message of the Day (MOTD) shown at login
+motd = "Welcome to Shadow OT! Type !help for available commands."
+# Auto-save interval in minutes
+save_interval_minutes = 30
+# Enable experimental features
+experimental_features = false
+
+[network]
+# Login server bind address
+login_host = "0.0.0.0"
+login_port = 7171
+# Game server bind address  
+game_host = "0.0.0.0"
+game_port = 7172
+# Web API bind address
+api_host = "0.0.0.0"
+api_port = 8080
+# Maximum connections per IP
+max_connections_per_ip = 10
+# Connection timeout in seconds
+connection_timeout_seconds = 60
+# Packet rate limit per second
+packet_rate_limit = 100
+
+[database]
+# PostgreSQL connection string
+url = "postgres://shadow:shadow@localhost:5432/shadow_ot"
+# Maximum connections in pool
+max_connections = 100
+# Connection timeout in seconds
+connection_timeout = 30
+# Enable query logging (development only)
+log_queries = false
+
+[redis]
+# Redis connection URL
+url = "redis://localhost:6379"
+# Redis database number
+database = 0
+# Connection pool size
+pool_size = 50
+# Key prefix for namespacing
+key_prefix = "shadow:"
+
+[realms]
+# Path to realm configurations
+config_path = "realms"
+# Default realm for new characters
+default_realm = "shadowveil"
+# Enable cross-realm features
+cross_realm_enabled = true
+# Cross-realm trading allowed
+cross_realm_trading = true
+
+[security]
+# Password minimum length
+password_min_length = 8
+# Require mixed case in passwords
+password_require_mixed_case = true
+# Require numbers in passwords
+password_require_numbers = true
+# Maximum login attempts before lockout
+max_login_attempts = 5
+# Login lockout duration in minutes
+login_lockout_minutes = 15
+# Enable two-factor authentication support
+enable_2fa = true
+# Session timeout in hours
+session_timeout_hours = 24
+# Enable IP-based restrictions
+ip_restrictions_enabled = false
+
+[features]
+# Enable blockchain features
+blockchain_enabled = true
+# Enable NFT system
+nft_enabled = true
+# Enable matchmaking
+matchmaking_enabled = true
+# Enable anti-cheat system  
+anticheat_enabled = true
+# Enable Lua scripting
+scripting_enabled = true
+# Enable custom sprites/assets
+custom_assets_enabled = true
+# Enable seasonal events
+seasonal_events_enabled = true
+# Enable user-submitted content
+ugc_enabled = false
+
+[paths]
+# Data directory root
+data_dir = "data"
+# Maps directory
+maps_dir = "data/maps"
+# Scripts directory
+scripts_dir = "scripts"
+# Assets directory
+assets_dir = "assets"
+# Logs directory
+logs_dir = "logs"
+
+[logging]
+# Log level: trace, debug, info, warn, error
+level = "info"
+# Log format: json, pretty, compact
+format = "pretty"
+# Enable file logging
+file_enabled = true
+# Log file path
+file_path = "logs/shadow-ot.log"
+# Log file rotation: daily, hourly, size
+rotation = "daily"
+# Maximum log files to keep
+max_files = 30
+
+[rates]
+# Experience rate multiplier
+experience = 1.0
+# Skill training rate multiplier  
+skills = 1.0
+# Magic level rate multiplier
+magic = 1.0
+# Loot rate multiplier
+loot = 1.0
+# Gold drop rate multiplier
+gold = 1.0
+# Spawn rate multiplier
+spawn = 1.0
+# Regeneration rate multiplier
+regeneration = 1.0
+
+[pvp]
+# PvP enabled globally
+enabled = true
+# Safe zone level threshold (no PvP below this level)
+safe_level = 0
+# Protection zone enabled
+protection_zones = true
+# Skull system enabled
+skull_system = true
+# Red skull frags threshold
+red_skull_frags = 3
+# Black skull frags threshold
+black_skull_frags = 6
+# Frag time in hours
+frag_time_hours = 24
+# Experience loss on death percentage
+experience_loss_percent = 10
+# Bless reduction per blessing
+bless_reduction_percent = 8
+
+[house]
+# House system enabled
+enabled = true
+# House rent period in days
+rent_period_days = 7
+# Maximum houses per player
+max_per_player = 1
+# House rent grace period in days
+rent_grace_days = 3
+# Allow house transfers
+transfers_allowed = true
+
+[guild]
+# Guild system enabled  
+enabled = true
+# Minimum level to create guild
+min_level = 50
+# Maximum members per guild
+max_members = 100
+# Guild creation cost
+creation_cost = 100000
+# Guild war enabled
+wars_enabled = true
+
+[market]
+# Market system enabled
+enabled = true
+# Market fee percentage
+fee_percent = 2
+# Maximum active offers per player
+max_offers = 100
+# Offer duration in days
+offer_duration_days = 30
+# Anonymous trading allowed
+anonymous_allowed = true
+
+[store]
+# In-game store enabled
+enabled = true
+# Premium currency name
+currency_name = "Shadow Coins"
+# Allow premium purchase
+premium_purchase = true
+# Allow cosmetic purchases
+cosmetics_enabled = true
+# Allow XP/skill boost purchase
+boosts_enabled = true
+
+[blockchain]
+# Supported chains
+chains = ["ethereum", "polygon", "starknet"]
+# Primary chain for NFTs
+primary_chain = "polygon"
+# NFT contract addresses (per chain)
+[blockchain.contracts]
+ethereum = ""
+polygon = ""
+starknet = ""
+# Bridge contract addresses
+[blockchain.bridges]
+ethereum_polygon = ""
+polygon_starknet = ""
+# Gas price strategy: low, medium, high, custom
+gas_strategy = "medium"
+# Enable automatic minting
+auto_mint = false
+
+[monitoring]
+# Metrics enabled
+metrics_enabled = true
+# Metrics port
+metrics_port = 9090
+# Health check endpoint enabled
+health_check = true
+# Detailed performance metrics
+detailed_metrics = false
+# Alert thresholds
+[monitoring.alerts]
+cpu_threshold = 80
+memory_threshold = 85
+disk_threshold = 90
+player_queue_threshold = 100

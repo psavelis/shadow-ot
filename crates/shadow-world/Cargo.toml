@@ -1,0 +1,36 @@
+[package]
+name = "shadow-world"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "World management for Shadow OT - maps, tiles, creatures, items, pathfinding"
+
+[dependencies]
+tokio.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+bytes.workspace = true
+pathfinding.workspace = true
+nalgebra.workspace = true
+rand.workspace = true
+
+# XML parsing for data files
+quick-xml = { version = "0.31", features = ["serialize"] }
+roxmltree = "0.19"
+
+# Binary parsing for OTBM/OTB
+byteorder = "1.5"
+flate2 = "1.0"
+
+# Utilities
+lazy_static = "1.4"
+
+[dev-dependencies]
+mockall.workspace = true

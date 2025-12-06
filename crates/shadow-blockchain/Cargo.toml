@@ -1,0 +1,54 @@
+[package]
+name = "shadow-blockchain"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Multi-chain blockchain integration for Shadow OT - NFT minting, cross-chain bridges, and Web3 authentication"
+
+[dependencies]
+tokio.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rand.workspace = true
+
+# Ethereum/Polygon
+ethers = { version = "2.0", features = ["rustls", "ws"] }
+alloy-primitives = "0.6"
+
+# Starknet
+starknet = "0.9"
+starknet-core = "0.9"
+starknet-providers = "0.9"
+starknet-signers = "0.7"
+starknet-accounts = "0.8"
+starknet-contract = "0.8"
+starknet-crypto = "0.6"
+cairo-lang-starknet = "2.4"
+
+# Bitcoin/Lightning
+bitcoin = { version = "0.31", features = ["serde"] }
+lightning = "0.0.121"
+
+# General crypto
+hex = "0.4"
+sha2.workspace = true
+sha1 = "0.10"
+k256 = { version = "0.13", features = ["ecdsa"] }
+base64 = "0.21"
+
+# HTTP client for RPC
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+
+# Caching and storage
+redis.workspace = true
+
+[dev-dependencies]
+mockall.workspace = true
+tokio-test = "0.4"

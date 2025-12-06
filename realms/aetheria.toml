@@ -1,0 +1,29 @@
+[realm]
+name = "Aetheria"
+theme = "mythic"
+description = "A land of gods, heroes, and ancient magic where legends are forged"
+protocol_version = "12.70"
+max_players = 500
+
+[rates]
+experience = 3.0
+skill = 2.0
+loot = 1.5
+spawn = 1.0
+
+[pvp]
+enabled = true
+type = "optional"
+protection_level = 100
+skull_duration_hours = 48
+
+[features]
+cross_realm_trading = true
+seasonal_events = true
+custom_sprites = true
+
+[branding]
+primary_color = "#4A90D9"
+secondary_color = "#FFD700"
+logo = "assets/aetheria-logo.png"
+tagline = "Where Legends Are Forged"

@@ -1,0 +1,23 @@
+[package]
+name = "shadow-realm"
+version.workspace = true
+edition.workspace = true
+description = "Realm management for Shadow OT multi-realm architecture"
+
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+
+# Internal dependencies - avoid circular deps with shadow-core
+shadow-world = { path = "../shadow-world" }
+shadow-combat = { path = "../shadow-combat" }
+shadow-db = { path = "../shadow-db" }
+
+[dev-dependencies]
+mockall.workspace = true

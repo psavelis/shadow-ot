@@ -1,0 +1,21 @@
+[package]
+name = "shadow-anticheat"
+version.workspace = true
+edition.workspace = true
+description = "Anti-cheat system for Shadow OT"
+
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+thiserror.workspace = true
+
+# Internal dependencies
+shadow-protocol = { path = "../shadow-protocol" }
+shadow-db = { path = "../shadow-db" }
+
+[dev-dependencies]
+mockall.workspace = true

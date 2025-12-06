@@ -1,0 +1,28 @@
+[package]
+name = "shadow-db"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Database layer for Shadow OT - handles all persistence with PostgreSQL"
+
+[dependencies]
+tokio.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+sqlx.workspace = true
+redis.workspace = true
+
+# Password hashing
+argon2.workspace = true
+rand.workspace = true
+
+[dev-dependencies]
+mockall.workspace = true
+fake.workspace = true

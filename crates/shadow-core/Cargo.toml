@@ -1,0 +1,43 @@
+[package]
+name = "shadow-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Core game engine for Shadow OT - handles game loop, state management, and coordination"
+
+[[bin]]
+name = "shadow-server"
+path = "src/bin/shadow-server.rs"
+
+[dependencies]
+tokio.workspace = true
+tokio-util.workspace = true
+bytes.workspace = true
+futures.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+config.workspace = true
+dotenvy.workspace = true
+prometheus.workspace = true
+
+shadow-protocol = { path = "../shadow-protocol" }
+shadow-db = { path = "../shadow-db" }
+shadow-world = { path = "../shadow-world" }
+shadow-combat = { path = "../shadow-combat" }
+shadow-realm = { path = "../shadow-realm" }
+shadow-scripting = { path = "../shadow-scripting" }
+shadow-matchmaking = { path = "../shadow-matchmaking" }
+shadow-anticheat = { path = "../shadow-anticheat" }
+
+[dev-dependencies]
+mockall.workspace = true
+fake.workspace = true
