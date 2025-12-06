@@ -1,5 +1,5 @@
 # Shadow OT Server - Multi-stage build
-FROM rust:nightly-slim-bookworm AS builder
+FROM rust:nightly AS builder
 
 WORKDIR /app
 
