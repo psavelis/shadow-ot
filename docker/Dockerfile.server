@@ -31,19 +31,19 @@ WORKDIR /app
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates \
+    curl \
     libssl3 \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN groupadd -r shadow && useradd -r -g shadow shadow
+RUN getent group shadow || groupadd -r shadow; \
+    getent passwd shadow || useradd -r -g shadow shadow
 
 # Copy binary
 COPY --from=builder /app/target/release/shadow-server /app/shadow-server
 
-# Copy data files
-COPY data /app/data
-COPY realms /data/realms
+# Data and realms are provided via volumes in Kubernetes
 
 # Set ownership
 RUN chown -R shadow:shadow /app
