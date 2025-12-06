@@ -82,6 +82,35 @@ Known gaps
 - Frontend lint/typecheck execution depends on Node tooling in the runner; define commands or install tooling for CI steps.
 - Broader feature completeness in PRD table is aspirational; specific subsystems should be validated and tracked incrementally.
 
+### Infrastructure Integration Map
+
+- Namespaces: `shadow-ot` base, `shadow-ot-dev` overlay.
+- Services and ports:
+  - `shadow-web` (`3000`), external `shadow-web-external` (`80` → `3000`).
+  - `shadow-admin` (`3001`), external `shadow-admin-external` (`80` → `3001`).
+  - `shadow-server` (`7171` login, `7172` game, `8080` API, `8081` WebSocket, `9090` metrics), external `shadow-server-external` for `7171/7172`.
+  - `shadow-download` (`80`) serves static downloads.
+- Ingress routing:
+  - `shadow-ot.com`, `www.shadow-ot.com` → `shadow-web:3000` (k8s/base/ingress.yaml:29–48).
+  - `api.shadow-ot.com` → `shadow-server:8080` (k8s/base/ingress.yaml:51–60).
+  - `admin.shadow-ot.com` → `shadow-admin:3001` (k8s/base/ingress.yaml:63–72).
+  - `download.shadow-ot.com` → `shadow-download:80` (k8s/base/ingress.yaml:75–84).
+  - `ws.shadow-ot.com` → `shadow-server:8081` (k8s/base/ingress.yaml:136–149).
+- External IPs:
+  - All externals are `type: LoadBalancer` with MetalLB (`k8s/base/service.yaml:34–56,75–94,95–114,115–131`; `k8s/overlays/dev/service-nodeports-patch.yaml:7–13,20–25,33–42,50–55`).
+- Container images:
+  - Server: `ghcr.io/psavelis/shadow-ot/server:latest` (k8s/base/deployment-server.yaml:30–31).
+  - Web: `ghcr.io/psavelis/shadow-ot/web:latest` (k8s/base/deployment-web.yaml:21–22).
+  - Admin: `ghcr.io/psavelis/shadow-ot/admin:latest` (k8s/base/deployment-web.yaml:74–75).
+  - Downloads: `nginx:1.25-alpine` plus init containers (k8s/base/deployment-download.yaml:46–48,20–45).
+- Environment variables:
+  - Web/Admin APIs set via `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_WS_URL` (k8s/base/deployment-web.yaml:28–34,83–86; dev overlay overrides to cluster-local in k8s/overlays/dev/deployment-web-patch.yaml:14–17,31–32).
+  - Server secrets use `shadow-secrets` for `DATABASE_URL`, `REDIS_URL`, and `JWT_SECRET` (k8s/base/deployment-server.yaml:51–65; k8s/base/secrets-example.yaml:7–13).
+- Storage:
+  - Server PVC `shadow-data-pvc` (`50Gi`) (k8s/base/deployment-server.yaml:112–122).
+  - Downloads PVC `download-data-pvc` (`20Gi`) (k8s/base/deployment-download.yaml:66–77).
+  - Postgres and Redis StatefulSets with PVCs (k8s/base/database.yaml:73–81,156–164).
+
 ---
 
 ## Executive Summary
