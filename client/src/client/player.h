@@ -9,6 +9,8 @@
 #include "creature.h"
 #include <array>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace shadow {
 namespace client {
@@ -215,6 +217,82 @@ private:
     ChaseMode m_chaseMode{ChaseMode::Stand};
     SecureMode m_secureMode{SecureMode::On};
     PvPMode m_pvpMode{PvPMode::Dove};
+
+    // Modern Tibia features
+    uint32_t m_storeCoins{0};
+    uint32_t m_transferableCoins{0};
+
+    // Prey system
+    struct PreySlot {
+        uint16_t monsterId{0};
+        uint8_t bonusType{0};
+        uint8_t bonusValue{0};
+        uint16_t bonusTimeLeft{0};
+        uint8_t freeRerollTimeLeft{0};
+        uint8_t state{0}; // 0=locked, 1=inactive, 2=active
+    };
+    std::array<PreySlot, 3> m_preySlots;
+
+    // Bestiary tracking
+    std::unordered_map<uint16_t, uint16_t> m_bestiaryKills; // monsterId -> killCount
+    std::unordered_set<uint16_t> m_bestiaryUnlocked; // fully unlocked monsters
+
+    // Bosstiary
+    struct BossEntry {
+        uint16_t bossId{0};
+        uint16_t killCount{0};
+        uint8_t tier{0}; // 0=none, 1=bane, 2=prowess, 3=expertise
+        uint64_t lastKillTime{0};
+    };
+    std::unordered_map<uint16_t, BossEntry> m_bosstiary;
+
+    // Forge/Dust system
+    uint64_t m_forgeDust{0};
+    uint8_t m_forgeDustLevel{0};
+
+    // Charm points
+    uint32_t m_charmPoints{0};
+    std::unordered_set<uint8_t> m_unlockedCharms;
+
+    // Tournament stats
+    uint32_t m_tournamentCoins{0};
+
+public:
+    // Store coins
+    uint32_t getStoreCoins() const { return m_storeCoins; }
+    void setStoreCoins(uint32_t coins) { m_storeCoins = coins; }
+    uint32_t getTransferableCoins() const { return m_transferableCoins; }
+    void setTransferableCoins(uint32_t coins) { m_transferableCoins = coins; }
+
+    // Prey system
+    const PreySlot& getPreySlot(uint8_t index) const { return m_preySlots[index % 3]; }
+    void setPreySlot(uint8_t index, const PreySlot& slot) { if (index < 3) m_preySlots[index] = slot; }
+
+    // Bestiary
+    uint16_t getBestiaryKills(uint16_t monsterId) const;
+    void setBestiaryKills(uint16_t monsterId, uint16_t kills);
+    bool isBestiaryUnlocked(uint16_t monsterId) const { return m_bestiaryUnlocked.count(monsterId) > 0; }
+    void unlockBestiary(uint16_t monsterId) { m_bestiaryUnlocked.insert(monsterId); }
+
+    // Bosstiary
+    const BossEntry* getBossEntry(uint16_t bossId) const;
+    void setBossEntry(uint16_t bossId, const BossEntry& entry) { m_bosstiary[bossId] = entry; }
+
+    // Forge
+    uint64_t getForgeDust() const { return m_forgeDust; }
+    void setForgeDust(uint64_t dust) { m_forgeDust = dust; }
+    uint8_t getForgeDustLevel() const { return m_forgeDustLevel; }
+    void setForgeDustLevel(uint8_t level) { m_forgeDustLevel = level; }
+
+    // Charms
+    uint32_t getCharmPoints() const { return m_charmPoints; }
+    void setCharmPoints(uint32_t points) { m_charmPoints = points; }
+    bool hasCharm(uint8_t charmId) const { return m_unlockedCharms.count(charmId) > 0; }
+    void unlockCharm(uint8_t charmId) { m_unlockedCharms.insert(charmId); }
+
+    // Tournament
+    uint32_t getTournamentCoins() const { return m_tournamentCoins; }
+    void setTournamentCoins(uint32_t coins) { m_tournamentCoins = coins; }
 };
 
 using PlayerPtr = std::shared_ptr<Player>;

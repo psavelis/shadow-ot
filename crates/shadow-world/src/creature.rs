@@ -69,21 +69,37 @@ pub enum Emblem {
     Other = 5,
 }
 
-/// Outfit definition
+/// Outfit definition - matches client Outfit struct
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Outfit {
+    /// Main outfit type ID
     pub look_type: u16,
-    pub look_type_ex: u16,  // For items used as outfit
+    /// Item ID when appearing as an item (lookType = 0)
+    pub look_type_ex: u16,
+    /// Head color (0-132)
     pub look_head: u8,
+    /// Body color (0-132)
     pub look_body: u8,
+    /// Legs color (0-132)
     pub look_legs: u8,
+    /// Feet color (0-132)
     pub look_feet: u8,
+    /// Addon flags (0=none, 1=first, 2=second, 3=both)
     pub look_addons: u8,
+    /// Mount type ID
     pub look_mount: u16,
+    /// Mount head color
     pub look_mount_head: u8,
+    /// Mount body color
     pub look_mount_body: u8,
+    /// Mount legs color
     pub look_mount_legs: u8,
+    /// Mount feet color
     pub look_mount_feet: u8,
+    /// Familiar type ID (summoned companion)
+    pub familiar: u16,
+    /// Whether this is a podium display outfit
+    pub podium: bool,
 }
 
 impl Outfit {
@@ -103,6 +119,49 @@ impl Outfit {
             look_feet: feet,
             ..Default::default()
         }
+    }
+
+    pub fn with_mount(mut self, mount: u16) -> Self {
+        self.look_mount = mount;
+        self
+    }
+
+    pub fn with_mount_colors(mut self, head: u8, body: u8, legs: u8, feet: u8) -> Self {
+        self.look_mount_head = head;
+        self.look_mount_body = body;
+        self.look_mount_legs = legs;
+        self.look_mount_feet = feet;
+        self
+    }
+
+    pub fn with_familiar(mut self, familiar: u16) -> Self {
+        self.familiar = familiar;
+        self
+    }
+
+    pub fn with_addons(mut self, addons: u8) -> Self {
+        self.look_addons = addons;
+        self
+    }
+
+    /// Returns true if this outfit has a mount
+    pub fn has_mount(&self) -> bool {
+        self.look_mount != 0
+    }
+
+    /// Returns true if this outfit has a familiar
+    pub fn has_familiar(&self) -> bool {
+        self.familiar != 0
+    }
+
+    /// Returns true if this represents an item (not a creature outfit)
+    pub fn is_item(&self) -> bool {
+        self.look_type == 0 && self.look_type_ex != 0
+    }
+
+    /// Returns true if this outfit is invisible (no type and no item)
+    pub fn is_invisible(&self) -> bool {
+        self.look_type == 0 && self.look_type_ex == 0
     }
 }
 

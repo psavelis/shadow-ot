@@ -105,5 +105,19 @@ void Player::setInventoryItem(InventorySlot slot, std::shared_ptr<Item> item) {
     }
 }
 
+uint16_t Player::getBestiaryKills(uint16_t monsterId) const {
+    auto it = m_bestiaryKills.find(monsterId);
+    return (it != m_bestiaryKills.end()) ? it->second : 0;
+}
+
+void Player::setBestiaryKills(uint16_t monsterId, uint16_t kills) {
+    m_bestiaryKills[monsterId] = kills;
+}
+
+const Player::BossEntry* Player::getBossEntry(uint16_t bossId) const {
+    auto it = m_bosstiary.find(bossId);
+    return (it != m_bosstiary.end()) ? &it->second : nullptr;
+}
+
 } // namespace client
 } // namespace shadow

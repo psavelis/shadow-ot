@@ -24,9 +24,20 @@ struct Outfit {
     uint8_t feet{0};
     uint8_t addons{0};
     uint16_t mount{0};
+    // Mount colors (modern Tibia feature)
+    uint8_t mountHead{0};
+    uint8_t mountBody{0};
+    uint8_t mountLegs{0};
+    uint8_t mountFeet{0};
+    // Familiar (summoned companion)
+    uint16_t familiar{0};
+    // Podium outfit flag
+    bool podium{false};
 
     bool hasMount() const { return mount != 0; }
+    bool hasFamiliar() const { return familiar != 0; }
     bool isItem() const { return lookType == 0 && lookTypeEx != 0; }
+    bool isInvisible() const { return lookType == 0 && lookTypeEx == 0; }
 };
 
 class Creature : public Thing {

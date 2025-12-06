@@ -312,6 +312,118 @@ static int l_Player_getVocation(lua_State* L) {
     return 1;
 }
 
+static int l_Player_getSoul(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getSoul() : 0);
+    return 1;
+}
+
+static int l_Player_getCapacity(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getCapacity() : 0);
+    return 1;
+}
+
+static int l_Player_getFreeCapacity(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getFreeCapacity() : 0);
+    return 1;
+}
+
+static int l_Player_getStamina(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getStamina() : 0);
+    return 1;
+}
+
+static int l_Player_getExperience(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushnumber(L, player ? static_cast<double>(player->getExperience()) : 0);
+    return 1;
+}
+
+static int l_Player_isPremium(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushboolean(L, player ? player->isPremium() : false);
+    return 1;
+}
+
+static int l_Player_getStoreCoins(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getStoreCoins() : 0);
+    return 1;
+}
+
+static int l_Player_getTransferableCoins(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getTransferableCoins() : 0);
+    return 1;
+}
+
+static int l_Player_getBlessings(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getBlessings() : 0);
+    return 1;
+}
+
+static int l_Player_hasBlessing(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    int blessing = luaL_checkinteger(L, 2);
+    lua_pushboolean(L, player ? player->hasBlessing(blessing) : false);
+    return 1;
+}
+
+static int l_Player_getCharmPoints(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getCharmPoints() : 0);
+    return 1;
+}
+
+static int l_Player_getForgeDust(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushnumber(L, player ? static_cast<double>(player->getForgeDust()) : 0);
+    return 1;
+}
+
+static int l_Player_getForgeDustLevel(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushinteger(L, player ? player->getForgeDustLevel() : 0);
+    return 1;
+}
+
+static int l_Player_getBestiaryKills(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    int monsterId = luaL_checkinteger(L, 2);
+    lua_pushinteger(L, player ? player->getBestiaryKills(monsterId) : 0);
+    return 1;
+}
+
+static int l_Player_isBestiaryUnlocked(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    int monsterId = luaL_checkinteger(L, 2);
+    lua_pushboolean(L, player ? player->isBestiaryUnlocked(monsterId) : false);
+    return 1;
+}
+
+static int l_Player_hasCharm(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    int charmId = luaL_checkinteger(L, 2);
+    lua_pushboolean(L, player ? player->hasCharm(charmId) : false);
+    return 1;
+}
+
+static int l_Player_getGuildName(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushstring(L, player ? player->getGuildName().c_str() : "");
+    return 1;
+}
+
+static int l_Player_getGuildRank(lua_State* L) {
+    auto* player = l_Player_check(L, 1);
+    lua_pushstring(L, player ? player->getGuildRank().c_str() : "");
+    return 1;
+}
+
 void registerPlayerLuaBindings(lua_State* L) {
     LUA_REGISTER_CLASS(L, "Player");
 
@@ -324,7 +436,7 @@ void registerPlayerLuaBindings(lua_State* L) {
     LUA_REGISTER_METHOD(L, "getPosition", l_Creature_getPosition);
     LUA_REGISTER_METHOD(L, "isWalking", l_Creature_isWalking);
 
-    // Player-specific
+    // Player-specific - Stats
     LUA_REGISTER_METHOD(L, "getHealth", l_Player_getHealth);
     LUA_REGISTER_METHOD(L, "getMaxHealth", l_Player_getMaxHealth);
     LUA_REGISTER_METHOD(L, "getMana", l_Player_getMana);
@@ -333,6 +445,34 @@ void registerPlayerLuaBindings(lua_State* L) {
     LUA_REGISTER_METHOD(L, "getMagicLevel", l_Player_getMagicLevel);
     LUA_REGISTER_METHOD(L, "getSkillLevel", l_Player_getSkillLevel);
     LUA_REGISTER_METHOD(L, "getVocation", l_Player_getVocation);
+    LUA_REGISTER_METHOD(L, "getSoul", l_Player_getSoul);
+    LUA_REGISTER_METHOD(L, "getCapacity", l_Player_getCapacity);
+    LUA_REGISTER_METHOD(L, "getFreeCapacity", l_Player_getFreeCapacity);
+    LUA_REGISTER_METHOD(L, "getStamina", l_Player_getStamina);
+    LUA_REGISTER_METHOD(L, "getExperience", l_Player_getExperience);
+    LUA_REGISTER_METHOD(L, "isPremium", l_Player_isPremium);
+
+    // Store/Currency
+    LUA_REGISTER_METHOD(L, "getStoreCoins", l_Player_getStoreCoins);
+    LUA_REGISTER_METHOD(L, "getTransferableCoins", l_Player_getTransferableCoins);
+
+    // Blessings
+    LUA_REGISTER_METHOD(L, "getBlessings", l_Player_getBlessings);
+    LUA_REGISTER_METHOD(L, "hasBlessing", l_Player_hasBlessing);
+
+    // Bestiary/Charms
+    LUA_REGISTER_METHOD(L, "getBestiaryKills", l_Player_getBestiaryKills);
+    LUA_REGISTER_METHOD(L, "isBestiaryUnlocked", l_Player_isBestiaryUnlocked);
+    LUA_REGISTER_METHOD(L, "getCharmPoints", l_Player_getCharmPoints);
+    LUA_REGISTER_METHOD(L, "hasCharm", l_Player_hasCharm);
+
+    // Forge
+    LUA_REGISTER_METHOD(L, "getForgeDust", l_Player_getForgeDust);
+    LUA_REGISTER_METHOD(L, "getForgeDustLevel", l_Player_getForgeDustLevel);
+
+    // Guild
+    LUA_REGISTER_METHOD(L, "getGuildName", l_Player_getGuildName);
+    LUA_REGISTER_METHOD(L, "getGuildRank", l_Player_getGuildRank);
 
     lua_pop(L, 1);
 }
