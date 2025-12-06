@@ -186,3 +186,188 @@ export function useListItemOnMarket() {
   })
 }
 
+// ============================================
+// Support Tickets
+// ============================================
+
+import { supportApi, auctionApi, houseApi, achievementApi } from '../api/endpoints'
+import type { SupportTicket, CharacterAuction, ItemAuction, House, PlayerAchievement } from '../api/endpoints'
+
+export function useSupportTickets(params: {
+  status?: SupportTicket['status']
+  page?: number
+  pageSize?: number
+} = {}) {
+  return useQuery({
+    queryKey: ['support', 'tickets', params],
+    queryFn: () => supportApi.getTickets(params),
+    staleTime: 1000 * 60,
+  })
+}
+
+export function useSupportTicket(id: string) {
+  return useQuery({
+    queryKey: ['support', 'ticket', id],
+    queryFn: () => supportApi.getTicket(id),
+    enabled: !!id,
+  })
+}
+
+export function useCreateTicket() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (data: { subject: string; category: SupportTicket['category']; message: string }) =>
+      supportApi.createTicket(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['support', 'tickets'] })
+    },
+  })
+}
+
+export function useReplyToTicket() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ id, message }: { id: string; message: string }) =>
+      supportApi.replyToTicket(id, message),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['support', 'ticket', id] })
+      queryClient.invalidateQueries({ queryKey: ['support', 'tickets'] })
+    },
+  })
+}
+
+export function useFAQ() {
+  return useQuery({
+    queryKey: ['support', 'faq'],
+    queryFn: () => supportApi.getFAQ(),
+    staleTime: 1000 * 60 * 60, // 1 hour
+  })
+}
+
+// ============================================
+// Auctions
+// ============================================
+
+export function useCharacterAuctions(params: Parameters<typeof auctionApi.getCharacterAuctions>[0] = {}) {
+  return useQuery({
+    queryKey: ['auctions', 'characters', params],
+    queryFn: () => auctionApi.getCharacterAuctions(params),
+    staleTime: 1000 * 30, // 30 seconds
+    refetchInterval: 1000 * 60, // Refresh every minute
+  })
+}
+
+export function useItemAuctions(params: Parameters<typeof auctionApi.getItemAuctions>[0] = {}) {
+  return useQuery({
+    queryKey: ['auctions', 'items', params],
+    queryFn: () => auctionApi.getItemAuctions(params),
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 60,
+  })
+}
+
+export function useMyBids() {
+  return useQuery({
+    queryKey: ['auctions', 'my-bids'],
+    queryFn: () => auctionApi.getMyBids(),
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 60,
+  })
+}
+
+export function usePlaceBid() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ id, amount }: { id: string; amount: number }) =>
+      auctionApi.placeBid(id, amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auctions'] })
+    },
+  })
+}
+
+export function useBuyout() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (id: string) => auctionApi.buyout(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auctions'] })
+    },
+  })
+}
+
+// ============================================
+// Houses
+// ============================================
+
+export function useHouses(params: Parameters<typeof houseApi.getHouses>[0] = {}) {
+  return useQuery({
+    queryKey: ['houses', params],
+    queryFn: () => houseApi.getHouses(params),
+    staleTime: 1000 * 60,
+  })
+}
+
+export function useHouse(id: string) {
+  return useQuery({
+    queryKey: ['houses', id],
+    queryFn: () => houseApi.getHouse(id),
+    enabled: !!id,
+  })
+}
+
+export function useMyHouses() {
+  return useQuery({
+    queryKey: ['houses', 'mine'],
+    queryFn: () => houseApi.getMyHouses(),
+    staleTime: 1000 * 60,
+  })
+}
+
+export function useBidOnHouse() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ id, amount }: { id: string; amount: number }) =>
+      houseApi.bidOnHouse(id, amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['houses'] })
+    },
+  })
+}
+
+export function useLeaveHouse() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (id: string) => houseApi.leaveHouse(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['houses'] })
+    },
+  })
+}
+
+// ============================================
+// Achievements
+// ============================================
+
+export function useAchievements(characterId?: string) {
+  return useQuery({
+    queryKey: ['achievements', 'player', characterId],
+    queryFn: () => achievementApi.getPlayerAchievements(characterId),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+export function useAchievementLeaderboard(params: { page?: number; pageSize?: number } = {}) {
+  return useQuery({
+    queryKey: ['achievements', 'leaderboard', params],
+    queryFn: () => achievementApi.getLeaderboard(params),
+    staleTime: 1000 * 60,
+  })
+}
+

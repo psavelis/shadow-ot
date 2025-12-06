@@ -909,3 +909,237 @@ export const authApi = {
     apiClient.patch('/auth/sso', data),
 }
 
+// ============================================
+// Support Ticket Endpoints
+// ============================================
+export interface SupportTicket {
+  id: string
+  subject: string
+  category: 'technical' | 'billing' | 'account' | 'report' | 'other'
+  status: 'open' | 'pending' | 'resolved' | 'closed'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  createdAt: string
+  updatedAt: string
+  messages: Array<{
+    id: string
+    content: string
+    author: 'user' | 'support'
+    createdAt: string
+    attachments?: string[]
+  }>
+}
+
+export const supportApi = {
+  getTickets: (params?: { status?: SupportTicket['status']; page?: number; pageSize?: number }) =>
+    apiClient.get<PaginatedResponse<SupportTicket>>('/support/tickets', params),
+
+  getTicket: (id: string) =>
+    apiClient.get<SupportTicket>(`/support/tickets/${id}`),
+
+  createTicket: (data: { subject: string; category: SupportTicket['category']; message: string }) =>
+    apiClient.post<SupportTicket>('/support/tickets', data),
+
+  replyToTicket: (id: string, message: string) =>
+    apiClient.post<SupportTicket>(`/support/tickets/${id}/reply`, { message }),
+
+  closeTicket: (id: string) =>
+    apiClient.patch(`/support/tickets/${id}/close`),
+
+  getFAQ: () =>
+    apiClient.get<Array<{
+      category: string
+      items: Array<{ question: string; answer: string }>
+    }>>('/support/faq'),
+}
+
+// ============================================
+// Auction Endpoints
+// ============================================
+export interface CharacterAuction {
+  id: string
+  characterId: string
+  characterName: string
+  level: number
+  vocation: Vocation
+  skills: Record<string, number>
+  currentBid: number
+  minimumBid: number
+  buyoutPrice?: number
+  seller: { id: string; name: string }
+  highestBidder?: { id: string; name: string }
+  startTime: string
+  endTime: string
+  status: 'active' | 'ended' | 'cancelled'
+  bidCount: number
+}
+
+export interface ItemAuction {
+  id: string
+  itemId: string
+  itemName: string
+  itemType: string
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  quantity: number
+  attributes: Record<string, number>
+  currentBid: number
+  minimumBid: number
+  buyoutPrice?: number
+  seller: { id: string; name: string }
+  highestBidder?: { id: string; name: string }
+  startTime: string
+  endTime: string
+  status: 'active' | 'ended' | 'cancelled'
+  bidCount: number
+  spriteId: number
+}
+
+export const auctionApi = {
+  getCharacterAuctions: (params?: {
+    vocation?: Vocation
+    minLevel?: number
+    maxLevel?: number
+    sort?: 'ending_soon' | 'price_asc' | 'price_desc' | 'level'
+    page?: number
+    pageSize?: number
+  }) => apiClient.get<PaginatedResponse<CharacterAuction>>('/auctions/characters', params),
+
+  getItemAuctions: (params?: {
+    type?: string
+    rarity?: string
+    sort?: 'ending_soon' | 'price_asc' | 'price_desc'
+    page?: number
+    pageSize?: number
+  }) => apiClient.get<PaginatedResponse<ItemAuction>>('/auctions/items', params),
+
+  getAuction: (id: string) =>
+    apiClient.get<CharacterAuction | ItemAuction>(`/auctions/${id}`),
+
+  placeBid: (id: string, amount: number) =>
+    apiClient.post(`/auctions/${id}/bid`, { amount }),
+
+  buyout: (id: string) =>
+    apiClient.post(`/auctions/${id}/buyout`),
+
+  getMyBids: () =>
+    apiClient.get<Array<{
+      auctionId: string
+      type: 'character' | 'item'
+      name: string
+      myBid: number
+      currentBid: number
+      status: 'winning' | 'outbid' | 'won' | 'lost'
+      endTime: string
+    }>>('/auctions/my-bids'),
+
+  createCharacterAuction: (data: {
+    characterId: string
+    minimumBid: number
+    buyoutPrice?: number
+    duration: number // hours
+  }) => apiClient.post<CharacterAuction>('/auctions/characters', data),
+
+  createItemAuction: (data: {
+    itemId: string
+    quantity: number
+    minimumBid: number
+    buyoutPrice?: number
+    duration: number
+  }) => apiClient.post<ItemAuction>('/auctions/items', data),
+}
+
+// ============================================
+// House Endpoints
+// ============================================
+export interface House {
+  id: string
+  name: string
+  town: string
+  type: 'house' | 'guildhall'
+  size: 'small' | 'medium' | 'large' | 'extra_large'
+  beds: number
+  sqm: number
+  rent: number
+  status: 'available' | 'auction' | 'rented'
+  owner?: { id: string; name: string; since: string }
+  auction?: {
+    currentBid: number
+    highestBidder?: { id: string; name: string }
+    endTime: string
+  }
+  position: { x: number; y: number; z: number }
+  description?: string
+}
+
+export const houseApi = {
+  getHouses: (params?: {
+    town?: string
+    type?: House['type']
+    size?: House['size']
+    status?: House['status']
+    minRent?: number
+    maxRent?: number
+    page?: number
+    pageSize?: number
+  }) => apiClient.get<PaginatedResponse<House>>('/houses', params),
+
+  getHouse: (id: string) =>
+    apiClient.get<House>(`/houses/${id}`),
+
+  getMyHouses: () =>
+    apiClient.get<Array<House & { character: string; paidUntil: string }>>('/houses/mine'),
+
+  bidOnHouse: (id: string, amount: number) =>
+    apiClient.post(`/houses/${id}/bid`, { amount }),
+
+  leaveHouse: (id: string) =>
+    apiClient.post(`/houses/${id}/leave`),
+
+  transferHouse: (id: string, toCharacterId: string) =>
+    apiClient.post(`/houses/${id}/transfer`, { toCharacterId }),
+
+  payRent: (id: string) =>
+    apiClient.post(`/houses/${id}/pay-rent`),
+}
+
+// ============================================
+// Achievement Endpoints
+// ============================================
+export interface Achievement {
+  id: string
+  name: string
+  description: string
+  category: 'exploration' | 'combat' | 'social' | 'economy' | 'collection' | 'special'
+  points: number
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  secret: boolean
+  icon?: string
+  requirements?: string
+}
+
+export interface PlayerAchievement extends Achievement {
+  unlocked: boolean
+  unlockedAt?: string
+  progress?: { current: number; required: number }
+}
+
+export const achievementApi = {
+  getAll: (params?: { category?: Achievement['category']; page?: number; pageSize?: number }) =>
+    apiClient.get<PaginatedResponse<Achievement>>('/achievements', params),
+
+  getPlayerAchievements: (characterId?: string) =>
+    apiClient.get<{
+      achievements: PlayerAchievement[]
+      totalPoints: number
+      completedCount: number
+      totalCount: number
+    }>('/achievements/player', characterId ? { characterId } : undefined),
+
+  getLeaderboard: (params?: { page?: number; pageSize?: number }) =>
+    apiClient.get<PaginatedResponse<{
+      rank: number
+      character: { id: string; name: string; level: number; vocation: Vocation }
+      points: number
+      completedCount: number
+    }>>('/achievements/leaderboard', params),
+}
+
