@@ -10,6 +10,7 @@ patchesStrategicMerge:
   - deployment-server-patch.yaml
   - deployment-web-patch.yaml
   - ingress-patch.yaml
+  - deployment-download-patch.yaml
 
 commonLabels:
   environment: dev

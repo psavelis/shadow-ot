@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLUSTER_NAME="shadow-e2e"
+
+detect_arch() {
+  local os=$(uname -s | tr '[:upper:]' '[:lower:]')
+  local arch=$(uname -m)
+  case "$os" in
+    darwin)
+      if [[ "$arch" == "arm64" ]]; then echo "darwin-arm64"; else echo "darwin-amd64"; fi
+      ;;
+    linux)
+      if [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then echo "linux-arm64"; else echo "linux-amd64"; fi
+      ;;
+    *) echo "Unsupported OS: $os" && exit 1;;
+  esac
+}
+
+install_kind() {
+  if ! command -v kind >/dev/null 2>&1; then
+    local target=$(detect_arch)
+    echo "Installing kind for $target"
+    curl -Lo ./kind "https://kind.sigs.k8s.io/dl/v0.23.0/kind-$target"
+    chmod +x ./kind
+    sudo mv ./kind /usr/local/bin/kind || mv ./kind "$HOME/.local/bin/kind"
+    echo "kind installed"
+  fi
+}
+
+install_kubectl() {
+  if ! command -v kubectl >/dev/null 2>&1; then
+    echo "kubectl is required"
+    exit 1
+  fi
+}
+
+create_cluster() {
+  if ! kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
+    kind create cluster --name "$CLUSTER_NAME"
+  fi
+}
+
+setup_metallb() {
+  kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/manifests/metallb-native.yaml
+  # Determine docker network CIDR
+  local cidr
+  cidr=$(docker network inspect kind -f '{{ (index .IPAM.Config 0).Subnet }}')
+  if [[ -z "$cidr" ]]; then echo "Failed to determine kind network CIDR" && exit 1; fi
+  # Derive a small pool at the end of the subnet
+  local base=$(echo "$cidr" | cut -d'/' -f1 | awk -F. '{print $1"."$2"."$3}')
+  cat <<EOF | kubectl apply -f -
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: kind-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - ${base}.240-${base}.250
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: kind-advert
+  namespace: metallb-system
+spec: {}
+EOF
+}
+
+deploy_stack() {
+  kubectl apply -f k8s/base/secrets-example.yaml
+  kubectl apply -k k8s/base
+  kubectl apply -k k8s/overlays/dev
+}
+
+wait_ready() {
+  kubectl wait --for=condition=available deploy/shadow-server -n shadow-ot --timeout=300s
+  kubectl wait --for=condition=available deploy/shadow-web -n shadow-ot --timeout=300s
+  kubectl wait --for=condition=available deploy/shadow-admin -n shadow-ot --timeout=300s
+  kubectl wait --for=condition=available deploy/shadow-download -n shadow-ot --timeout=300s
+}
+
+show_ips() {
+  kubectl get svc -n shadow-ot -o wide
+  WEB_IP=$(kubectl get svc shadow-web-external -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  ADMIN_IP=$(kubectl get svc shadow-admin-external -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  GAME_IP=$(kubectl get svc shadow-server-external -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  DL_IP=$(kubectl get svc shadow-download -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo "WEB_IP=$WEB_IP ADMIN_IP=$ADMIN_IP GAME_IP=$GAME_IP DL_IP=$DL_IP"
+}
+
+smoke_tests() {
+  if [[ -n "$WEB_IP" ]]; then curl -fsS --max-time 10 http://$WEB_IP/ || exit 1; fi
+  API_IP=$(kubectl get svc shadow-server -n shadow-ot -o jsonpath='{.spec.clusterIP}')
+  kubectl run tmp --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- curl -fsS http://$API_IP:8080/health
+}
+
+install_kind
+install_kubectl
+create_cluster
+setup_metallb
+deploy_stack
+wait_ready
+show_ips
+smoke_tests
