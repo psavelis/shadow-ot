@@ -20,3 +20,5 @@ pub mod creatures;
 pub mod achievements;
 pub mod world_quests;
 pub mod inventory;
+pub mod spells;
+pub mod events;

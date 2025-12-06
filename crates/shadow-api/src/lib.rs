@@ -88,6 +88,16 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         routes::inventory::get_inventory_item,
         routes::inventory::transfer_item,
         routes::inventory::list_on_market,
+        routes::spells::list_spells,
+        routes::spells::get_spell,
+        routes::spells::get_spell_by_words,
+        routes::spells::get_spells_by_vocation,
+        routes::spells::get_spells_by_element,
+        routes::spells::get_runes,
+        routes::events::list_events,
+        routes::events::get_active_events,
+        routes::events::get_upcoming_events,
+        routes::events::get_event,
     ),
     components(
         schemas(
@@ -159,6 +169,16 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
             routes::inventory::TransferResponse,
             routes::inventory::ListOnMarketRequest,
             routes::inventory::ListOnMarketResponse,
+            routes::spells::Spell,
+            routes::spells::Rune,
+            routes::spells::SpellElement,
+            routes::spells::SpellType,
+            routes::events::GameEvent,
+            routes::events::EventStatus,
+            routes::events::EventType,
+            routes::events::EventReward,
+            routes::events::EventLocation,
+            routes::events::EventRequirements,
         )
     ),
     tags(
@@ -179,6 +199,8 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         (name = "achievements", description = "Achievement system"),
         (name = "world-quests", description = "World quest events"),
         (name = "inventory", description = "Character inventory management"),
+        (name = "spells", description = "Spell and rune database"),
+        (name = "events", description = "Game events and raids"),
     ),
     info(
         title = "Shadow OT API",
@@ -291,6 +313,18 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/inventory/:id", get(routes::inventory::get_inventory_item))
         .route("/inventory/:id/transfer", post(routes::inventory::transfer_item))
         .route("/inventory/:id/list-on-market", post(routes::inventory::list_on_market))
+        // Spells
+        .route("/spells", get(routes::spells::list_spells))
+        .route("/spells/runes", get(routes::spells::get_runes))
+        .route("/spells/vocation/:vocation", get(routes::spells::get_spells_by_vocation))
+        .route("/spells/element/:element", get(routes::spells::get_spells_by_element))
+        .route("/spells/words/:words", get(routes::spells::get_spell_by_words))
+        .route("/spells/:id", get(routes::spells::get_spell))
+        // Events
+        .route("/events", get(routes::events::list_events))
+        .route("/events/active", get(routes::events::get_active_events))
+        .route("/events/upcoming", get(routes::events::get_upcoming_events))
+        .route("/events/:id", get(routes::events::get_event))
         // Admin routes (protected)
         .route("/admin/stats", get(routes::admin::get_stats))
         .route("/admin/players/online", get(routes::admin::get_online_players))
