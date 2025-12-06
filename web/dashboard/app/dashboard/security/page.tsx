@@ -6,7 +6,8 @@ import {
   Shield, Key, Smartphone, Monitor, Globe, AlertTriangle,
   Lock, CheckCircle, XCircle, Eye, EyeOff, RefreshCw,
   Trash2, Download, LogOut, History, ChevronRight, Copy,
-  Check, Link2, Unlink
+  Check, Link2, Unlink, Fingerprint, Plus, KeyRound, Usb,
+  Repeat, Server, Zap, ArrowRightLeft
 } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
@@ -28,15 +29,32 @@ const activityLog = [
 
 const backupCodes = ['ABCD-1234', 'EFGH-5678', 'IJKL-9012', 'MNOP-3456', 'QRST-7890', 'UVWX-1234', 'YZAB-5678', 'CDEF-9012']
 
+// Mock security keys data
+const mockSecurityKeys = [
+  { id: '1', name: 'YubiKey 5 NFC', type: 'yubikey', addedAt: '2024-11-15', lastUsed: '2024-12-04' },
+  { id: '2', name: 'Backup Key', type: 'fido2', addedAt: '2024-10-20', lastUsed: '2024-11-28' },
+]
+
 export default function SecurityPage() {
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [show2FASetup, setShow2FASetup] = useState(false)
   const [showBackupCodes, setShowBackupCodes] = useState(false)
+  const [showAddSecurityKey, setShowAddSecurityKey] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' })
   const [twoFACode, setTwoFACode] = useState('')
   const [twoFAEnabled, setTwoFAEnabled] = useState(false)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [securityKeys, setSecurityKeys] = useState(mockSecurityKeys)
+  const [newKeyName, setNewKeyName] = useState('')
+  const [isRegisteringKey, setIsRegisteringKey] = useState(false)
+  const [ssoEnabled, setSsoEnabled] = useState(true)
+  const [ssoRealms, setSsoRealms] = useState([
+    { id: 'nova', name: 'Nova', enabled: true, lastSync: '2 min ago' },
+    { id: 'eldoria', name: 'Eldoria', enabled: true, lastSync: '5 min ago' },
+    { id: 'shadowlands', name: 'Shadowlands', enabled: false, lastSync: 'Never' },
+    { id: 'ancient', name: 'Ancient Kingdoms', enabled: true, lastSync: '1 hour ago' },
+  ])
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -110,6 +128,8 @@ export default function SecurityPage() {
           {[
             { id: 'password', label: 'Password', icon: Key },
             { id: '2fa', label: 'Two-Factor', icon: Smartphone },
+            { id: 'securitykeys', label: 'Security Keys', icon: Fingerprint },
+            { id: 'sso', label: 'Cross-Realm SSO', icon: ArrowRightLeft },
             { id: 'linked', label: 'Linked Accounts', icon: Link2 },
             { id: 'sessions', label: 'Sessions', icon: Monitor },
             { id: 'activity', label: 'Activity', icon: History },
@@ -252,6 +272,252 @@ export default function SecurityPage() {
                   </button>
                 </div>
               )}
+            </div>
+          </motion.div>
+        </Tabs.Content>
+
+        {/* Security Keys Tab (FIDO2/YubiKey) */}
+        <Tabs.Content value="securitykeys">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                    <Fingerprint className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-medium">Hardware Security Keys</h3>
+                    <p className="text-slate-400 text-sm">
+                      Use YubiKey, FIDO2, or other hardware keys for enhanced security
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAddSecurityKey(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-400 transition font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Key
+                </button>
+              </div>
+
+              {/* Security Keys List */}
+              {securityKeys.length > 0 ? (
+                <div className="space-y-3">
+                  {securityKeys.map((key) => (
+                    <div key={key.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg hover:bg-slate-800/50 transition">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          key.type === 'yubikey' ? 'bg-green-500/20' : 'bg-blue-500/20'
+                        }`}>
+                          {key.type === 'yubikey' ? (
+                            <Usb className={`w-5 h-5 ${key.type === 'yubikey' ? 'text-green-400' : 'text-blue-400'}`} />
+                          ) : (
+                            <KeyRound className="w-5 h-5 text-blue-400" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">{key.name}</p>
+                          <p className="text-slate-500 text-sm">
+                            Added {key.addedAt} • Last used {key.lastUsed}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-0.5 text-xs rounded ${
+                          key.type === 'yubikey' 
+                            ? 'bg-green-500/20 text-green-400' 
+                            : 'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {key.type === 'yubikey' ? 'YubiKey' : 'FIDO2'}
+                        </span>
+                        <button 
+                          onClick={() => setSecurityKeys(keys => keys.filter(k => k.id !== key.id))}
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 border-2 border-dashed border-slate-700 rounded-xl">
+                  <Fingerprint className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                  <p className="text-slate-400 mb-2">No security keys registered</p>
+                  <p className="text-slate-500 text-sm mb-4">
+                    Add a hardware security key for the most secure authentication
+                  </p>
+                  <button
+                    onClick={() => setShowAddSecurityKey(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Register Your First Key
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Info Cards */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/30 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                    <Usb className="w-4 h-4 text-green-400" />
+                  </div>
+                  <h4 className="text-white font-medium">YubiKey</h4>
+                </div>
+                <p className="text-slate-400 text-sm">
+                  Industry-standard hardware keys with USB-A, USB-C, NFC, and Lightning support. 
+                  Works offline with no batteries required.
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/30 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <KeyRound className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <h4 className="text-white font-medium">FIDO2/WebAuthn</h4>
+                </div>
+                <p className="text-slate-400 text-sm">
+                  Open standard for passwordless authentication. Compatible with Windows Hello, 
+                  Touch ID, Android biometrics, and more.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </Tabs.Content>
+
+        {/* SSO (Single Sign-On) Tab */}
+        <Tabs.Content value="sso">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* SSO Overview */}
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    ssoEnabled ? 'bg-cyan-500/20' : 'bg-slate-700/50'
+                  }`}>
+                    <ArrowRightLeft className={`w-6 h-6 ${ssoEnabled ? 'text-cyan-400' : 'text-slate-400'}`} />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-medium">Cross-Realm Single Sign-On</h3>
+                    <p className="text-slate-400 text-sm">
+                      {ssoEnabled ? 'One login, access all realms instantly' : 'Enable SSO to access multiple realms'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSsoEnabled(!ssoEnabled)}
+                  className={`relative w-14 h-7 rounded-full transition ${
+                    ssoEnabled ? 'bg-cyan-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all ${
+                    ssoEnabled ? 'left-8' : 'left-1'
+                  }`} />
+                </button>
+              </div>
+
+              {ssoEnabled && (
+                <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/5 border border-cyan-500/30 rounded-lg p-4 flex items-center gap-3">
+                  <Zap className="w-5 h-5 text-cyan-400" />
+                  <p className="text-cyan-200 text-sm">
+                    SSO is active. You can seamlessly switch between enabled realms without re-authenticating.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Realm SSO Settings */}
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+                <Server className="w-5 h-5 text-cyan-400" />
+                Realm Access
+              </h3>
+              <p className="text-slate-400 text-sm mb-6">
+                Choose which realms should be accessible with your single sign-on session.
+              </p>
+
+              <div className="space-y-3">
+                {ssoRealms.map((realm) => (
+                  <div key={realm.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        realm.enabled ? 'bg-cyan-500/20' : 'bg-slate-700/50'
+                      }`}>
+                        <Globe className={`w-5 h-5 ${realm.enabled ? 'text-cyan-400' : 'text-slate-500'}`} />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">{realm.name}</p>
+                        <p className="text-slate-500 text-sm">
+                          {realm.enabled ? `Last sync: ${realm.lastSync}` : 'SSO disabled for this realm'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {realm.enabled && (
+                        <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 text-xs rounded">Active</span>
+                      )}
+                      <button
+                        onClick={() => setSsoRealms(realms => realms.map(r => 
+                          r.id === realm.id ? { ...r, enabled: !r.enabled } : r
+                        ))}
+                        className={`relative w-11 h-6 rounded-full transition ${
+                          realm.enabled ? 'bg-cyan-500' : 'bg-slate-700'
+                        }`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
+                          realm.enabled ? 'left-6' : 'left-1'
+                        }`} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SSO Info Cards */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/5 border border-cyan-500/30 rounded-xl p-4">
+                <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3">
+                  <Zap className="w-5 h-5 text-cyan-400" />
+                </div>
+                <h4 className="text-white font-medium mb-1">Instant Access</h4>
+                <p className="text-slate-400 text-sm">
+                  Switch between realms without logging in again.
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/5 border border-purple-500/30 rounded-xl p-4">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mb-3">
+                  <Shield className="w-5 h-5 text-purple-400" />
+                </div>
+                <h4 className="text-white font-medium mb-1">Secure Tokens</h4>
+                <p className="text-slate-400 text-sm">
+                  JWT tokens with realm-specific permissions.
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/30 rounded-xl p-4">
+                <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mb-3">
+                  <Repeat className="w-5 h-5 text-amber-400" />
+                </div>
+                <h4 className="text-white font-medium mb-1">Auto Sync</h4>
+                <p className="text-slate-400 text-sm">
+                  Session state syncs across all enabled realms.
+                </p>
+              </div>
             </div>
           </motion.div>
         </Tabs.Content>
@@ -548,6 +814,113 @@ export default function SecurityPage() {
                 Done
               </Dialog.Close>
             </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Add Security Key Dialog */}
+      <Dialog.Root open={showAddSecurityKey} onOpenChange={setShowAddSecurityKey}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md z-50">
+            <Dialog.Title className="text-xl font-bold text-white mb-2">Register Security Key</Dialog.Title>
+            <Dialog.Description className="text-slate-400 text-sm mb-6">
+              Add a hardware security key (YubiKey, FIDO2) for passwordless authentication.
+            </Dialog.Description>
+
+            {!isRegisteringKey ? (
+              <>
+                <div className="mb-6">
+                  <label className="block text-sm text-slate-400 mb-2">Key Name</label>
+                  <input
+                    type="text"
+                    value={newKeyName}
+                    onChange={e => setNewKeyName(e.target.value)}
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
+                    placeholder="e.g., YubiKey 5 NFC, Backup Key"
+                  />
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4 mb-6">
+                  <h4 className="text-white font-medium mb-3">Supported Keys</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      YubiKey 5 Series (USB-A, USB-C, NFC)
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      FIDO2/WebAuthn compatible keys
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      Windows Hello, Touch ID, Face ID
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      Android biometric authenticators
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Dialog.Close className="flex-1 px-4 py-2.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition">
+                    Cancel
+                  </Dialog.Close>
+                  <button
+                    onClick={() => setIsRegisteringKey(true)}
+                    disabled={!newKeyName.trim()}
+                    className="flex-1 px-4 py-2.5 bg-purple-500 text-white rounded-lg hover:bg-purple-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                  <Fingerprint className="w-10 h-10 text-purple-400" />
+                </div>
+                <h4 className="text-white font-medium mb-2">Touch Your Security Key</h4>
+                <p className="text-slate-400 text-sm mb-6">
+                  Insert your security key and touch the button or sensor to register it.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-amber-400 text-sm mb-6">
+                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" />
+                  <span>Waiting for security key...</span>
+                </div>
+                <button
+                  onClick={() => {
+                    // Simulate successful registration
+                    const newKey = {
+                      id: Date.now().toString(),
+                      name: newKeyName,
+                      type: 'fido2' as const,
+                      addedAt: new Date().toISOString().split('T')[0],
+                      lastUsed: 'Never'
+                    }
+                    setSecurityKeys(keys => [...keys, newKey])
+                    setNewKeyName('')
+                    setIsRegisteringKey(false)
+                    setShowAddSecurityKey(false)
+                  }}
+                  className="text-slate-400 text-sm hover:text-white transition"
+                >
+                  Simulate Registration (Demo)
+                </button>
+                <div className="mt-4">
+                  <button
+                    onClick={() => {
+                      setIsRegisteringKey(false)
+                      setNewKeyName('')
+                    }}
+                    className="text-red-400 text-sm hover:text-red-300 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

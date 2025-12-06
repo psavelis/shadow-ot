@@ -382,8 +382,8 @@ The Shadow OT website is a comprehensive platform providing all community, accou
 | Two-Factor Auth | TOTP (Google Auth) | 🟢 DONE |
 | Social Login | Google, Discord, Twitch | 🟢 DONE |
 | Wallet Login | MetaMask, WalletConnect | 🟢 DONE |
-| Hardware Keys | YubiKey, FIDO2 | 🔴 TODO |
-| SSO | Cross-realm single sign-on | 🔴 TODO |
+| Hardware Keys | YubiKey, FIDO2 | 🟢 DONE |
+| SSO | Cross-realm single sign-on | 🟢 DONE |
 
 ### Security Features
 - JWT with refresh tokens
@@ -2566,6 +2566,33 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 ## Recent Updates
+
+### v2.4.0 - Complete Security Suite (2025-12-06)
+
+**Hardware Security Keys** ✅ Complete
+- YubiKey 5 Series (USB-A, USB-C, NFC) support
+- FIDO2/WebAuthn standard implementation
+- Windows Hello, Touch ID, Face ID compatibility
+- Android biometric authenticator support
+- Security key registration wizard with visual feedback
+- Key management (add/remove) in dashboard
+- Multi-key support for redundancy
+
+**Cross-Realm SSO** ✅ Complete
+- Single Sign-On across all Shadow OT realms
+- JWT-based secure token exchange
+- Per-realm SSO enable/disable toggle
+- Real-time session sync across realms
+- Last sync timestamp display
+- Seamless realm switching without re-auth
+
+**Security Dashboard Enhancements**
+- New "Security Keys" tab with FIDO2/YubiKey management
+- New "Cross-Realm SSO" tab with realm toggles
+- Enhanced security score calculation
+- Improved tab navigation with 7 security sections
+
+---
 
 ### v2.3.1 - OAuth & Social Login (2025-12-06)
 
