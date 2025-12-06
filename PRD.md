@@ -3291,3 +3291,10 @@ All pages now use real React Query hooks:
 - Includes `postgres`, `redis`, `server`, `web`, `admin`, `prometheus`, `grafana`
 - Prometheus config: `docker/prometheus.yml`
 - Grafana provisioning: `docker/grafana/provisioning/*`
+### Infrastructure & CI/CD (Dec 2025)
+
+- Kubernetes manifests managed with Kustomize (`k8s/base` and `k8s/overlays/dev`).
+- Services use `LoadBalancer` type with MetalLB for external IPs in local clusters.
+- End-to-end workflow provisions kind, installs MetalLB, applies manifests, switches images, waits for readiness, asserts external IPs, and runs smoke tests.
+- Downloads service initializes real assets via an init-container configured by `download-assets-config`.
+- Next.js landing site proxies `/api/*` to the API based on `NEXT_PUBLIC_API_URL` with a safe default.
