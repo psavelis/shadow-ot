@@ -66,7 +66,7 @@ impl Chain {
             Chain::StarknetSepolia => 0x534e5f5345504f4c4941, // SN_SEPOLIA
             Chain::Bitcoin => 0, // Bitcoin doesn't use chain IDs
             Chain::BitcoinTestnet => 0,
-            Chain::Spark => 1000, // Placeholder
+            Chain::Spark => 0, // Spark is a Bitcoin L2, uses Bitcoin network identifiers
             Chain::Base => 8453,
             Chain::Arbitrum => 42161,
         }

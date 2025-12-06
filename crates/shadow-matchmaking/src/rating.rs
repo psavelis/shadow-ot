@@ -220,12 +220,23 @@ impl RatingSystem {
                     (team2_avg, team1_avg)
                 };
 
-                // Calculate base rating change
+                // Calculate base rating change using actual games played
+                let winner_games = self.get_rating(arena_match.participants.iter()
+                    .find(|p| p.team == winning_team)
+                    .map(|p| p.character_id)
+                    .unwrap_or_default())
+                    .games_played;
+                let loser_games = self.get_rating(arena_match.participants.iter()
+                    .find(|p| p.team != winning_team)
+                    .map(|p| p.character_id)
+                    .unwrap_or_default())
+                    .games_played;
+
                 let (gain, loss) = self.calculate_rating_change(
                     winner_avg,
                     loser_avg,
-                    10, // Using placeholder games count
-                    10,
+                    winner_games,
+                    loser_games,
                 );
 
                 // Apply rating changes

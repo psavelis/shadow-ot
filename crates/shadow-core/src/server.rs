@@ -267,6 +267,7 @@ impl ShadowServer {
         );
         let motd = self.config.server.motd.clone();
         let allowed_versions = vec![1098, 1099, 1100, 1200, 1220, 1290, 1310];
+        let db_pool = self.db_pool.clone();
 
         tokio::spawn(async move {
             tracing::info!("Starting login server on {}", login_addr);
@@ -280,11 +281,12 @@ impl ShadowServer {
                 }
             };
 
-            // Create login server state
+            // Create login server state with database pool for real authentication
             let state = Arc::new(RwLock::new(LoginServerState {
                 allowed_versions,
                 rsa_key,
                 motd: Some(motd.unwrap_or_else(|| "Welcome to Shadow OT!".to_string())),
+                db_pool,
             }));
 
             // Bind and run login server

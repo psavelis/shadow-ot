@@ -19,6 +19,10 @@ thiserror.workspace = true
 anyhow.workspace = true
 uuid.workspace = true
 chrono.workspace = true
+hex = "0.4"
+
+# Local crates
+shadow-db = { path = "../shadow-db" }
 
 # Crypto for XTEA and RSA
 aes = "0.8"

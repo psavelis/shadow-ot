@@ -5,8 +5,11 @@ import { motion } from 'framer-motion'
 import { 
   Calculator, Sword, Zap, Coins, Target, TrendingUp,
   Shield, Heart, Clock, Award, ChevronDown, RotateCcw,
-  Flame, Snowflake, Leaf, Moon, Sun, Sparkles, Info
+  Flame, Snowflake, Leaf, Moon, Sun, Sparkles, Info,
+  Loader2
 } from 'lucide-react'
+import { useCreatures } from '@/shared/hooks/useCreatures'
+import { getCreatureSprite } from '@/shared/utils/assets'
 
 type CalculatorType = 'damage' | 'experience' | 'loot' | 'training' | 'imbue'
 
@@ -22,17 +25,11 @@ const elements = [
   { name: 'Death', icon: Moon, color: 'slate' },
 ]
 
-const monsters = [
-  { name: 'Dragon', level: 100, exp: 700, loot: 3500 },
-  { name: 'Dragon Lord', level: 150, exp: 2100, loot: 8500 },
-  { name: 'Demon', level: 200, exp: 6000, loot: 15000 },
-  { name: 'Hydra', level: 130, exp: 2100, loot: 6500 },
-  { name: 'Giant Spider', level: 80, exp: 900, loot: 2800 },
-  { name: 'Frost Dragon', level: 180, exp: 2100, loot: 12000 },
-]
-
 export default function ToolsPage() {
   const [activeCalculator, setActiveCalculator] = useState<CalculatorType>('damage')
+  
+  // Fetch creatures from API for quick reference
+  const { data: creatures, isLoading: creaturesLoading } = useCreatures({ limit: 10, sortBy: 'experience' })
   
   // Damage Calculator State
   const [playerLevel, setPlayerLevel] = useState(200)
@@ -522,26 +519,56 @@ export default function ToolsPage() {
             Monster Quick Reference
           </h2>
           <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-slate-900/50">
-                <tr className="text-slate-400 text-sm">
-                  <th className="text-left p-4">Monster</th>
-                  <th className="text-right p-4">Level</th>
-                  <th className="text-right p-4">Experience</th>
-                  <th className="text-right p-4">Avg. Loot</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700/50">
-                {monsters.map((monster) => (
-                  <tr key={monster.name} className="hover:bg-slate-700/30 transition">
-                    <td className="p-4 text-white font-medium">{monster.name}</td>
-                    <td className="p-4 text-right text-purple-400">{monster.level}</td>
-                    <td className="p-4 text-right text-amber-400">{monster.exp.toLocaleString()}</td>
-                    <td className="p-4 text-right text-emerald-400">{monster.loot.toLocaleString()} gp</td>
+            {creaturesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+              </div>
+            ) : creatures && creatures.length > 0 ? (
+              <table className="w-full">
+                <thead className="bg-slate-900/50">
+                  <tr className="text-slate-400 text-sm">
+                    <th className="text-left p-4">Monster</th>
+                    <th className="text-right p-4">HP</th>
+                    <th className="text-right p-4">Experience</th>
+                    <th className="text-right p-4">Difficulty</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-700/50">
+                  {creatures.map((creature) => (
+                    <tr key={creature.id} className="hover:bg-slate-700/30 transition">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={getCreatureSprite(creature.name)} 
+                            alt={creature.name}
+                            className="w-8 h-8 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/icons/creatures/default.png'
+                            }}
+                          />
+                          <span className="text-white font-medium">{creature.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right text-red-400">{creature.hitpoints.toLocaleString()}</td>
+                      <td className="p-4 text-right text-amber-400">{creature.experience.toLocaleString()}</td>
+                      <td className="p-4 text-right">
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          creature.difficulty === 'Hard' ? 'bg-red-500/20 text-red-400' :
+                          creature.difficulty === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
+                          'bg-green-500/20 text-green-400'
+                        }`}>
+                          {creature.difficulty}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center py-8 text-slate-400">
+                No creature data available
+              </div>
+            )}
           </div>
         </div>
       </section>

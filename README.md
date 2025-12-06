@@ -1,14 +1,14 @@
 # Shadow OT
 
-**The Ultimate Open Tibia Server Platform**
+**The Ultimate Open OTServ Platform**
 
-Shadow OT is a revolutionary, multi-realm Open Tibia server built with Rust for maximum performance and reliability. It features blockchain-native assets, cross-chain NFT support, and the most complete feature set of any OT server.
+Shadow OT is a revolutionary, multi-realm Open OT server built with Rust for maximum performance and reliability. It features blockchain-native assets, cross-chain NFT support, and the most complete feature set of any OT server.
 
 ## Features
 
 ### Core Game Features
 - **Multi-Realm Architecture** - One account, multiple themed game worlds
-- **Complete Tibia Features** - All features from real Tibia and more
+- **Complete OTServ Features** - All features from real OTServ and more
 - **Houses & Guilds** - Full housing system with auctions and guild halls
 - **Market System** - In-game market with cross-realm trading
 - **Bestiary & Prey** - Complete creature tracking and hunting systems
@@ -93,7 +93,7 @@ kubectl apply -k k8s/overlays/production
 shadow-ot/
 ├── crates/
 │   ├── shadow-core/        # Core game engine
-│   ├── shadow-protocol/    # Tibia protocol implementation
+│   ├── shadow-protocol/    # OTServ Tib a protocol implementation
 │   ├── shadow-db/          # Database layer
 │   ├── shadow-api/         # REST/WebSocket API
 │   ├── shadow-world/       # World/map management
@@ -113,8 +113,23 @@ shadow-ot/
 ├── docker/                 # Docker configurations
 ├── data/                   # Game data files
 ├── realms/                 # Realm configurations
-└── assets/                 # Sprites, maps, sounds
+├── assets/                 # Sprites, maps, sounds (see assets/ASSETS.md)
+└── scripts/                # Utility scripts
 ```
+
+## Assets
+
+Shadow OT uses open source assets from the OT community. Download assets:
+
+```bash
+./scripts/download-assets.sh
+```
+
+See [assets/ASSETS.md](assets/ASSETS.md) for full documentation on:
+- Open source sprite repositories
+- Map sources and editors
+- Sound effect libraries
+- How to create custom assets
 
 ## Configuration
 

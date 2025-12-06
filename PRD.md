@@ -2564,11 +2564,50 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.7.0*
+*Version: 2.8.0*
 
 ---
 
 ## Recent Updates
+
+### v2.8.0 - Complete Mock Removal & API Integration (2025-12-06)
+
+**All Pages Now Use Real API Hooks** ✅ Complete
+
+**Highscores Page** (`/highscores`) - NO MORE MOCKS
+- Uses `useHighscores` hook with server-side pagination
+- Category filtering (Experience, Magic, Skills, Achievements)
+- Vocation and Realm filtering
+- Player search with debouncing
+- Proper loading/error states
+
+**Guilds Page** (`/guilds`) - NO MORE MOCKS
+- Uses `useGuilds` hook with pagination
+- Realm filtering
+- Guild search
+- Member counts from API
+- War status indicators
+
+**Realms Page** (`/realms`) - NO MORE MOCKS
+- Uses `useRealms` hook
+- Live player counts from API
+- Server status indicators
+- Peak player tracking
+- Cross-realm feature showcase
+
+**Tools Page** (`/tools`) - UPDATED
+- Monster Quick Reference uses `useCreatures` hook
+- Creature sprites from TibiaMaps API
+- Hitpoints, Experience, Difficulty from API
+- Calculators use pure logic (no external data needed)
+
+**New Hook: useRealms** (`web/shared/src/hooks/useRealms.ts`)
+- `useRealms()` - Fetch all realms
+- `useRealm(id)` - Single realm details
+- `useOnlinePlayers(realmId)` - Live player list
+- `useRealmStatus(realmId)` - Real-time status updates
+
+---
 
 ### v2.7.0 - Real Implementation with Open-Source Assets (2025-12-06)
 

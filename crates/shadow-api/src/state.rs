@@ -1,6 +1,7 @@
 //! Application state shared across handlers
 
 use crate::auth::AuthConfig;
+use redis::aio::ConnectionManager;
 use sqlx::PgPool;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -60,20 +61,57 @@ impl Default for ServerConfig {
     }
 }
 
-/// Cache state for Redis or in-memory cache
+/// Cache state using Redis for sessions and rate limiting
 pub struct CacheState {
-    // Placeholder for redis client or in-memory cache
-    _placeholder: (),
+    /// Redis connection manager for cache operations
+    pub redis: ConnectionManager,
 }
 
 impl CacheState {
-    pub fn new() -> Self {
-        Self { _placeholder: () }
+    /// Create a new cache state with Redis connection
+    pub async fn new(redis_url: &str) -> Result<Self, redis::RedisError> {
+        let client = redis::Client::open(redis_url)?;
+        let redis = ConnectionManager::new(client).await?;
+        Ok(Self { redis })
     }
-}
 
-impl Default for CacheState {
-    fn default() -> Self {
-        Self::new()
+    /// Create from existing connection manager
+    pub fn from_connection(redis: ConnectionManager) -> Self {
+        Self { redis }
+    }
+
+    /// Get a value from cache
+    pub async fn get(&self, key: &str) -> Option<String> {
+        use redis::AsyncCommands;
+        let mut conn = self.redis.clone();
+        conn.get(key).await.ok()
+    }
+
+    /// Set a value in cache with expiration
+    pub async fn set_ex(&self, key: &str, value: &str, seconds: u64) -> Result<(), redis::RedisError> {
+        use redis::AsyncCommands;
+        let mut conn = self.redis.clone();
+        conn.set_ex(key, value, seconds).await
+    }
+
+    /// Delete a key from cache
+    pub async fn del(&self, key: &str) -> Result<(), redis::RedisError> {
+        use redis::AsyncCommands;
+        let mut conn = self.redis.clone();
+        conn.del(key).await
+    }
+
+    /// Increment a counter (for rate limiting)
+    pub async fn incr(&self, key: &str) -> Result<i64, redis::RedisError> {
+        use redis::AsyncCommands;
+        let mut conn = self.redis.clone();
+        conn.incr(key, 1).await
+    }
+
+    /// Set expiration on a key
+    pub async fn expire(&self, key: &str, seconds: i64) -> Result<bool, redis::RedisError> {
+        use redis::AsyncCommands;
+        let mut conn = self.redis.clone();
+        conn.expire(key, seconds).await
     }
 }

@@ -513,5 +513,5 @@ impl MovementHandler {
     }
 }
 
-/// World reference type (placeholder for actual world reference)
-pub type WorldRef = Arc<RwLock<()>>;
+/// World reference type for map and entity access
+pub type WorldRef = Arc<RwLock<shadow_world::Map>>;

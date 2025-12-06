@@ -34,6 +34,7 @@ cairo-lang-starknet = "2.4"
 
 # Bitcoin/Lightning
 bitcoin = { version = "0.31", features = ["serde"] }
+bitcoincore-rpc = "0.18"
 lightning = "0.0.121"
 
 # General crypto

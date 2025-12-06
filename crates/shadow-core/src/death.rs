@@ -385,6 +385,7 @@ impl DeathManager {
         killer_name: &str,
         killer_id: Option<Uuid>,
         location: (i32, i32, i32),
+        temple_location: (i32, i32, i32),
         is_vip: bool,
         vip_reduction: f64,
     ) -> DeathResult {
@@ -461,8 +462,8 @@ impl DeathManager {
         let consumed = blessings.blessings.iter().cloned().collect::<Vec<_>>();
         self.get_blessings_mut(character_id).clear_all();
         
-        // Calculate respawn location
-        let respawn = self.get_respawn_location(character_id, location);
+        // Calculate respawn location based on blessings
+        let respawn = self.get_respawn_location(character_id, location, temple_location, &blessings);
         
         DeathResult {
             death_avoided: false,
@@ -480,11 +481,19 @@ impl DeathManager {
         &self,
         _character_id: Uuid,
         death_location: (i32, i32, i32),
+        temple_location: (i32, i32, i32),
+        blessings: &PlayerBlessings,
     ) -> (i32, i32, i32) {
-        // Default temple/respawn point
-        // In a real implementation, this would look up the character's temple
-        // or use Blood of Mountain blessing for closer respawn
-        death_location // Placeholder - would return temple coordinates
+        // Check if Blood of Mountain blessing allows closer respawn
+        if blessings.has_blessing(BlessingType::BloodOfMountain) {
+            // Blood of Mountain allows respawn closer to death location
+            // Find the nearest temple/respawn point to death location
+            // For now, return death location floor's temple equivalent
+            (death_location.0, death_location.1, 7) // Surface level respawn
+        } else {
+            // Standard respawn at character's designated temple
+            temple_location
+        }
     }
 
     /// Get death history for a character

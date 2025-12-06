@@ -39,6 +39,9 @@ hex = "0.4"
 # Validation
 validator = { version = "0.16", features = ["derive"] }
 
+# Cache
+redis = { version = "0.25", features = ["tokio-comp", "connection-manager"] }
+
 # OpenAPI documentation
 utoipa = { version = "4", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "6", features = ["axum"] }

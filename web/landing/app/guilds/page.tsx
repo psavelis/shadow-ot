@@ -3,10 +3,15 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Search, Users, Globe, Crown, Swords, Shield, Trophy, ChevronRight } from 'lucide-react'
+import { 
+  Search, Users, Globe, Crown, Swords, Shield, Trophy, ChevronRight,
+  Loader2, AlertCircle
+} from 'lucide-react'
+import { useGuilds } from '@/shared/hooks/useGuilds'
+import type { RealmId } from '@/shared/types'
 
-const realmOptions = [
-  { id: 'all', label: 'All Realms' },
+const realmOptions: { id: RealmId | 'all'; label: string }[] = [
+  { id: 'all' as any, label: 'All Realms' },
   { id: 'shadowveil', label: 'Shadowveil' },
   { id: 'aetheria', label: 'Aetheria' },
   { id: 'warbound', label: 'Warbound' },
@@ -24,247 +29,207 @@ const realmColors: Record<string, string> = {
   grimhollow: 'text-slate-400 bg-slate-500/20',
 }
 
-const guilds = [
-  {
-    id: '1',
-    name: 'Dark Legion',
-    realm: 'shadowveil',
-    members: 156,
-    level: 45,
-    leader: 'ShadowMaster',
-    description: 'The oldest and most powerful guild in Shadowveil. We dominate PvP and control the best hunting grounds.',
-    wars: 3,
-    founded: '2022-03-15',
-  },
-  {
-    id: '2',
-    name: 'Phoenix Rising',
-    realm: 'aetheria',
-    members: 234,
-    level: 52,
-    leader: 'PhoenixLord',
-    description: 'A guild focused on teamwork and helping new players reach their full potential.',
-    wars: 1,
-    founded: '2021-11-20',
-  },
-  {
-    id: '3',
-    name: 'Blood Ravens',
-    realm: 'warbound',
-    members: 89,
-    level: 38,
-    leader: 'RavenKing',
-    description: 'Hardcore PvP guild. Apply only if you\'re ready for constant war.',
-    wars: 7,
-    founded: '2023-02-08',
-  },
-  {
-    id: '4',
-    name: 'Mystic Order',
-    realm: 'mythara',
-    members: 178,
-    level: 41,
-    leader: 'MysticSage',
-    description: 'Dedicated to exploring all quests and unlocking every achievement in the game.',
-    wars: 0,
-    founded: '2022-06-30',
-  },
-  {
-    id: '5',
-    name: 'Void Walkers',
-    realm: 'voidborne',
-    members: 67,
-    level: 29,
-    leader: 'VoidPriest',
-    description: 'Seasonal realm guild - competing for the top spot this season!',
-    wars: 2,
-    founded: '2024-09-01',
-  },
-]
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
 export default function GuildsPage() {
+  const [selectedRealm, setSelectedRealm] = useState<RealmId | 'all'>('all' as any)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedRealm, setSelectedRealm] = useState('all')
-  const [sortBy, setSortBy] = useState<'level' | 'members' | 'wars'>('level')
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 20
 
-  const filteredGuilds = guilds
-    .filter(guild => {
-      const matchesSearch = guild.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesRealm = selectedRealm === 'all' || guild.realm === selectedRealm
-      return matchesSearch && matchesRealm
-    })
-    .sort((a, b) => b[sortBy] - a[sortBy])
+  // Fetch guilds from API
+  const { data, isLoading, error } = useGuilds(
+    selectedRealm === 'all' ? undefined : selectedRealm,
+    currentPage,
+    pageSize
+  )
+
+  // Filter by search query client-side
+  const filteredGuilds = data?.data?.filter(guild => 
+    !searchQuery || guild.name.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || []
 
   return (
-    <div className="min-h-screen bg-shadow-950 py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-20">
+      <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">Guilds</h1>
-          <p className="text-shadow-400 text-lg max-w-2xl mx-auto">
-            Find and join guilds across all realms
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm mb-6">
+            <Shield className="w-4 h-4" />
+            Community
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Guilds</span>
+          </h1>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            Find and join powerful guilds across all realms
           </p>
         </motion.div>
 
-        {/* Search & Filters */}
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="card mb-8"
+          className="flex flex-wrap items-center gap-4 bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-8"
         >
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-shadow-500" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search guilds..."
-                className="w-full pl-12 pr-4 py-3 bg-shadow-800 border border-shadow-600 rounded-lg text-white placeholder:text-shadow-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
-              />
-            </div>
-            <select
-              value={selectedRealm}
-              onChange={(e) => setSelectedRealm(e.target.value)}
-              className="px-4 py-3 bg-shadow-800 border border-shadow-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50"
-            >
-              {realmOptions.map((realm) => (
-                <option key={realm.id} value={realm.id}>{realm.label}</option>
-              ))}
-            </select>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'level' | 'members' | 'wars')}
-              className="px-4 py-3 bg-shadow-800 border border-shadow-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50"
-            >
-              <option value="level">Sort by Level</option>
-              <option value="members">Sort by Members</option>
-              <option value="wars">Sort by Wars</option>
-            </select>
+          {/* Search */}
+          <div className="relative flex-1 min-w-[250px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Search guilds..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-900/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-purple-500/50"
+            />
           </div>
-        </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
-          <div className="card text-center">
-            <Shield className="w-8 h-8 text-accent-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{guilds.length}</p>
-            <p className="text-shadow-400 text-sm">Total Guilds</p>
-          </div>
-          <div className="card text-center">
-            <Users className="w-8 h-8 text-accent-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{guilds.reduce((a, b) => a + b.members, 0)}</p>
-            <p className="text-shadow-400 text-sm">Total Members</p>
-          </div>
-          <div className="card text-center">
-            <Swords className="w-8 h-8 text-accent-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{guilds.reduce((a, b) => a + b.wars, 0)}</p>
-            <p className="text-shadow-400 text-sm">Active Wars</p>
-          </div>
-          <div className="card text-center">
-            <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-white">{Math.max(...guilds.map(g => g.level))}</p>
-            <p className="text-shadow-400 text-sm">Highest Level</p>
-          </div>
-        </motion.div>
+          {/* Realm Filter */}
+          <select
+            value={selectedRealm}
+            onChange={(e) => {
+              setSelectedRealm(e.target.value as RealmId | 'all')
+              setCurrentPage(1)
+            }}
+            className="appearance-none bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2 pr-8 text-white text-sm focus:outline-none focus:border-purple-500/50"
+          >
+            {realmOptions.map(realm => (
+              <option key={realm.id} value={realm.id}>{realm.label}</option>
+            ))}
+          </select>
 
-        {/* Guild List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-4"
-        >
-          {filteredGuilds.map((guild, index) => (
-            <Link key={guild.id} href={`/guilds/${guild.id}`}>
-              <div className="card hover:border-accent-500/50 transition-all group">
-                <div className="flex items-center gap-6">
-                  <div className="hidden sm:flex w-16 h-16 rounded-xl bg-shadow-700 items-center justify-center flex-shrink-0">
-                    <Shield className="w-8 h-8 text-accent-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-lg font-semibold text-white group-hover:text-accent-400 transition-colors">
-                        {guild.name}
-                      </h3>
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium capitalize ${realmColors[guild.realm]}`}>
-                        {guild.realm}
-                      </span>
-                      {guild.wars > 0 && (
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400 flex items-center gap-1">
-                          <Swords className="w-3 h-3" />
-                          {guild.wars} wars
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-shadow-400 text-sm line-clamp-1 mb-2">{guild.description}</p>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-shadow-500">
-                      <span className="flex items-center gap-1">
-                        <Crown className="w-4 h-4" />
-                        {guild.leader}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {guild.members} members
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Trophy className="w-4 h-4" />
-                        Level {guild.level}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Globe className="w-4 h-4" />
-                        Founded {formatDate(guild.founded)}
-                      </span>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-shadow-600 group-hover:text-accent-500 transition-colors flex-shrink-0" />
-                </div>
-              </div>
-            </Link>
-          ))}
-
-          {filteredGuilds.length === 0 && (
-            <div className="text-center py-16">
-              <Shield className="w-16 h-16 text-shadow-700 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No guilds found</h3>
-              <p className="text-shadow-500">Try adjusting your search or filters</p>
-            </div>
+          {data && (
+            <span className="text-slate-500 text-sm">
+              {data.total} guilds found
+            </span>
           )}
         </motion.div>
 
-        {/* Pagination */}
-        {filteredGuilds.length > 0 && (
-          <div className="flex items-center justify-center gap-2 pt-8">
-            <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">
-              Previous
-            </button>
-            <button className="px-4 py-2 rounded-lg bg-accent-500 text-white">1</button>
-            <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">2</button>
-            <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">
-              Next
-            </button>
+        {/* Guilds Grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-12 h-12 animate-spin text-purple-400" />
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 text-red-400">
+            <AlertCircle className="w-12 h-12 mb-4" />
+            <p>Failed to load guilds. Please try again.</p>
+          </div>
+        ) : filteredGuilds.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <Shield className="w-12 h-12 mb-4 opacity-50" />
+            <p>No guilds found</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredGuilds.map((guild, idx) => (
+                <motion.div
+                  key={guild.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.05, 0.3) }}
+                  className="group bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10"
+                >
+                  {/* Guild Header */}
+                  <div className="p-6 border-b border-slate-700/50">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                          {guild.logo ? (
+                            <img src={guild.logo} alt={guild.name} className="w-10 h-10 object-contain" />
+                          ) : (
+                            <Shield className="w-6 h-6 text-white" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold text-lg group-hover:text-purple-400 transition">
+                            {guild.name}
+                          </h3>
+                          <span className={`text-xs px-2 py-0.5 rounded ${realmColors[guild.realm] || 'text-slate-400 bg-slate-500/20'}`}>
+                            {guild.realm}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-purple-400 font-bold text-lg">Lvl {guild.level}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-slate-400 text-sm line-clamp-2">
+                      {guild.description || 'No description available'}
+                    </p>
+                  </div>
+
+                  {/* Guild Stats */}
+                  <div className="p-4 grid grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <p className="text-white font-bold">{guild.members.length}</p>
+                      <p className="text-slate-500 text-xs">Members</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
+                        <Swords className="w-4 h-4" />
+                      </div>
+                      <p className="text-white font-bold">{guild.wars.filter(w => w.status === 'active').length}</p>
+                      <p className="text-slate-500 text-xs">Active Wars</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
+                        <Crown className="w-4 h-4" />
+                      </div>
+                      <p className="text-white font-bold truncate text-sm">
+                        {guild.members.find(m => m.rank === 'Leader')?.characterName || 'Unknown'}
+                      </p>
+                      <p className="text-slate-500 text-xs">Leader</p>
+                    </div>
+                  </div>
+
+                  {/* View Guild */}
+                  <div className="p-4 border-t border-slate-700/50">
+                    <Link
+                      href={`/guilds/${guild.id}`}
+                      className="flex items-center justify-center gap-2 w-full py-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition"
+                    >
+                      View Guild
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {data && data.totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <span className="text-slate-400">
+                  Page {currentPage} of {data.totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(data.totalPages, p + 1))}
+                  disabled={currentPage === data.totalPages}
+                  className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
-    </div>
+    </main>
   )
 }
-
