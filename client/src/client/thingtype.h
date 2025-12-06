@@ -176,7 +176,7 @@ private:
 
 // Alias for items
 using ItemType = ThingType;
-using CreatureType = ThingType;
+// Note: CreatureType enum is defined in creature.h for entity type distinction
 
 // Global manager
 class ThingTypeManager {

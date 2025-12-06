@@ -170,3 +170,17 @@ data:
     secondary_color = "#FF4500"
     logo = "assets/warbound-logo.png"
     tagline = "Only the Strong Survive"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: download-assets-config
+  namespace: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-download
+    app.kubernetes.io/component: assets
+data:
+  urls: |
+    https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg
+    https://upload.wikimedia.org/wikipedia/commons/2/26/Yellow_icon.svg

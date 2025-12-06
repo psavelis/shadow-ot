@@ -118,3 +118,6 @@ private:
 
 } // namespace client
 } // namespace shadow
+
+// Global accessor
+extern shadow::client::MissileManager& g_missiles;

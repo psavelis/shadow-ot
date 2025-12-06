@@ -95,10 +95,6 @@ void ProtocolGame::setXTEAKey(const std::array<uint32_t, 4>& key) {
     m_xtea.setKey(key);
 }
 
-// TODO: Enable full packet parsing when Creature/Game/Map APIs are aligned
-// The parsePacket implementation is complete but uses APIs that differ from current classes
-// APIs to align: Map::cleanTile, Map::setWorldLight, g_effects, g_missiles, InventorySlot namespace
-#if 0
 void ProtocolGame::parsePacket(NetworkMessage& msg) {
     uint8_t opcode = msg.readByte();
 
@@ -387,10 +383,10 @@ CreaturePtr ProtocolGame::parseCreature(NetworkMessage& msg, uint16_t type) {
     creature->setSpeed(msg.readU16());
 
     // Skull
-    creature->setSkull(static_cast<Skull>(msg.readByte()));
+    creature->setSkull(static_cast<Creature::Skull>(msg.readByte()));
 
     // Shield (party)
-    creature->setShield(static_cast<Shield>(msg.readByte()));
+    creature->setShield(static_cast<Creature::Shield>(msg.readByte()));
 
     // Emblem (if new creature)
     if (type == 0x61) {
@@ -713,7 +709,7 @@ void ProtocolGame::parseCreatureSkull(NetworkMessage& msg) {
 
     auto creature = g_map.getCreatureById(id);
     if (creature) {
-        creature->setSkull(skull);
+        creature->setSkull(static_cast<Creature::Skull>(skull));
     }
 }
 
@@ -723,7 +719,7 @@ void ProtocolGame::parseCreatureShield(NetworkMessage& msg) {
 
     auto creature = g_map.getCreatureById(id);
     if (creature) {
-        creature->setShield(shield);
+        creature->setShield(static_cast<Creature::Shield>(shield));
     }
 }
 
@@ -822,7 +818,7 @@ void ProtocolGame::parseInventory(NetworkMessage& msg) {
 
     auto player = g_game.getLocalPlayer();
     if (player) {
-        player->setInventoryItem(static_cast<Player::InventorySlot>(slot), item);
+        player->setInventoryItem(static_cast<InventorySlot>(slot), item);
     }
 }
 
@@ -831,7 +827,7 @@ void ProtocolGame::parseInventoryEmpty(NetworkMessage& msg) {
 
     auto player = g_game.getLocalPlayer();
     if (player) {
-        player->setInventoryItem(static_cast<Player::InventorySlot>(slot), nullptr);
+        player->setInventoryItem(static_cast<InventorySlot>(slot), nullptr);
     }
 }
 
@@ -915,12 +911,12 @@ void ProtocolGame::parsePlayerSkills(NetworkMessage& msg) {
     auto player = g_game.getLocalPlayer();
     if (!player) return;
 
-    for (int i = 0; i <= static_cast<int>(Player::Skill::Fishing); ++i) {
+    for (int i = 0; i <= static_cast<int>(Skill::Fishing); ++i) {
         uint16_t level = msg.readU16();
         uint16_t baseLevel = msg.readU16();
         uint8_t percent = msg.readByte();
 
-        player->setSkill(static_cast<Player::Skill>(i), level, baseLevel,
+        player->setSkill(static_cast<Skill>(i), level, baseLevel,
                         static_cast<float>(percent));
     }
 }
@@ -982,7 +978,7 @@ void ProtocolGame::parseSpeakType(NetworkMessage& msg) {
     std::string text = msg.readString();
 
     if (g_game.onTalk) {
-        g_game.onTalk(senderName, level, speakType, pos, channelId, text);
+        g_game.onTalk(senderName, level, static_cast<uint8_t>(speakType), pos, channelId, text);
     }
 }
 
@@ -1025,7 +1021,7 @@ void ProtocolGame::parsePrivateChannel(NetworkMessage& msg) {
     std::string name = msg.readString();
 
     if (g_game.onOpenPrivateChannel) {
-        g_game.onOpenPrivateChannel(name);
+        g_game.onOpenPrivateChannel(0, name);  // Private channel with ID 0
     }
 }
 
@@ -1042,7 +1038,7 @@ void ProtocolGame::parseTextMessage(NetworkMessage& msg) {
     std::string text = msg.readString();
 
     if (g_game.onTextMessage) {
-        g_game.onTextMessage(type, text);
+        g_game.onTextMessage(static_cast<uint8_t>(type), text);
     }
 }
 
@@ -1130,15 +1126,6 @@ void ProtocolGame::parseVipState(NetworkMessage& msg) {
         vip.online = (status > 0);
 
         player->addVIP(vip);
-    }
-}
-#endif // Parsing disabled - API alignment needed
-
-// Stub parsePacket for compilation - full implementation above
-void ProtocolGame::parsePacket(NetworkMessage& msg) {
-    // Read opcode but don't process - full parsing available when APIs aligned
-    if (!msg.isEof()) {
-        msg.readByte(); // consume opcode
     }
 }
 

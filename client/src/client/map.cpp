@@ -58,6 +58,13 @@ void Map::removeTile(const Position& pos) {
     m_tiles.erase(pos);
 }
 
+void Map::cleanTile(const Position& pos) {
+    auto tile = getTile(pos);
+    if (tile) {
+        tile->clear();
+    }
+}
+
 void Map::addCreature(std::shared_ptr<Creature> creature) {
     if (!creature) return;
     m_creatures[creature->getCreatureId()] = creature;

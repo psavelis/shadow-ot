@@ -90,3 +90,6 @@ private:
 
 } // namespace client
 } // namespace shadow
+
+// Global accessor
+extern shadow::client::EffectManager& g_effects;

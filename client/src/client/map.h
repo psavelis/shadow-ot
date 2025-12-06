@@ -39,6 +39,7 @@ public:
     TilePtr getOrCreateTile(const Position& pos);
     void addTile(TilePtr tile);
     void removeTile(const Position& pos);
+    void cleanTile(const Position& pos);  // Clear all things from tile
 
     // Creature tracking
     void addCreature(std::shared_ptr<Creature> creature);
@@ -66,6 +67,7 @@ public:
     };
     LightInfo getLight() const { return m_ambientLight; }
     void setAmbientLight(uint8_t intensity, uint8_t color);
+    void setWorldLight(uint8_t intensity, uint8_t color) { setAmbientLight(intensity, color); }
 
     // Path finding
     std::vector<Position::Direction> findPath(const Position& start, const Position& end,

@@ -40,6 +40,15 @@ struct Outfit {
     bool isInvisible() const { return lookType == 0 && lookTypeEx == 0; }
 };
 
+// Creature type enum
+enum class CreatureType : uint8_t {
+    Unknown = 0,
+    Player,
+    Monster,
+    Npc,
+    Summon  // Player's summon
+};
+
 class Creature : public Thing {
 public:
     Creature();
@@ -48,6 +57,14 @@ public:
     static std::shared_ptr<Creature> create(uint32_t id);
 
     bool isCreature() const override { return true; }
+
+    // Creature type
+    CreatureType getType() const { return m_creatureType; }
+    void setType(CreatureType type) { m_creatureType = type; }
+    bool isPlayer() const override { return m_creatureType == CreatureType::Player; }
+    bool isMonster() const override { return m_creatureType == CreatureType::Monster; }
+    bool isNPC() const override { return m_creatureType == CreatureType::Npc; }
+    bool isSummon() const { return m_creatureType == CreatureType::Summon; }
 
     // Identification
     uint32_t getCreatureId() const { return m_id; }
@@ -147,6 +164,7 @@ protected:
     int m_healthPercent{100};
     Position::Direction m_direction{Position::South};
     uint16_t m_speed{220};
+    CreatureType m_creatureType{CreatureType::Unknown};
 
     Outfit m_outfit;
     Skull m_skull{Skull::None};

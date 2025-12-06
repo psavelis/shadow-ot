@@ -17,6 +17,34 @@ spec:
         app.kubernetes.io/name: shadow-download
         app.kubernetes.io/component: downloads
     spec:
+      initContainers:
+        - name: init-downloads
+          image: curlimages/curl:8.11.0
+          command: ["sh","-c"]
+          args:
+            - |
+              mkdir -p /usr/share/nginx/html;
+              if [ -n "$ASSET_URLS" ]; then
+                for u in $ASSET_URLS; do
+                  f=$(basename "$u");
+                  curl -fsSL "$u" -o "/usr/share/nginx/html/$f" || true;
+                done;
+              fi;
+              printf "<html><body><h1>Shadow OT Downloads</h1>" > /usr/share/nginx/html/index.html;
+              for f in /usr/share/nginx/html/*; do
+                n=$(basename "$f");
+                if [ "$n" != "index.html" ]; then echo "<div><a href=\"/$n\">$n</a></div>" >> /usr/share/nginx/html/index.html; fi;
+              done;
+              echo "</body></html>" >> /usr/share/nginx/html/index.html;
+          env:
+            - name: ASSET_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: download-assets-config
+                  key: urls
+          volumeMounts:
+            - name: download-data
+              mountPath: /usr/share/nginx/html
       containers:
         - name: nginx
           image: nginx:1.25-alpine

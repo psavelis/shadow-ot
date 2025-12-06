@@ -48,6 +48,21 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         routes::guilds::get_guild,
         routes::market::list_offers,
         routes::news::list_news,
+        routes::support::list_tickets,
+        routes::support::get_ticket,
+        routes::support::create_ticket,
+        routes::support::reply_to_ticket,
+        routes::support::close_ticket,
+        routes::support::get_faq,
+        routes::auction::list_character_auctions,
+        routes::auction::list_item_auctions,
+        routes::auction::get_character_auction,
+        routes::auction::get_item_auction,
+        routes::auction::bid_on_character_auction,
+        routes::auction::bid_on_item_auction,
+        routes::auction::create_character_auction,
+        routes::auction::create_item_auction,
+        routes::auction::cancel_auction,
     ),
     components(
         schemas(
@@ -62,6 +77,28 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
             routes::guilds::GuildResponse,
             routes::market::MarketOffer,
             routes::news::NewsArticle,
+            routes::support::SupportTicket,
+            routes::support::TicketMessage,
+            routes::support::TicketCategory,
+            routes::support::TicketStatus,
+            routes::support::TicketPriority,
+            routes::support::CreateTicketRequest,
+            routes::support::ReplyTicketRequest,
+            routes::support::PaginatedTickets,
+            routes::support::FaqCategory,
+            routes::support::FaqItem,
+            routes::auction::CharacterAuction,
+            routes::auction::ItemAuction,
+            routes::auction::AuctionType,
+            routes::auction::AuctionStatus,
+            routes::auction::Vocation,
+            routes::auction::CharacterSkills,
+            routes::auction::BidRequest,
+            routes::auction::BidResponse,
+            routes::auction::CreateCharacterAuctionRequest,
+            routes::auction::CreateItemAuctionRequest,
+            routes::auction::PaginatedCharacterAuctions,
+            routes::auction::PaginatedItemAuctions,
         )
     ),
     tags(
@@ -74,6 +111,8 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         (name = "guilds", description = "Guild information"),
         (name = "market", description = "In-game market"),
         (name = "news", description = "News and announcements"),
+        (name = "support", description = "Support ticket system"),
+        (name = "auctions", description = "Character and item auctions"),
     ),
     info(
         title = "Shadow OT API",
@@ -138,6 +177,23 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         // Houses
         .route("/houses/:realm", get(routes::houses::list_houses))
         .route("/houses/:realm/:id", get(routes::houses::get_house))
+        // Support tickets
+        .route("/support/tickets", get(routes::support::list_tickets))
+        .route("/support/tickets", post(routes::support::create_ticket))
+        .route("/support/tickets/:id", get(routes::support::get_ticket))
+        .route("/support/tickets/:id/reply", post(routes::support::reply_to_ticket))
+        .route("/support/tickets/:id/close", axum::routing::patch(routes::support::close_ticket))
+        .route("/support/faq", get(routes::support::get_faq))
+        // Auctions
+        .route("/auctions/characters", get(routes::auction::list_character_auctions))
+        .route("/auctions/characters", post(routes::auction::create_character_auction))
+        .route("/auctions/characters/:id", get(routes::auction::get_character_auction))
+        .route("/auctions/characters/:id/bid", post(routes::auction::bid_on_character_auction))
+        .route("/auctions/items", get(routes::auction::list_item_auctions))
+        .route("/auctions/items", post(routes::auction::create_item_auction))
+        .route("/auctions/items/:id", get(routes::auction::get_item_auction))
+        .route("/auctions/items/:id/bid", post(routes::auction::bid_on_item_auction))
+        .route("/auctions/:auction_type/:id", delete(routes::auction::cancel_auction))
         // Admin routes (protected)
         .route("/admin/stats", get(routes::admin::get_stats))
         .route("/admin/players/online", get(routes::admin::get_online_players))

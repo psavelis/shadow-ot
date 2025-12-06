@@ -46,6 +46,15 @@ public:
     void removeEffect(ThingPtr effect);
     const std::vector<ThingPtr>& getEffects() const { return m_effects; }
 
+    // Clear all things from tile
+    void clear() {
+        m_ground = nullptr;
+        m_items.clear();
+        m_creatures.clear();
+        m_effects.clear();
+        m_flags = 0;
+    }
+
     // Get any thing by stack position
     ThingPtr getThing(int stackPos) const;
     int getThingCount() const;
