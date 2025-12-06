@@ -77,9 +77,10 @@ Shadow OT is the most advanced, feature-complete Open Tibia server platform ever
 - Next.js landing site safely rewrites `/api/*` using `NEXT_PUBLIC_API_URL` with fallback.
 - No mocks policy: infrastructure and downloads are using real implementations and assets.
 
-Known gaps
-- Asset URL curation: replace example open-source URLs with curated client installers and sprite/art sources.
-- Frontend lint/typecheck execution depends on Node tooling in the runner; define commands or install tooling for CI steps.
+Known gaps (Resolved Dec 2025)
+- ~~Asset URL curation~~: ✅ Replaced with curated OTClient releases, Canary server, and TibiaMaps sprites in `download-assets-config` ConfigMap
+- ~~Frontend lint/typecheck~~: ✅ Added `.github/workflows/web-ci.yml` with lint, type-check, and build jobs for all web apps
+- ~~Shared ESLint config~~: ✅ Added `.eslintrc.json` to `web/shared/` with TypeScript and React rules
 - Broader feature completeness in PRD table is aspirational; specific subsystems should be validated and tracked incrementally.
 
 ### Infrastructure Integration Map
@@ -2605,11 +2606,31 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 3.0.0*
+*Version: 3.1.0*
 
 ---
 
 ## Recent Updates
+
+### v3.1.0 - Web Frontend Integration (2025-12-06)
+
+**Known Gaps Resolved:**
+- ✅ Asset URL curation - ConfigMap updated with real OTClient, Canary, and TibiaMaps URLs
+- ✅ Frontend CI workflow - Added `.github/workflows/web-ci.yml` for lint/typecheck/build
+- ✅ Shared ESLint config - Added `.eslintrc.json` with TypeScript/React rules
+
+**Download Page Integration:**
+- Dynamic download URLs via `NEXT_PUBLIC_DOWNLOADS_URL` environment variable
+- Platform-specific client file mappings (Windows/macOS/Linux)
+- Availability checking with visual feedback
+- Links to portable version, asset pack, and version archive
+
+**CI/CD Updates:**
+- Web CI workflow with matrix strategy for all apps
+- Type checking and linting for shared library
+- Docker build tests for landing and admin apps
+
+---
 
 ### v3.0.0 - All Tasks Complete (2025-12-06)
 

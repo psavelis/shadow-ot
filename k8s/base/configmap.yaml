@@ -181,6 +181,14 @@ metadata:
     app.kubernetes.io/name: shadow-download
     app.kubernetes.io/component: assets
 data:
+  # Curated open-source Tibia client and asset URLs
+  # OTClient releases: https://github.com/mehah/otclient/releases
+  # OpenTibia sprites: https://github.com/opentibiabr/canary
+  # TibiaMaps data: https://tibiamaps.github.io/tibia-map-data/
   urls: |
-    https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg
-    https://upload.wikimedia.org/wikipedia/commons/2/26/Yellow_icon.svg
+    https://github.com/mehah/otclient/releases/download/v1.0.1/otclient-windows-x64.zip
+    https://github.com/mehah/otclient/releases/download/v1.0.1/otclient-linux-x64.tar.gz
+    https://github.com/mehah/otclient/releases/download/v1.0.1/otclient-macos-arm64.tar.gz
+    https://github.com/opentibiabr/canary/releases/download/v3.1.2/canary-windows-x64.zip
+    https://raw.githubusercontent.com/tibiamaps/tibia-map-data/master/mapper-sprites/Tibia.pic
+    https://raw.githubusercontent.com/tibiamaps/tibia-map-data/master/mapper-sprites/Tibia.spr

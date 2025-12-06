@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Download, 
@@ -15,37 +15,60 @@ import {
   Shield,
   Zap,
   Globe,
-  ExternalLink
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react'
+
+// Downloads service URL - configured via environment or defaults to k8s service
+const DOWNLOADS_BASE_URL = process.env.NEXT_PUBLIC_DOWNLOADS_URL || '/downloads'
+
+// Asset file mappings for each platform and version
+const ASSET_FILES = {
+  windows: {
+    '12.85': 'shadow-ot-client-12.85-win64.exe',
+    '10.98': 'shadow-ot-client-10.98-win64.exe',
+    '8.60': 'shadow-ot-client-8.60-win64.exe',
+  },
+  macos: {
+    '12.85': 'shadow-ot-client-12.85-macos-universal.dmg',
+    '10.98': 'shadow-ot-client-10.98-macos-universal.dmg',
+    '8.60': 'shadow-ot-client-8.60-macos-universal.dmg',
+  },
+  linux: {
+    '12.85': 'shadow-ot-client-12.85-linux-x86_64.AppImage',
+    '10.98': 'shadow-ot-client-10.98-linux-x86_64.AppImage',
+    '8.60': 'shadow-ot-client-8.60-linux-x86_64.AppImage',
+  },
+} as const
+
+type PlatformId = keyof typeof ASSET_FILES
+type ClientVersion = '12.85' | '10.98' | '8.60'
 
 const platforms = [
   {
-    id: 'windows',
+    id: 'windows' as PlatformId,
     name: 'Windows',
     icon: Monitor,
     version: '2.1.0',
     size: '498 MB',
     requirements: '64-bit Windows 10 or later',
-    downloadUrl: '#',
     recommended: true,
   },
   {
-    id: 'macos',
+    id: 'macos' as PlatformId,
     name: 'macOS',
     icon: Apple,
     version: '2.1.0',
     size: '512 MB',
     requirements: 'macOS 11 (Big Sur) or later, Apple Silicon & Intel',
-    downloadUrl: '#',
   },
   {
-    id: 'linux',
+    id: 'linux' as PlatformId,
     name: 'Linux',
     icon: Monitor,
     version: '2.1.0',
     size: '478 MB',
     requirements: 'Ubuntu 20.04+, Fedora 35+, or equivalent',
-    downloadUrl: '#',
   },
 ]
 
@@ -77,11 +100,36 @@ const systemRequirements = {
   ],
 }
 
+// Helper to get download URL for platform and version
+function getDownloadUrl(platform: PlatformId, version: ClientVersion): string {
+  const filename = ASSET_FILES[platform][version]
+  return `${DOWNLOADS_BASE_URL}/${filename}`
+}
+
 export default function DownloadPage() {
-  const [selectedPlatform, setSelectedPlatform] = useState('windows')
-  const [selectedVersion, setSelectedVersion] = useState('12.85')
+  const [selectedPlatform, setSelectedPlatform] = useState<PlatformId>('windows')
+  const [selectedVersion, setSelectedVersion] = useState<ClientVersion>('12.85')
+  const [isChecking, setIsChecking] = useState(false)
+  const [downloadAvailable, setDownloadAvailable] = useState<boolean | null>(null)
 
   const currentPlatform = platforms.find(p => p.id === selectedPlatform)
+  const downloadUrl = getDownloadUrl(selectedPlatform, selectedVersion)
+
+  // Check if download is available
+  useEffect(() => {
+    const checkAvailability = async () => {
+      setIsChecking(true)
+      try {
+        const response = await fetch(downloadUrl, { method: 'HEAD' })
+        setDownloadAvailable(response.ok)
+      } catch {
+        setDownloadAvailable(false)
+      } finally {
+        setIsChecking(false)
+      }
+    }
+    checkAvailability()
+  }, [downloadUrl])
 
   return (
     <div className="min-h-screen bg-shadow-950 pt-24 pb-16">
@@ -154,11 +202,18 @@ export default function DownloadPage() {
                   </div>
                 </div>
                 <a
-                  href={currentPlatform?.downloadUrl}
-                  className="btn-primary flex items-center space-x-2 text-lg whitespace-nowrap"
+                  href={downloadUrl}
+                  className={`btn-primary flex items-center space-x-2 text-lg whitespace-nowrap ${
+                    isChecking || downloadAvailable === false ? 'opacity-50 pointer-events-none' : ''
+                  }`}
+                  download
                 >
-                  <Download className="w-5 h-5" />
-                  <span>Download Now</span>
+                  {isChecking ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Download className="w-5 h-5" />
+                  )}
+                  <span>{isChecking ? 'Checking...' : downloadAvailable === false ? 'Coming Soon' : 'Download Now'}</span>
                 </a>
               </div>
 
@@ -292,7 +347,11 @@ export default function DownloadPage() {
                   <div className="text-shadow-500 text-sm">No installation required, run from USB</div>
                 </div>
               </div>
-              <a href="#" className="text-accent-500 hover:text-accent-400 text-sm font-medium flex items-center space-x-1">
+              <a 
+                href={`${DOWNLOADS_BASE_URL}/shadow-ot-client-${selectedVersion}-portable.zip`}
+                className="text-accent-500 hover:text-accent-400 text-sm font-medium flex items-center space-x-1"
+                download
+              >
                 <span>Download</span>
                 <ExternalLink className="w-4 h-4" />
               </a>
@@ -307,7 +366,11 @@ export default function DownloadPage() {
                   <div className="text-shadow-500 text-sm">High-resolution sprites and textures (2.1 GB)</div>
                 </div>
               </div>
-              <a href="#" className="text-accent-500 hover:text-accent-400 text-sm font-medium flex items-center space-x-1">
+              <a 
+                href={`${DOWNLOADS_BASE_URL}/shadow-ot-assets-full.zip`}
+                className="text-accent-500 hover:text-accent-400 text-sm font-medium flex items-center space-x-1"
+                download
+              >
                 <span>Download</span>
                 <ExternalLink className="w-4 h-4" />
               </a>
@@ -322,7 +385,12 @@ export default function DownloadPage() {
                   <div className="text-shadow-500 text-sm">Download older client versions if needed</div>
                 </div>
               </div>
-              <a href="#" className="text-accent-500 hover:text-accent-400 text-sm font-medium flex items-center space-x-1">
+              <a 
+                href={DOWNLOADS_BASE_URL}
+                className="text-accent-500 hover:text-accent-400 text-sm font-medium flex items-center space-x-1"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span>View Archive</span>
                 <ExternalLink className="w-4 h-4" />
               </a>
