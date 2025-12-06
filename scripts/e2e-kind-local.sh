@@ -23,8 +23,10 @@ install_kind() {
     echo "Installing kind for $target"
     curl -Lo ./kind "https://kind.sigs.k8s.io/dl/v0.23.0/kind-$target"
     chmod +x ./kind
-    sudo mv ./kind /usr/local/bin/kind || mv ./kind "$HOME/.local/bin/kind"
-    echo "kind installed"
+    mkdir -p "$(pwd)/scripts/bin"
+    mv ./kind "$(pwd)/scripts/bin/kind"
+    export PATH="$(pwd)/scripts/bin:$PATH"
+    echo "kind installed to scripts/bin"
   fi
 }
 
@@ -43,9 +45,12 @@ create_cluster() {
 
 setup_metallb() {
   kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/manifests/metallb-native.yaml
+  kubectl -n metallb-system rollout status deploy/controller --timeout=120s || true
+  # wait a bit for webhook to be ready
+  sleep 5
   # Determine docker network CIDR
   local cidr
-  cidr=$(docker network inspect kind -f '{{ (index .IPAM.Config 0).Subnet }}')
+  cidr=$(docker network inspect kind -f '{{ range .IPAM.Config }}{{ .Subnet }} {{ end }}' | tr ' ' '\n' | grep -E '^[0-9]+\.' | head -n1)
   if [[ -z "$cidr" ]]; then echo "Failed to determine kind network CIDR" && exit 1; fi
   # Derive a small pool at the end of the subnet
   local base=$(echo "$cidr" | cut -d'/' -f1 | awk -F. '{print $1"."$2"."$3}')
@@ -69,8 +74,8 @@ EOF
 }
 
 deploy_stack() {
-  kubectl apply -f k8s/base/secrets-example.yaml
   kubectl apply -k k8s/base
+  kubectl apply -f k8s/base/secrets-example.yaml
   kubectl apply -k k8s/overlays/dev
 }
 
