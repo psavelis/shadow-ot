@@ -2567,6 +2567,67 @@ See `/docs/api/` for complete API documentation including:
 
 ## Recent Updates
 
+### v2.14.0 - Dashboard Pages API Integration (2025-12-06)
+
+**Dashboard Transactions Page** (`/dashboard/transactions`) ✅
+- Removed hardcoded `transactions` and `stats` arrays
+- Uses `useTransactions()` hook with type filtering and pagination
+- Dynamic stats calculation from real transaction data
+- Transaction detail dialog with real data
+
+**Dashboard Notifications Page** (`/dashboard/notifications`) ✅
+- Removed hardcoded `notifications` array
+- Uses `useNotifications()` hook with type filtering
+- Uses `useMarkNotificationRead()` mutation
+- Uses `useMarkAllNotificationsRead()` mutation
+- Uses `useDeleteNotification()` mutation
+- Auto-refresh every 60 seconds
+
+**Dashboard Inventory Page** (`/dashboard/inventory`) ✅
+- Removed hardcoded `items` and `categories` arrays
+- Uses `useInventory()` hook with category/search filtering
+- Uses `useTransferItem()` mutation for item transfers
+- Uses `useListItemOnMarket()` mutation for market listings
+- Real item sprites via `getItemSprite()` utility
+- Grid and list view modes
+
+**New API Endpoints** (`web/shared/src/api/endpoints.ts`)
+- `userApi.getTransactions(params)` - Transaction history
+- `userApi.getNotifications(params)` - Notification list
+- `userApi.markNotificationRead(id)` - Mark single read
+- `userApi.markAllNotificationsRead()` - Mark all read
+- `userApi.deleteNotification(id)` - Delete notification
+- `userApi.getPremiumStatus()` - Premium subscription status
+- `userApi.purchasePremium(plan)` - Buy premium
+- `userApi.purchaseCoins(packageId)` - Buy coins
+- `userApi.getPremiumHistory()` - Purchase history
+- `inventoryApi.getItems(params)` - Inventory list
+- `inventoryApi.getItem(id)` - Item details
+- `inventoryApi.transferItem(itemId, toCharacterId)` - Transfer item
+- `inventoryApi.listOnMarket(itemId, price)` - List for sale
+
+**New Dashboard Hooks** (`web/shared/src/hooks/useDashboard.ts`)
+- `useTransactions(params)` - Transaction list with filtering
+- `useInfiniteTransactions(type)` - Infinite scroll transactions
+- `useNotifications(params)` - Notifications with filtering
+- `useUnreadNotificationCount()` - Unread badge count
+- `useMarkNotificationRead()` - Mark read mutation
+- `useMarkAllNotificationsRead()` - Mark all mutation
+- `useDeleteNotification()` - Delete mutation
+- `usePremiumStatus()` - Current subscription
+- `usePremiumHistory()` - Purchase history
+- `usePurchasePremium()` - Purchase mutation
+- `usePurchaseCoins()` - Coin purchase mutation
+- `useInventory(params)` - Inventory list
+- `useInventoryItem(id)` - Single item
+- `useTransferItem()` - Transfer mutation
+- `useListItemOnMarket()` - Market listing mutation
+
+**New Types** (`Transaction`, `Notification`, `InventoryItem`)
+- Full TypeScript interfaces for all new data structures
+
+---
+
 ### v2.13.0 - Admin Panel API Integration (2025-12-06)
 
 **Admin Bans Page** (`/admin/bans`) ✅
