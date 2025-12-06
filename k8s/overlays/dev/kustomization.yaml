@@ -11,8 +11,6 @@ patches:
   - path: deployment-web-patch.yaml
   - path: ingress-patch.yaml
   - path: service-nodeports-patch.yaml
-
-patches:
   - target:
       version: v1
       kind: Deployment
