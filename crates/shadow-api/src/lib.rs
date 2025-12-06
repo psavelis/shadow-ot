@@ -35,6 +35,13 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         routes::auth::register,
         routes::auth::logout,
         routes::auth::refresh_token,
+        routes::auth::enable_2fa,
+        routes::auth::verify_2fa,
+        routes::auth::disable_2fa,
+        routes::auth::get_wallet_nonce,
+        routes::auth::login_with_wallet,
+        routes::auth::connect_wallet,
+        routes::auth::disconnect_wallet,
         routes::accounts::get_account,
         routes::accounts::update_account,
         routes::characters::list_characters,
@@ -98,12 +105,40 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         routes::events::get_active_events,
         routes::events::get_upcoming_events,
         routes::events::get_event,
+        // NFT
+        routes::nft::get_owned_nfts,
+        routes::nft::get_nft,
+        routes::nft::mint_nft,
+        routes::nft::transfer_nft,
+        routes::nft::get_marketplace,
+        routes::nft::list_nft,
+        routes::nft::buy_nft,
+        routes::nft::cancel_listing,
+        // Premium
+        routes::premium::get_premium_status,
+        routes::premium::purchase_premium,
+        routes::premium::get_coin_packages,
+        routes::premium::purchase_coins,
+        routes::premium::get_premium_history,
+        routes::premium::toggle_auto_renew,
+        routes::premium::cancel_premium,
+        // Notifications
+        routes::notifications::get_notifications,
+        routes::notifications::mark_notification_read,
+        routes::notifications::mark_all_read,
+        routes::notifications::delete_notification,
+        routes::notifications::get_unread_count,
     ),
     components(
         schemas(
             routes::auth::LoginRequest,
             routes::auth::LoginResponse,
             routes::auth::RegisterRequest,
+            routes::auth::Enable2FAResponse,
+            routes::auth::Verify2FARequest,
+            routes::auth::WalletNonceResponse,
+            routes::auth::WalletLoginRequest,
+            routes::auth::ConnectWalletRequest,
             routes::accounts::AccountResponse,
             routes::characters::CharacterResponse,
             routes::characters::CreateCharacterRequest,
@@ -179,6 +214,35 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
             routes::events::EventReward,
             routes::events::EventLocation,
             routes::events::EventRequirements,
+            // NFT schemas
+            routes::nft::Nft,
+            routes::nft::NftMetadata,
+            routes::nft::NftAttribute,
+            routes::nft::NftListing,
+            routes::nft::BlockchainChain,
+            routes::nft::NftStatus,
+            routes::nft::MintNftRequest,
+            routes::nft::MintNftResponse,
+            routes::nft::TransferNftRequest,
+            routes::nft::TransferNftResponse,
+            routes::nft::ListNftRequest,
+            routes::nft::BuyNftRequest,
+            routes::nft::PaginatedNfts,
+            // Premium schemas
+            routes::premium::PremiumStatus,
+            routes::premium::PremiumPlan,
+            routes::premium::PremiumTransaction,
+            routes::premium::PurchasePremiumRequest,
+            routes::premium::PurchasePremiumResponse,
+            routes::premium::CoinPackage,
+            routes::premium::PurchaseCoinsRequest,
+            routes::premium::PurchaseCoinsResponse,
+            routes::premium::PaginatedTransactions,
+            // Notification schemas
+            routes::notifications::Notification,
+            routes::notifications::NotificationType,
+            routes::notifications::PaginatedNotifications,
+            routes::notifications::MarkReadResponse,
         )
     ),
     tags(
@@ -201,6 +265,9 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         (name = "inventory", description = "Character inventory management"),
         (name = "spells", description = "Spell and rune database"),
         (name = "events", description = "Game events and raids"),
+        (name = "nft", description = "NFT and blockchain integration"),
+        (name = "premium", description = "Premium subscriptions and coin shop"),
+        (name = "notifications", description = "User notifications"),
     ),
     info(
         title = "Shadow OT API",
@@ -225,6 +292,16 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/auth/verify-email", post(routes::auth::verify_email))
         .route("/auth/forgot-password", post(routes::auth::forgot_password))
         .route("/auth/reset-password", post(routes::auth::reset_password))
+        // 2FA
+        .route("/auth/2fa/enable", post(routes::auth::enable_2fa))
+        .route("/auth/2fa/verify", post(routes::auth::verify_2fa))
+        .route("/auth/2fa/disable", post(routes::auth::disable_2fa))
+        // Wallet auth
+        .route("/auth/wallet/nonce/:address", get(routes::auth::get_wallet_nonce))
+        .route("/auth/wallet/login", post(routes::auth::login_with_wallet))
+        .route("/auth/wallet/connect", post(routes::auth::connect_wallet))
+        .route("/auth/wallet/disconnect", post(routes::auth::disconnect_wallet))
+        .route("/auth/resend-verification", post(routes::auth::resend_verification))
         // Accounts
         .route("/account", get(routes::accounts::get_account))
         .route("/account", put(routes::accounts::update_account))
@@ -325,6 +402,29 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/events/active", get(routes::events::get_active_events))
         .route("/events/upcoming", get(routes::events::get_upcoming_events))
         .route("/events/:id", get(routes::events::get_event))
+        // NFT
+        .route("/nft/owned", get(routes::nft::get_owned_nfts))
+        .route("/nft/mint", post(routes::nft::mint_nft))
+        .route("/nft/buy", post(routes::nft::buy_nft))
+        .route("/nft/marketplace", get(routes::nft::get_marketplace))
+        .route("/nft/:chain/:token_id", get(routes::nft::get_nft))
+        .route("/nft/:id/transfer", post(routes::nft::transfer_nft))
+        .route("/nft/:id/list", post(routes::nft::list_nft))
+        .route("/nft/:id/cancel-listing", post(routes::nft::cancel_listing))
+        // Premium
+        .route("/users/me/premium", get(routes::premium::get_premium_status))
+        .route("/users/me/premium", delete(routes::premium::cancel_premium))
+        .route("/users/me/premium/purchase", post(routes::premium::purchase_premium))
+        .route("/users/me/premium/packages", get(routes::premium::get_coin_packages))
+        .route("/users/me/premium/coins", post(routes::premium::purchase_coins))
+        .route("/users/me/premium/history", get(routes::premium::get_premium_history))
+        .route("/users/me/premium/auto-renew", post(routes::premium::toggle_auto_renew))
+        // Notifications
+        .route("/users/me/notifications", get(routes::notifications::get_notifications))
+        .route("/users/me/notifications/count", get(routes::notifications::get_unread_count))
+        .route("/users/me/notifications/read-all", post(routes::notifications::mark_all_read))
+        .route("/users/me/notifications/:id/read", axum::routing::patch(routes::notifications::mark_notification_read))
+        .route("/users/me/notifications/:id", delete(routes::notifications::delete_notification))
         // Admin routes (protected)
         .route("/admin/stats", get(routes::admin::get_stats))
         .route("/admin/players/online", get(routes::admin::get_online_players))

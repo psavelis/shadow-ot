@@ -22,3 +22,6 @@ pub mod world_quests;
 pub mod inventory;
 pub mod spells;
 pub mod events;
+pub mod nft;
+pub mod premium;
+pub mod notifications;
