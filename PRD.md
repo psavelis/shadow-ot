@@ -2561,11 +2561,44 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.10.0*
+*Version: 2.11.0*
 
 ---
 
 ## Recent Updates
+
+### v2.11.0 - Dashboard Mock Removal (2025-12-06)
+
+**Dashboard Character Detail Page** (`/dashboard/characters/[id]`) ✅
+- Removed all mock character data
+- Uses `useCharacter` hook for real API data
+- Uses `useCharacterDeaths` for death history
+- Uses `useCharacterAchievements` for achievements
+- Uses `useRealms` for realm transfer options
+- Uses `useDeleteCharacter` and `useTransferCharacter` mutations
+- Proper loading/error states
+- Character outfit sprites via `getOutfitSprite()`
+- Realm-specific colors via `getRealmColors()`
+
+**Dashboard Live Activity Page** (`/dashboard/live`) ✅
+- Removed all mock data arrays
+- Uses `usePlayerEvents` for real-time player activity
+- Uses `useLevelUpFeed` for level up notifications
+- Uses `useDeathFeed` for kill feed
+- Uses `useOnlinePlayersCount` for player count
+- Uses `useServerStats` for server statistics
+- Uses `useRealms` for realm filtering
+- WebSocket-powered real-time updates
+- AnimatePresence for smooth feed animations
+
+**Real-Time Hooks Used:**
+- `usePlayerEvents(50)` - Last 50 player events
+- `useLevelUpFeed(10)` - Last 10 level ups
+- `useDeathFeed(20)` - Last 20 deaths
+- `useOnlinePlayersCount()` - Live online count
+- `useServerStats()` - Server uptime, version
+
+---
 
 ### v2.10.0 - Type System Review & Integration Fixes (2025-12-06)
 

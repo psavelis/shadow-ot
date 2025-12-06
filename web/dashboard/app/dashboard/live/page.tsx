@@ -6,65 +6,53 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users, Skull, Crown, Swords, Activity, Globe, Clock,
   ChevronRight, Search, Filter, Eye, Zap, Shield, Target,
-  Flame, Timer, MapPin
+  Flame, Timer, MapPin, Loader2, AlertCircle
 } from 'lucide-react'
 import * as Tabs from '@radix-ui/react-tabs'
-
-// Mock real-time data
-const onlinePlayers = [
-  { id: 1, name: 'ShadowKnight', level: 342, vocation: 'Elite Knight', realm: 'Shadowlands', guild: 'Dark Legion', status: 'hunting' },
-  { id: 2, name: 'MysticDruid', level: 298, vocation: 'Elder Druid', realm: 'Shadowlands', guild: 'Mystic Order', status: 'trading' },
-  { id: 3, name: 'StormMage', level: 425, vocation: 'Master Sorcerer', realm: 'Mythara', guild: null, status: 'afk' },
-  { id: 4, name: 'SwiftArrow', level: 267, vocation: 'Royal Paladin', realm: 'Shadowlands', guild: 'Rangers Guild', status: 'hunting' },
-  { id: 5, name: 'DarkBlade', level: 512, vocation: 'Elite Knight', realm: 'Voidborne', guild: 'Shadow Hunters', status: 'pvp' },
-  { id: 6, name: 'HealingLight', level: 189, vocation: 'Elder Druid', realm: 'Aetheria', guild: 'Holy Order', status: 'hunting' },
-  { id: 7, name: 'ThunderBolt', level: 378, vocation: 'Master Sorcerer', realm: 'Shadowlands', guild: 'Storm Casters', status: 'hunting' },
-  { id: 8, name: 'IronFist', level: 445, vocation: 'Elite Knight', realm: 'Warbound', guild: 'Iron Legion', status: 'pvp' },
-]
-
-const killFeed = [
-  { id: 1, killer: 'DarkBlade', killerLevel: 512, victim: 'EnemyPlayer', victimLevel: 489, time: '2 min ago', realm: 'Voidborne', type: 'pvp' },
-  { id: 2, killer: 'Demon', killerLevel: null, victim: 'UnluckyMage', victimLevel: 234, time: '5 min ago', realm: 'Shadowlands', type: 'pve' },
-  { id: 3, killer: 'IronFist', killerLevel: 445, victim: 'SwiftKiller', victimLevel: 412, time: '8 min ago', realm: 'Warbound', type: 'pvp' },
-  { id: 4, killer: 'Orshabaal', killerLevel: null, victim: 'BraveSoul', victimLevel: 356, time: '12 min ago', realm: 'Mythara', type: 'pve' },
-  { id: 5, killer: 'ThunderBolt', killerLevel: 378, victim: 'RivalMage', victimLevel: 345, time: '15 min ago', realm: 'Shadowlands', type: 'pvp' },
-  { id: 6, killer: 'Dragon Lord', killerLevel: null, victim: 'DragonHunter', victimLevel: 287, time: '18 min ago', realm: 'Aetheria', type: 'pve' },
-]
-
-const bossTimers = [
-  { name: 'Orshabaal', realm: 'Mythara', status: 'spawned', location: 'Edron', lastKill: '2h ago', respawnWindow: '5-7 days' },
-  { name: 'Morgaroth', realm: 'Shadowlands', status: 'window', location: 'Goroma', lastKill: '5d ago', respawnWindow: '5-7 days', windowStart: '2h ago' },
-  { name: 'Ghazbaran', realm: 'Aetheria', status: 'unknown', location: 'Demona', lastKill: '3d ago', respawnWindow: '5-7 days' },
-  { name: 'Ferumbras', realm: 'Voidborne', status: 'cooldown', location: 'Citadel', lastKill: '1d ago', respawnWindow: '7-10 days', cooldownRemaining: '4d' },
-  { name: 'The Welter', realm: 'Warbound', status: 'window', location: 'Zao', lastKill: '6d ago', respawnWindow: '5-7 days', windowStart: '1d ago' },
-]
-
-const levelUps = [
-  { name: 'ShadowKnight', oldLevel: 341, newLevel: 342, time: '10 min ago', realm: 'Shadowlands' },
-  { name: 'SwiftArrow', oldLevel: 266, newLevel: 267, time: '25 min ago', realm: 'Shadowlands' },
-  { name: 'StormMage', oldLevel: 424, newLevel: 425, time: '45 min ago', realm: 'Mythara' },
-  { name: 'HealingLight', oldLevel: 188, newLevel: 189, time: '1h ago', realm: 'Aetheria' },
-]
+import { 
+  usePlayerEvents, 
+  useLevelUpFeed, 
+  useDeathFeed, 
+  useOnlinePlayersCount,
+  useServerStats,
+  useRealmStatus
+} from '@/shared/hooks/useRealtime'
+import { useRealms } from '@/shared/hooks/useRealms'
+import type { RealmId } from '@/shared/types'
 
 const vocationColors: Record<string, string> = {
   'Elite Knight': 'text-amber-400',
+  'Knight': 'text-amber-400',
   'Royal Paladin': 'text-emerald-400',
+  'Paladin': 'text-emerald-400',
   'Master Sorcerer': 'text-blue-400',
+  'Sorcerer': 'text-blue-400',
   'Elder Druid': 'text-purple-400',
+  'Druid': 'text-purple-400',
+  'None': 'text-slate-400',
 }
 
 const realmColors: Record<string, string> = {
-  'Shadowlands': 'bg-amber-500/20 text-amber-400',
-  'Mythara': 'bg-emerald-500/20 text-emerald-400',
-  'Aetheria': 'bg-purple-500/20 text-purple-400',
-  'Voidborne': 'bg-red-500/20 text-red-400',
-  'Warbound': 'bg-orange-500/20 text-orange-400',
+  'shadowveil': 'bg-purple-500/20 text-purple-400',
+  'aetheria': 'bg-blue-500/20 text-blue-400',
+  'warbound': 'bg-red-500/20 text-red-400',
+  'mythara': 'bg-green-500/20 text-green-400',
+  'voidborne': 'bg-indigo-500/20 text-indigo-400',
+  'grimhollow': 'bg-slate-500/20 text-slate-400',
 }
 
 export default function LivePage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedRealm, setSelectedRealm] = useState('all')
+  const [selectedRealm, setSelectedRealm] = useState<RealmId | 'all'>('all')
   const [currentTime, setCurrentTime] = useState(new Date())
+
+  // Real-time hooks
+  const { events: playerEvents, isConnected } = usePlayerEvents(50)
+  const { levelUps } = useLevelUpFeed(10)
+  const { deaths } = useDeathFeed(20)
+  const { count: onlineCount } = useOnlinePlayersCount()
+  const { stats: serverStats } = useServerStats()
+  const { data: realms, isLoading: realmsLoading } = useRealms()
 
   // Update time every second for real-time feel
   useEffect(() => {
@@ -72,11 +60,31 @@ export default function LivePage() {
     return () => clearInterval(interval)
   }, [])
 
-  const filteredPlayers = onlinePlayers.filter(player => {
-    const matchesSearch = player.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesRealm = selectedRealm === 'all' || player.realm === selectedRealm
-    return matchesSearch && matchesRealm
+  // Filter deaths (kill feed) by realm
+  const filteredDeaths = deaths.filter(death => {
+    const matchesRealm = selectedRealm === 'all' || death.realm === selectedRealm
+    return matchesRealm
   })
+
+  // Filter recent logins by search and realm
+  const filteredLogins = playerEvents
+    .filter(e => e.type === 'login')
+    .filter(event => {
+      const matchesSearch = event.characterName.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesRealm = selectedRealm === 'all' || event.realm === selectedRealm
+      return matchesSearch && matchesRealm
+    })
+
+  const formatTimeAgo = (timestamp: number | string) => {
+    const time = typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp
+    const diff = Date.now() - time
+    const minutes = Math.floor(diff / 60000)
+    if (minutes < 1) return 'Just now'
+    if (minutes < 60) return `${minutes} min ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h ago`
+    return `${Math.floor(hours / 24)}d ago`
+  }
 
   return (
     <div className="space-y-6">
@@ -87,343 +95,304 @@ export default function LivePage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Live Activity</h1>
-          <p className="text-slate-400">Real-time game activity and statistics</p>
+          <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-3">
+            <Activity className="w-6 h-6 text-emerald-400" />
+            Live Activity
+          </h1>
+          <p className="text-slate-400">Real-time updates from all realms</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg">
-          <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
-          <span className="text-white text-sm">
-            {currentTime.toLocaleTimeString()}
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+            <span className="text-slate-400 text-sm">
+              {isConnected ? 'Connected' : 'Connecting...'}
+            </span>
+          </div>
+          <div className="px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+            <p className="text-white font-mono text-lg">
+              {currentTime.toLocaleTimeString()}
+            </p>
+          </div>
         </div>
       </motion.div>
 
-      {/* Quick Stats */}
+      {/* Stats Bar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-4 gap-4"
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
       >
-        {[
-          { label: 'Players Online', value: '1,247', icon: Users, color: 'emerald', change: '+23' },
-          { label: 'Active Battles', value: '18', icon: Swords, color: 'red', change: null },
-          { label: 'Bosses Spawned', value: '3', icon: Crown, color: 'amber', change: null },
-          { label: 'Deaths (24h)', value: '847', icon: Skull, color: 'slate', change: '-12%' },
-        ].map((stat, idx) => (
-          <div key={idx} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <stat.icon className={`w-5 h-5 text-${stat.color}-400`} />
-              {stat.change && (
-                <span className={`text-xs ${stat.change.startsWith('+') ? 'text-emerald-400' : stat.change.startsWith('-') ? 'text-red-400' : 'text-slate-400'}`}>
-                  {stat.change}
-                </span>
-              )}
-            </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
-            <p className="text-xs text-slate-500">{stat.label}</p>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <div className="flex items-center gap-2 text-emerald-400 mb-2">
+            <Users className="w-5 h-5" />
+            <span className="text-sm">Online Players</span>
           </div>
-        ))}
+          <p className="text-2xl font-bold text-white">{onlineCount.toLocaleString()}</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <div className="flex items-center gap-2 text-blue-400 mb-2">
+            <Globe className="w-5 h-5" />
+            <span className="text-sm">Active Realms</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{serverStats?.realmsOnline || realms?.filter(r => r.status === 'online').length || 0}</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <div className="flex items-center gap-2 text-amber-400 mb-2">
+            <Zap className="w-5 h-5" />
+            <span className="text-sm">Level Ups Today</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{levelUps.length}</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+          <div className="flex items-center gap-2 text-red-400 mb-2">
+            <Skull className="w-5 h-5" />
+            <span className="text-sm">Deaths Today</span>
+          </div>
+          <p className="text-2xl font-bold text-white">{deaths.length}</p>
+        </div>
       </motion.div>
 
-      {/* Main Content Tabs */}
-      <Tabs.Root defaultValue="online">
-        <Tabs.List className="flex gap-1 bg-slate-800/50 border border-slate-700/50 rounded-xl p-1 mb-6">
-          {[
-            { id: 'online', label: 'Online Players', icon: Users },
-            { id: 'kills', label: 'Kill Feed', icon: Skull },
-            { id: 'bosses', label: 'Boss Tracker', icon: Crown },
-            { id: 'levels', label: 'Level Ups', icon: Zap },
-          ].map(tab => (
-            <Tabs.Trigger
-              key={tab.id}
-              value={tab.id}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=inactive]:text-slate-400 data-[state=inactive]:hover:text-white"
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </Tabs.Trigger>
+      {/* Filters */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="flex flex-wrap items-center gap-4 bg-slate-800/50 border border-slate-700/50 rounded-xl p-4"
+      >
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search players..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-slate-900/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+          />
+        </div>
+        <select
+          value={selectedRealm}
+          onChange={(e) => setSelectedRealm(e.target.value as RealmId | 'all')}
+          className="appearance-none bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2 pr-8 text-white text-sm focus:outline-none focus:border-emerald-500/50"
+        >
+          <option value="all">All Realms</option>
+          {realms?.map(realm => (
+            <option key={realm.id} value={realm.id}>{realm.name}</option>
           ))}
+        </select>
+      </motion.div>
+
+      {/* Main Content */}
+      <Tabs.Root defaultValue="feed" className="space-y-6">
+        <Tabs.List className="flex gap-2 border-b border-slate-700 pb-2">
+          <Tabs.Trigger
+            value="feed"
+            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+          >
+            Kill Feed
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            value="levels"
+            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+          >
+            Level Ups
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            value="logins"
+            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+          >
+            Recent Logins
+          </Tabs.Trigger>
         </Tabs.List>
 
-        {/* Online Players Tab */}
-        <Tabs.Content value="online">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            {/* Filters */}
-            <div className="flex gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Search players..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
-                />
-              </div>
-              <select
-                value={selectedRealm}
-                onChange={e => setSelectedRealm(e.target.value)}
-                className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
-              >
-                <option value="all">All Realms</option>
-                <option value="Shadowlands">Shadowlands</option>
-                <option value="Mythara">Mythara</option>
-                <option value="Aetheria">Aetheria</option>
-                <option value="Voidborne">Voidborne</option>
-                <option value="Warbound">Warbound</option>
-              </select>
-            </div>
-
-            {/* Player List */}
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden">
-              <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-slate-900/50 border-b border-slate-700/50 text-xs font-medium text-slate-500">
-                <div className="col-span-4">Player</div>
-                <div className="col-span-2">Level</div>
-                <div className="col-span-2">Vocation</div>
-                <div className="col-span-2">Realm</div>
-                <div className="col-span-2">Status</div>
-              </div>
-              <div className="divide-y divide-slate-700/50">
-                {filteredPlayers.map((player, idx) => (
-                  <motion.div
-                    key={player.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.03 }}
-                    className="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-slate-700/30 transition group"
-                  >
-                    <div className="col-span-4 flex items-center gap-3">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                      <Link
-                        href={`/characters/${player.name}`}
-                        className="text-white font-medium group-hover:text-amber-400 transition"
-                      >
-                        {player.name}
-                      </Link>
-                      {player.guild && (
-                        <span className="text-slate-500 text-xs">({player.guild})</span>
-                      )}
-                    </div>
-                    <div className="col-span-2 text-white">{player.level}</div>
-                    <div className={`col-span-2 ${vocationColors[player.vocation]}`}>{player.vocation}</div>
-                    <div className="col-span-2">
-                      <span className={`px-2 py-0.5 rounded text-xs ${realmColors[player.realm]}`}>
-                        {player.realm}
-                      </span>
-                    </div>
-                    <div className="col-span-2">
-                      <span className={`text-xs ${
-                        player.status === 'hunting' ? 'text-emerald-400' :
-                        player.status === 'pvp' ? 'text-red-400' :
-                        player.status === 'trading' ? 'text-blue-400' :
-                        'text-slate-500'
-                      }`}>
-                        {player.status}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </Tabs.Content>
-
         {/* Kill Feed Tab */}
-        <Tabs.Content value="kills">
+        <Tabs.Content value="feed">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden"
           >
-            <div className="divide-y divide-slate-700/50">
-              {killFeed.map((kill, idx) => (
-                <motion.div
-                  key={kill.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="px-5 py-4 hover:bg-slate-700/30 transition"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        kill.type === 'pvp' ? 'bg-red-500/20' : 'bg-slate-700/50'
-                      }`}>
-                        {kill.type === 'pvp' ? (
-                          <Swords className="w-5 h-5 text-red-400" />
-                        ) : (
-                          <Skull className="w-5 h-5 text-slate-400" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-white">
-                          <span className={kill.type === 'pvp' ? 'text-red-400' : 'text-orange-400'}>
-                            {kill.killer}
-                          </span>
-                          {kill.killerLevel && <span className="text-slate-500 text-sm"> ({kill.killerLevel})</span>}
-                          <span className="text-slate-400"> killed </span>
-                          <span className="text-white">{kill.victim}</span>
-                          <span className="text-slate-500 text-sm"> ({kill.victimLevel})</span>
-                        </p>
-                        <p className="text-slate-500 text-sm flex items-center gap-2">
-                          <span className={`px-1.5 py-0.5 rounded text-xs ${realmColors[kill.realm]}`}>
-                            {kill.realm}
-                          </span>
-                          <span>•</span>
-                          <span>{kill.time}</span>
-                        </p>
-                      </div>
-                    </div>
-                    {kill.type === 'pvp' && (
-                      <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded">PvP</span>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+            <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+              <h2 className="text-white font-bold flex items-center gap-2">
+                <Skull className="w-5 h-5 text-red-400" />
+                Live Kill Feed
+              </h2>
+              <span className="text-slate-500 text-sm">{filteredDeaths.length} deaths</span>
             </div>
-          </motion.div>
-        </Tabs.Content>
-
-        {/* Boss Tracker Tab */}
-        <Tabs.Content value="bosses">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid md:grid-cols-2 gap-4"
-          >
-            {bossTimers.map((boss, idx) => (
-              <motion.div
-                key={boss.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`bg-slate-800/50 border rounded-xl p-5 ${
-                  boss.status === 'spawned' ? 'border-emerald-500/50' :
-                  boss.status === 'window' ? 'border-amber-500/50' :
-                  'border-slate-700/50'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      boss.status === 'spawned' ? 'bg-emerald-500/20' :
-                      boss.status === 'window' ? 'bg-amber-500/20' :
-                      boss.status === 'cooldown' ? 'bg-blue-500/20' :
-                      'bg-slate-700/50'
-                    }`}>
-                      <Crown className={`w-6 h-6 ${
-                        boss.status === 'spawned' ? 'text-emerald-400' :
-                        boss.status === 'window' ? 'text-amber-400' :
-                        boss.status === 'cooldown' ? 'text-blue-400' :
-                        'text-slate-400'
-                      }`} />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-bold">{boss.name}</h3>
-                      <p className="text-slate-500 text-sm flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {boss.location}
-                      </p>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded text-xs ${realmColors[boss.realm]}`}>
-                    {boss.realm}
-                  </span>
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Status</span>
-                    <span className={`font-medium ${
-                      boss.status === 'spawned' ? 'text-emerald-400' :
-                      boss.status === 'window' ? 'text-amber-400' :
-                      boss.status === 'cooldown' ? 'text-blue-400' :
-                      'text-slate-400'
-                    }`}>
-                      {boss.status === 'spawned' ? '🟢 Spawned!' :
-                       boss.status === 'window' ? '🟡 In Window' :
-                       boss.status === 'cooldown' ? '⏳ Cooldown' :
-                       '❓ Unknown'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Last Kill</span>
-                    <span className="text-white">{boss.lastKill}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Respawn Window</span>
-                    <span className="text-white">{boss.respawnWindow}</span>
-                  </div>
-                  {boss.windowStart && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Window Started</span>
-                      <span className="text-amber-400">{boss.windowStart}</span>
-                    </div>
-                  )}
-                  {boss.cooldownRemaining && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Cooldown Remaining</span>
-                      <span className="text-blue-400">{boss.cooldownRemaining}</span>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+            {filteredDeaths.length > 0 ? (
+              <div className="divide-y divide-slate-700/50">
+                <AnimatePresence mode="popLayout">
+                  {filteredDeaths.map((death, idx) => (
+                    <motion.div
+                      key={`${death.characterId}-${death.timestamp}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: idx * 0.02 }}
+                      className="p-4 hover:bg-slate-700/30 transition"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm">
+                            <span className="text-red-400 font-medium">{death.killedBy}</span>
+                            {death.isPlayer && <span className="text-slate-500 text-xs"> (Player)</span>}
+                            <span className="text-slate-400"> killed </span>
+                            <span className="text-white font-medium">{death.characterName}</span>
+                            <span className="text-slate-500 text-xs"> (Level {death.level})</span>
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-xs px-2 py-0.5 rounded ${realmColors[death.realm] || 'bg-slate-500/20 text-slate-400'}`}>
+                              {death.realm}
+                            </span>
+                            <span className="text-xs text-slate-500 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(death.timestamp)}
+                            </span>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded ${death.isPlayer ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                          {death.isPlayer ? 'PvP' : 'PvE'}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="p-12 text-center text-slate-400">
+                <Skull className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No deaths recorded</p>
+              </div>
+            )}
           </motion.div>
         </Tabs.Content>
 
         {/* Level Ups Tab */}
         <Tabs.Content value="levels">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden"
           >
-            <div className="divide-y divide-slate-700/50">
-              {levelUps.map((levelUp, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="px-5 py-4 hover:bg-slate-700/30 transition flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="text-white">
-                        <Link href={`/characters/${levelUp.name}`} className="text-amber-400 hover:text-amber-300 font-medium">
-                          {levelUp.name}
-                        </Link>
-                        <span className="text-slate-400"> advanced to level </span>
-                        <span className="text-white font-bold">{levelUp.newLevel}</span>
-                      </p>
-                      <p className="text-slate-500 text-sm flex items-center gap-2">
-                        <span className={`px-1.5 py-0.5 rounded text-xs ${realmColors[levelUp.realm]}`}>
-                          {levelUp.realm}
-                        </span>
-                        <span>•</span>
-                        <span>{levelUp.time}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-slate-400 text-sm">
-                    {levelUp.oldLevel} → {levelUp.newLevel}
-                  </div>
-                </motion.div>
-              ))}
+            <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+              <h2 className="text-white font-bold flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-400" />
+                Recent Level Ups
+              </h2>
+              <span className="text-slate-500 text-sm">{levelUps.length} level ups</span>
             </div>
+            {levelUps.length > 0 ? (
+              <div className="divide-y divide-slate-700/50">
+                <AnimatePresence mode="popLayout">
+                  {levelUps.map((levelUp, idx) => (
+                    <motion.div
+                      key={`${levelUp.characterId}-${levelUp.newLevel}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: idx * 0.02 }}
+                      className="p-4 hover:bg-slate-700/30 transition"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm">
+                            <span className="text-white font-medium">{levelUp.characterName}</span>
+                            <span className="text-slate-400"> advanced to level </span>
+                            <span className="text-amber-400 font-bold">{levelUp.newLevel}</span>
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-xs px-2 py-0.5 rounded ${realmColors[levelUp.realm] || 'bg-slate-500/20 text-slate-400'}`}>
+                              {levelUp.realm}
+                            </span>
+                            <span className="text-xs text-slate-500 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(levelUp.timestamp)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-slate-400 text-sm">
+                            {levelUp.oldLevel} → {levelUp.newLevel}
+                          </p>
+                          <p className="text-emerald-400 text-xs">+1 Level</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="p-12 text-center text-slate-400">
+                <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No level ups yet</p>
+              </div>
+            )}
+          </motion.div>
+        </Tabs.Content>
+
+        {/* Recent Logins Tab */}
+        <Tabs.Content value="logins">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden"
+          >
+            <div className="p-4 border-b border-slate-700 flex items-center justify-between">
+              <h2 className="text-white font-bold flex items-center gap-2">
+                <Users className="w-5 h-5 text-emerald-400" />
+                Recent Logins
+              </h2>
+              <span className="text-slate-500 text-sm">{filteredLogins.length} logins</span>
+            </div>
+            {filteredLogins.length > 0 ? (
+              <div className="divide-y divide-slate-700/50">
+                <AnimatePresence mode="popLayout">
+                  {filteredLogins.map((login, idx) => (
+                    <motion.div
+                      key={`${login.characterId}-${login.timestamp}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: idx * 0.02 }}
+                      className="p-4 hover:bg-slate-700/30 transition"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 bg-slate-700/50 rounded-lg flex items-center justify-center">
+                            <Users className="w-5 h-5 text-slate-400" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">{login.characterName}</p>
+                            <p className="text-sm">
+                              <span className={vocationColors[login.vocation] || 'text-slate-400'}>
+                                {login.vocation}
+                              </span>
+                              <span className="text-slate-500"> • Level {login.level}</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className={`text-xs px-2 py-0.5 rounded ${realmColors[login.realm] || 'bg-slate-500/20 text-slate-400'}`}>
+                            {login.realm}
+                          </span>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {formatTimeAgo(login.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="p-12 text-center text-slate-400">
+                <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No recent logins</p>
+              </div>
+            )}
           </motion.div>
         </Tabs.Content>
       </Tabs.Root>
     </div>
   )
 }
-
