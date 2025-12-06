@@ -79,25 +79,54 @@ Shadow OT is the most advanced, feature-complete Open Tibia server platform ever
 
 ### Critical Path to Players Gaming (Reality Check Dec 2025)
 
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                         LAUNCH READINESS STATUS                                 │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  🟢 COMPLETE (Ready for Production):                                           │
+│  ─────────────────────────────────────────────────────────────────────────────│
+│  ✅ REST API             26 route modules, 80+ endpoints                       │
+│  ✅ Web Frontend         96 TSX files, 6 Next.js apps                          │
+│  ✅ Shared Library       161 React Query hooks, components                      │
+│  ✅ Database Migrations  7 SQL files (accounts, chars, items, guilds, etc.)    │
+│  ✅ K8s/Docker           Base manifests, overlays, Helm charts                  │
+│  ✅ Game Data (JSON)     Items (759), Monsters (696), NPCs (453), Spells (567) │
+│  ✅ Realm Configs        6 realms (Shadowveil, Aetheria, Warbound, etc.)       │
+│  ✅ Blockchain Contracts Ethereum, Polygon, Starknet NFT contracts             │
+│  ✅ E2E CI Pipeline      kind + MetalLB, API health, game ports                │
+│                                                                                 │
+│  🟡 IN PROGRESS (Being Built):                                                 │
+│  ─────────────────────────────────────────────────────────────────────────────│
+│  ⏳ Client Rendering     Graphics loop being finalized (see git diff)          │
+│  ⏳ Server Binary        Rust crates compile, need integration testing         │
+│  ⏳ Protocol Testing     Client ↔ Server handshake validation needed          │
+│                                                                                 │
+│  🔴 BLOCKING (Required Before Launch):                                         │
+│  ─────────────────────────────────────────────────────────────────────────────│
+│  ❌ Map Files (OTBM)     data/maps/ empty - need starter world                 │
+│  ❌ Sprite Assets        No .spr/.dat files - need Tibia assets               │
+│  ❌ E2E Game Test        Full login → play flow untested                       │
+│                                                                                 │
+│  Launch Blockers: 3 | In Progress: 3 | Complete: 9                             │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
+
 **🟢 COMPLETE - Ready for Use:**
 | Component | Status | Details |
 |-----------|--------|---------|
-| Web Frontend | ✅ 100% | 96 TSX files across 6 Next.js apps |
-| Shared Library | ✅ 100% | 161 React Query hooks, types, utilities |
-| Database Schema | ✅ 100% | 7 SQL migrations (84k+ lines) |
-| K8s/Docker | ✅ 100% | Base, overlays, Helm charts, E2E workflow |
-| Game Data JSON | ✅ 100% | Items (759), Monsters (696), NPCs (453), Spells (567), Quests (367) |
-| Rust Crates | ✅ Code | 12 crates, 37k+ lines (shadow-core, protocol, combat, world, etc.) |
-| Client Source | ✅ Code | OTClient-based C++ with Shadow OT modules |
-| Realm Configs | ✅ 100% | 6 themed realms with configs and scripts |
+| REST API | ✅ 100% | 26 modules: auth, accounts, characters, realms, highscores, guilds, market, news, forum, houses, admin, support, auctions, kill_statistics, boosted, creatures, achievements, world_quests, inventory, spells, events, nft, premium, notifications |
+| Web Frontend | ✅ 100% | Landing, Dashboard, Admin, Forum, MapMaker, Shared |
+| Database Schema | ✅ 100% | 7 SQL migrations covering all game systems |
+| K8s/Docker | ✅ 100% | Base, dev/staging/prod overlays, Helm charts |
+| Game Data | ✅ 100% | JSON definitions for items, monsters, npcs, spells, quests, achievements, vocations |
 
 **🔴 BLOCKING - Required for Players to Play:**
 | Blocker | Issue | Solution |
 |---------|-------|----------|
 | Map Files | `data/maps/` is EMPTY | Download OTBM from TibiaMaps or create starter maps |
 | Sprite Files | No `.spr`, `.dat`, `.pic` files | Download from OTClient assets or Tibia installation |
-| Server Binary | Rust crates not compiled | Run `cargo build --release` (requires Rust toolchain) |
-| E2E Test | Client → Server not validated | Connect client binary to running server |
+| E2E Game Test | Client → Server not validated | Build client, start server, test full login flow |
 
 **🟡 RECOMMENDED - Polish Before Launch:**
 | Item | Priority | Notes |
