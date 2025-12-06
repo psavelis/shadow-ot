@@ -552,3 +552,219 @@ export type RealtimeEventType =
   | 'event.start'
   | 'event.end'
 
+// ============================================
+// Spells & Magic
+// ============================================
+export type SpellElement = 'fire' | 'ice' | 'energy' | 'earth' | 'holy' | 'death' | 'physical' | 'healing'
+export type SpellType = 'attack' | 'healing' | 'support' | 'summon'
+
+export interface Spell {
+  id: string
+  name: string
+  words: string
+  element: SpellElement
+  type: SpellType
+  vocation: Vocation[]
+  level: number
+  mana: number
+  cooldown: number
+  groupCooldown?: number
+  premium: boolean
+  description: string
+  damage?: { min: number; max: number }
+  healing?: { min: number; max: number }
+  area?: boolean
+  rune?: boolean
+  runeId?: number
+  soul?: number
+  reagents?: { itemId: number; amount: number }[]
+}
+
+// ============================================
+// Kill Statistics
+// ============================================
+export interface KillStatistics {
+  totalKills: number
+  totalDeaths: number
+  pvpKills: number
+  pveKills: number
+  bossKills: number
+  avgKillsPerDay: number
+  mostDangerousRealm: RealmId
+  safestRealm: RealmId
+}
+
+export interface KillEntry {
+  id: string
+  killer: {
+    id: string
+    name: string
+    level: number
+    vocation: Vocation
+    isPlayer: boolean
+  }
+  victim: {
+    id: string
+    name: string
+    level: number
+    vocation?: Vocation
+    isPlayer: boolean
+  }
+  realm: RealmId
+  type: 'pvp' | 'pve' | 'boss'
+  timestamp: string
+  location?: string
+}
+
+export interface TopKiller {
+  rank: number
+  character: {
+    id: string
+    name: string
+    level: number
+    vocation: Vocation
+    realm: RealmId
+    online: boolean
+  }
+  kills: number
+  deaths: number
+  kd: number
+  guild?: {
+    id: string
+    name: string
+  }
+}
+
+export interface BossHunter {
+  character: {
+    id: string
+    name: string
+    realm: RealmId
+  }
+  totalKills: number
+  bosses: string[]
+}
+
+// ============================================
+// Boosted Creatures & Bosses
+// ============================================
+export interface BoostedCreature {
+  id: string
+  name: string
+  sprite: string
+  lootBonus: number // percentage, e.g., 100 for +100%
+  experienceBonus: number
+  spawn: string
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Very Hard' | 'Extreme'
+  resetsAt: string // ISO timestamp
+}
+
+export interface BoostedBoss {
+  id: string
+  name: string
+  sprite: string
+  lootBonus: number
+  charmBonus: number
+  spawn: string
+  difficulty: 'Hard' | 'Very Hard' | 'Extreme' | 'Legendary'
+  resetsAt: string
+}
+
+// ============================================
+// World Quests
+// ============================================
+export interface WorldQuest {
+  id: string
+  name: string
+  description: string
+  realm: RealmId
+  goal: number
+  current: number
+  progress: number // percentage
+  reward: string
+  endsAt: string
+  status: 'active' | 'completed' | 'failed'
+}
+
+// ============================================
+// Creatures & Monsters
+// ============================================
+export interface Creature {
+  id: string
+  name: string
+  description: string
+  sprite: string
+  health: number
+  experience: number
+  armor: number
+  speed: number
+  summonable: boolean
+  convincable: boolean
+  illusionable: boolean
+  race: CreatureRace
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Very Hard' | 'Extreme'
+  immunities: SpellElement[]
+  weaknesses: SpellElement[]
+  resistances: { element: SpellElement; percent: number }[]
+  loot: CreatureLoot[]
+  spawnLocations: string[]
+  bestiaryClass: string
+  bestiaryOccurrence: 'Common' | 'Uncommon' | 'Rare' | 'Very Rare'
+  charmPoints: number
+}
+
+export type CreatureRace = 
+  | 'amphibic'
+  | 'blood'
+  | 'construct'
+  | 'demon'
+  | 'dragon'
+  | 'elemental'
+  | 'extra_dimensional'
+  | 'fey'
+  | 'giant'
+  | 'human'
+  | 'humanoid'
+  | 'lycanthrope'
+  | 'magical'
+  | 'mammal'
+  | 'plant'
+  | 'reptile'
+  | 'slime'
+  | 'undead'
+  | 'vermin'
+
+export interface CreatureLoot {
+  itemId: number
+  itemName: string
+  chance: number // percentage
+  min: number
+  max: number
+}
+
+// ============================================
+// Calculator Types
+// ============================================
+export interface DamageCalculation {
+  min: number
+  max: number
+  avg: number
+  dps: number
+  critical?: number
+}
+
+export interface ExperienceCalculation {
+  expNeeded: number
+  hoursNeeded: number
+  daysNeeded: number
+  staminaHours: number
+  effectiveExpPerHour: number
+}
+
+export interface LootCalculation {
+  totalKills: number
+  grossLoot: number
+  netProfit: number
+  profitPerHour: number
+}
+

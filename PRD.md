@@ -2564,11 +2564,38 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.5.0*
+*Version: 2.6.0*
 
 ---
 
 ## Recent Updates
+
+### v2.6.0 - Complete API Integration (2025-12-06)
+
+**Shared Types Expansion** ✅ Complete
+- Spell types (`Spell`, `SpellElement`, `SpellType`)
+- Kill statistics types (`KillStatistics`, `KillEntry`, `TopKiller`, `BossHunter`)
+- Boosted types (`BoostedCreature`, `BoostedBoss`)
+- World Quest types (`WorldQuest`)
+- Creature/Bestiary types (`Creature`, `CreatureRace`, `CreatureLoot`)
+- Calculator types (`DamageCalculation`, `ExperienceCalculation`, `LootCalculation`)
+
+**New API Endpoints** ✅ Complete
+- `spellApi` - Spell database with filtering (element, type, vocation)
+- `killStatsApi` - Kill statistics, leaderboards, live feed
+- `boostedApi` - Daily boosted creature and boss
+- `worldQuestApi` - Active world quests with progress
+- `creatureApi` - Bestiary and creature database
+- Extended `authApi` with OAuth, FIDO2, and SSO endpoints
+
+**React Query Hooks** ✅ Complete
+- `useSpells`, `useSpell`, `useSpellsByVocation`, `useRunes`
+- `useKillStatistics`, `useTopKillers`, `useRecentDeaths`, `useBossHunters`
+- `useBoostedCreature`, `useBoostedBoss`, `useDailyBoosted`
+- `useWorldQuests`, `useActiveWorldQuests`, `useContributeToWorldQuest`
+- `useCreatures`, `useCreature`, `useBestiaryProgress`
+
+---
 
 ### v2.5.0 - Beyond Tibia Features (2025-12-06)
 

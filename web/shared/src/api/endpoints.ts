@@ -26,6 +26,17 @@ import {
   PaginatedResponse,
   RealmId,
   Vocation,
+  Spell,
+  SpellElement,
+  SpellType,
+  KillStatistics,
+  KillEntry,
+  TopKiller,
+  BossHunter,
+  BoostedCreature,
+  BoostedBoss,
+  WorldQuest,
+  Creature,
 } from '../types'
 
 // ============================================
@@ -493,5 +504,233 @@ export const adminApi = {
 
   deleteNews: (id: string) =>
     apiClient.delete(`/admin/news/${id}`),
+}
+
+// ============================================
+// Spell Endpoints
+// ============================================
+export const spellApi = {
+  getAll: (params?: {
+    element?: SpellElement
+    type?: SpellType
+    vocation?: Vocation
+    premium?: boolean
+    search?: string
+  }) => apiClient.get<Spell[]>('/spells', params),
+
+  getById: (id: string) =>
+    apiClient.get<Spell>(`/spells/${id}`),
+
+  getByWords: (words: string) =>
+    apiClient.get<Spell>(`/spells/words/${encodeURIComponent(words)}`),
+
+  getByVocation: (vocation: Vocation) =>
+    apiClient.get<Spell[]>(`/spells/vocation/${vocation}`),
+
+  getByElement: (element: SpellElement) =>
+    apiClient.get<Spell[]>(`/spells/element/${element}`),
+
+  getRunes: () =>
+    apiClient.get<Spell[]>('/spells/runes'),
+}
+
+// ============================================
+// Kill Statistics Endpoints
+// ============================================
+export const killStatsApi = {
+  getStatistics: (realm?: RealmId) =>
+    apiClient.get<KillStatistics>('/kill-statistics', { realm }),
+
+  getTopKillers: (params?: {
+    realm?: RealmId
+    type?: 'pvp' | 'pve' | 'boss' | 'all'
+    timeRange?: 'today' | 'week' | 'month' | 'all'
+    limit?: number
+  }) => apiClient.get<TopKiller[]>('/kill-statistics/top-killers', params),
+
+  getRecentDeaths: (params?: {
+    realm?: RealmId
+    type?: 'pvp' | 'pve' | 'boss' | 'all'
+    limit?: number
+  }) => apiClient.get<KillEntry[]>('/kill-statistics/recent', params),
+
+  getBossHunters: (params?: {
+    realm?: RealmId
+    limit?: number
+  }) => apiClient.get<BossHunter[]>('/kill-statistics/boss-hunters', params),
+
+  getCharacterKills: (characterId: string, params?: {
+    type?: 'pvp' | 'pve' | 'boss' | 'all'
+    page?: number
+    pageSize?: number
+  }) => apiClient.get<PaginatedResponse<KillEntry>>(`/kill-statistics/character/${characterId}`, params),
+}
+
+// ============================================
+// Boosted Creature/Boss Endpoints
+// ============================================
+export const boostedApi = {
+  getCreature: () =>
+    apiClient.get<BoostedCreature>('/boosted/creature'),
+
+  getBoss: () =>
+    apiClient.get<BoostedBoss>('/boosted/boss'),
+
+  getHistory: (type: 'creature' | 'boss', days?: number) =>
+    apiClient.get<(BoostedCreature | BoostedBoss)[]>(`/boosted/${type}/history`, { days }),
+}
+
+// ============================================
+// World Quest Endpoints
+// ============================================
+export const worldQuestApi = {
+  getAll: (params?: { realm?: RealmId; status?: 'active' | 'completed' | 'failed' }) =>
+    apiClient.get<WorldQuest[]>('/world-quests', params),
+
+  getActive: (realm?: RealmId) =>
+    apiClient.get<WorldQuest[]>('/world-quests/active', { realm }),
+
+  getById: (id: string) =>
+    apiClient.get<WorldQuest>(`/world-quests/${id}`),
+
+  contribute: (id: string, amount: number) =>
+    apiClient.post(`/world-quests/${id}/contribute`, { amount }),
+}
+
+// ============================================
+// Creature/Bestiary Endpoints
+// ============================================
+export const creatureApi = {
+  getAll: (params?: {
+    race?: string
+    difficulty?: string
+    search?: string
+    page?: number
+    pageSize?: number
+  }) => apiClient.get<PaginatedResponse<Creature>>('/creatures', params),
+
+  getById: (id: string) =>
+    apiClient.get<Creature>(`/creatures/${id}`),
+
+  getByName: (name: string) =>
+    apiClient.get<Creature>(`/creatures/name/${encodeURIComponent(name)}`),
+
+  getBestiaryProgress: (characterId: string) =>
+    apiClient.get<{
+      creature: Creature
+      kills: number
+      stage: 1 | 2 | 3 | 4
+      completed: boolean
+    }[]>(`/characters/${characterId}/bestiary`),
+
+  getBestiaryEntry: (characterId: string, creatureId: string) =>
+    apiClient.get<{
+      creature: Creature
+      kills: number
+      stage: 1 | 2 | 3 | 4
+      completed: boolean
+      unlockedLoot: boolean
+      unlockedCharm: boolean
+    }>(`/characters/${characterId}/bestiary/${creatureId}`),
+}
+
+// ============================================
+// OAuth Endpoints
+// ============================================
+export const authApi = {
+  ...{
+    login: (data: LoginRequest) =>
+      apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/login', data),
+
+    register: (data: RegisterRequest) =>
+      apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/register', data),
+
+    logout: () => apiClient.post('/auth/logout'),
+
+    refreshToken: (data: { refreshToken: string }) =>
+      apiClient.post<{ tokens: AuthTokens }>('/auth/refresh', data),
+
+    requestPasswordReset: (data: { email: string }) =>
+      apiClient.post('/auth/forgot-password', data),
+
+    resetPassword: (data: { token: string; newPassword: string }) =>
+      apiClient.post('/auth/reset-password', data),
+
+    verifyEmail: (data: { token: string }) =>
+      apiClient.post('/auth/verify-email', data),
+
+    resendVerification: () =>
+      apiClient.post('/auth/resend-verification'),
+
+    enable2FA: () =>
+      apiClient.post<{ secret: string; qrCode: string }>('/auth/2fa/enable'),
+
+    verify2FA: (code: string) =>
+      apiClient.post('/auth/2fa/verify', { code }),
+
+    disable2FA: (code: string) =>
+      apiClient.post('/auth/2fa/disable', { code }),
+
+    getWalletNonce: (address: string) =>
+      apiClient.get<{ nonce: string }>(`/auth/wallet/nonce/${address}`),
+
+    loginWithWallet: (data: { address: string; signature: string; chain: string }) =>
+      apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/wallet/login', data),
+
+    connectWallet: (address: string, signature: string) =>
+      apiClient.post('/auth/wallet/connect', { address, signature }),
+
+    disconnectWallet: () =>
+      apiClient.post('/auth/wallet/disconnect'),
+  },
+
+  // OAuth providers
+  oauthCallback: (data: { provider: string; code: string; state: string }) =>
+    apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/oauth/callback', data),
+
+  linkOAuth: (provider: string) =>
+    apiClient.post<{ redirectUrl: string }>(`/auth/oauth/${provider}/link`),
+
+  unlinkOAuth: (provider: string) =>
+    apiClient.post(`/auth/oauth/${provider}/unlink`),
+
+  getLinkedAccounts: () =>
+    apiClient.get<{
+      google?: { email: string; linkedAt: string }
+      discord?: { username: string; linkedAt: string }
+      twitch?: { username: string; linkedAt: string }
+    }>('/auth/oauth/linked'),
+
+  // Security Keys (FIDO2/WebAuthn)
+  registerSecurityKey: (data: { name: string; credential: unknown }) =>
+    apiClient.post<{ id: string; name: string; type: string; createdAt: string }>('/auth/security-keys/register', data),
+
+  getSecurityKeys: () =>
+    apiClient.get<{
+      id: string
+      name: string
+      type: 'yubikey' | 'fido2'
+      addedAt: string
+      lastUsed: string
+    }[]>('/auth/security-keys'),
+
+  deleteSecurityKey: (id: string) =>
+    apiClient.delete(`/auth/security-keys/${id}`),
+
+  challengeSecurityKey: () =>
+    apiClient.post<{ challenge: string; allowCredentials: unknown[] }>('/auth/security-keys/challenge'),
+
+  verifySecurityKey: (data: { credential: unknown }) =>
+    apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/security-keys/verify', data),
+
+  // SSO
+  getSsoSettings: () =>
+    apiClient.get<{
+      enabled: boolean
+      realms: { id: RealmId; enabled: boolean; lastSync: string }[]
+    }>('/auth/sso'),
+
+  updateSsoSettings: (data: { enabled: boolean; realms: { id: RealmId; enabled: boolean }[] }) =>
+    apiClient.patch('/auth/sso', data),
 }
 

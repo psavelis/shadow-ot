@@ -12,6 +12,11 @@ export * from './hooks/useGuilds'
 export * from './hooks/useMarket'
 export * from './hooks/useNews'
 export * from './hooks/useForum'
+export * from './hooks/useSpells'
+export * from './hooks/useKillStats'
+export * from './hooks/useBoosted'
+export * from './hooks/useWorldQuests'
+export * from './hooks/useCreatures'
 
 // Stores
 export * from './stores/authStore'
