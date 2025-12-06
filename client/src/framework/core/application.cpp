@@ -78,6 +78,10 @@ void Application::initPaths() {
     }
 }
 
+void* Application::getWindow() const {
+    return m_impl ? m_impl->window : nullptr;
+}
+
 void Application::initWindow() {
     m_impl->window = g_platform.createWindow("Shadow OT", m_windowWidth, m_windowHeight, m_fullscreen);
 

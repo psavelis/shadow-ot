@@ -117,6 +117,9 @@ public:
     void clear(const Color& color = Color::black());
     void present();
 
+    // Window management (for buffer swapping)
+    void setWindow(void* window);
+
     // Info
     const std::string& getRenderer() const { return m_renderer; }
     const std::string& getVendor() const { return m_vendor; }

@@ -31,6 +31,9 @@ public:
     void setWindowSize(int width, int height);
     void setFullscreen(bool fullscreen);
     bool isFullscreen() const { return m_fullscreen; }
+    void* getWindow() const;
+    int getWindowWidth() const { return m_windowWidth; }
+    int getWindowHeight() const { return m_windowHeight; }
 
     // Frame timing
     double getFrameTime() const { return m_frameTime; }

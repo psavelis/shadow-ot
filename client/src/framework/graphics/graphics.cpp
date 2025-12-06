@@ -87,6 +87,8 @@ struct Graphics::Impl {
     int viewportHeight{0};
 
     GLFWwindow* window{nullptr};
+
+    void setWindow(GLFWwindow* win) { window = win; }
 };
 
 Graphics& Graphics::instance() {
@@ -219,7 +221,10 @@ void Graphics::endFrame() {
 }
 
 void Graphics::render() {
-    // Swap is handled by Application
+    // Swap buffers to present the frame
+    if (m_impl && m_impl->window) {
+        glfwSwapBuffers(m_impl->window);
+    }
 }
 
 void Graphics::setViewport(int x, int y, int width, int height) {
@@ -398,6 +403,12 @@ void Graphics::clear(const Color& color) {
 
 void Graphics::present() {
     render();
+}
+
+void Graphics::setWindow(void* window) {
+    if (m_impl) {
+        m_impl->window = static_cast<GLFWwindow*>(window);
+    }
 }
 
 std::shared_ptr<Texture> Graphics::createTexture(int width, int height, const uint8_t* data, bool hasAlpha) {

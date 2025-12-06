@@ -42,11 +42,20 @@ void printBanner() {
 }
 
 bool initializeFramework() {
-    // Initialize core systems
+    // Initialize core systems - graphics needs the window from app
     if (!g_graphics.init()) {
         std::cerr << "Failed to initialize graphics" << std::endl;
         return false;
     }
+
+    // Pass the window to graphics for buffer swapping
+    g_graphics.setWindow(g_app.getWindow());
+
+    // Set up viewport and projection
+    int width = g_app.getWindowWidth();
+    int height = g_app.getWindowHeight();
+    g_graphics.setViewport(0, 0, width, height);
+    g_graphics.setOrtho(width, height);
 
     if (!g_lua.init()) {
         std::cerr << "Failed to initialize Lua engine" << std::endl;
@@ -71,6 +80,14 @@ bool loadModules() {
 void webMainLoop() {
     g_app.poll();
     g_dispatcher.poll();
+
+    g_graphics.beginFrame();
+    g_graphics.clear(shadow::framework::Color(16, 24, 48, 255));
+    g_graphics.drawFilledRect(
+        shadow::framework::Rect(100, 100, 200, 100),
+        shadow::framework::Color(64, 128, 192, 255)
+    );
+    g_graphics.endFrame();
     g_graphics.render();
 }
 #endif
@@ -114,6 +131,22 @@ int main(int argc, char* argv[]) {
     while (!g_app.shouldClose()) {
         g_app.poll();
         g_dispatcher.poll();
+
+        // Begin frame rendering
+        g_graphics.beginFrame();
+
+        // Clear to dark blue background (classic Tibia loading color)
+        g_graphics.clear(shadow::framework::Color(16, 24, 48, 255));
+
+        // Draw a visible test rectangle to confirm rendering works
+        // This will be replaced by proper UI once modules are loaded
+        g_graphics.drawFilledRect(
+            shadow::framework::Rect(100, 100, 200, 100),
+            shadow::framework::Color(64, 128, 192, 255)
+        );
+
+        // End frame and swap buffers
+        g_graphics.endFrame();
         g_graphics.render();
     }
 #endif
