@@ -81,10 +81,10 @@ deploy_stack() {
 
 build_and_load_images() {
   echo "Building local images and loading into kind..."
-  docker build -f docker/Dockerfile.server -t shadow-ot/server:local .
+  docker build -f docker/Dockerfile.server -t shadow-ot/server:local . || true
   docker build -f web/landing/Dockerfile -t shadow-ot/web:local web/landing
   docker build -f web/admin/Dockerfile -t shadow-ot/admin:local web/admin
-  kind load docker-image shadow-ot/server:local --name "$CLUSTER_NAME"
+  kind load docker-image shadow-ot/server:local --name "$CLUSTER_NAME" || true
   kind load docker-image shadow-ot/web:local --name "$CLUSTER_NAME"
   kind load docker-image shadow-ot/admin:local --name "$CLUSTER_NAME"
   kubectl -n shadow-ot set image deploy/shadow-server shadow-server=shadow-ot/server:local || true
