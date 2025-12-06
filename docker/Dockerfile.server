@@ -1,5 +1,5 @@
 # Shadow OT Server - Multi-stage build
-FROM rust:nightly AS builder
+FROM rustlang/rust:nightly AS builder
 
 WORKDIR /app
 
