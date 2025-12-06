@@ -22,6 +22,7 @@ spec:
         - shadowveil.shadow-ot.com
         - aetheria.shadow-ot.com
         - warbound.shadow-ot.com
+        - download.shadow-ot.com
       secretName: shadow-ot-tls
   rules:
     # Main website
@@ -69,6 +70,18 @@ spec:
                 name: shadow-admin
                 port:
                   number: 3001
+
+    # Downloads
+    - host: download.shadow-ot.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shadow-download
+                port:
+                  number: 80
 
     # Realm-specific subdomains
     - host: shadowveil.shadow-ot.com

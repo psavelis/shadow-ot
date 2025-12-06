@@ -71,3 +71,61 @@ spec:
       protocol: TCP
   selector:
     app.kubernetes.io/name: shadow-web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shadow-web-external
+  namespace: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-web
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: shadow-ot.com
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: shadow-web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shadow-admin-external
+  namespace: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-admin
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: admin.shadow-ot.com
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3001
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: shadow-admin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shadow-download
+  namespace: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-download
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: shadow-download

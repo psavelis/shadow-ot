@@ -1192,6 +1192,9 @@ kubectl apply -k k8s/overlays/production
 # With Helm
 helm install shadow-ot ./k8s/helm-charts/shadow-server
 helm install shadow-web ./k8s/helm-charts/shadow-web
+
+# Local E2E with kind + MetalLB (CI recipe)
+gh workflow run e2e-kind.yml
 ```
 
 ---
@@ -2808,11 +2811,13 @@ See `/docs/api/` for complete API documentation including:
 - Base manifests: `k8s/base/*`
 - Helm charts: `k8s/helm-charts/{shadow-server|shadow-web}`
 - Secrets example: `k8s/base/secrets-example.yaml` (use SOPS/Vault in real environments)
+- Downloads: `shadow-download` service serving client installers via PVC (`download-data-pvc`)
 
 #### CI/CD
 - Images built and pushed to GHCR via `.github/workflows/build-images.yml`
 - Environment deployment via `.github/workflows/deploy-k8s.yml` using overlays
 - Tags map to image channels: `latest` (main), `staging` (pre-release), `stable` (production)
+- E2E local validation: `.github/workflows/e2e-kind.yml` provisions kind + MetalLB, deploys `base` + `dev`, verifies external IPs and performs web/API smoke tests
 
 #### Docker (Local Dev)
 - Compose stack: `docker/docker-compose.yml`

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-download
+  namespace: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-download
+    app.kubernetes.io/component: downloads
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: shadow-download
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shadow-download
+        app.kubernetes.io/component: downloads
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25-alpine
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: download-data
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+      volumes:
+        - name: download-data
+          persistentVolumeClaim:
+            claimName: download-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: download-data-pvc
+  namespace: shadow-ot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
