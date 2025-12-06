@@ -157,7 +157,7 @@ The Shadow OT Game Server is a high-performance, Rust-based implementation of th
 | Character List | 🟢 DONE | CRITICAL | Multi-realm character display |
 | Session Token | 🟢 DONE | CRITICAL | JWT-based session management |
 | HWID Validation | 🟢 DONE | HIGH | Hardware fingerprinting |
-| IP Geolocation | 🔴 TODO | MEDIUM | Optimal server routing |
+| IP Geolocation | 🟢 DONE | MEDIUM | Optimal server routing |
 
 ### Game Server Protocol
 | Feature | Status | Priority | Description |
@@ -167,7 +167,7 @@ The Shadow OT Game Server is a high-performance, Rust-based implementation of th
 | Creature Sync | 🟢 DONE | CRITICAL | Spawn/despawn with vision |
 | Item Operations | 🟢 DONE | CRITICAL | Full item interaction system |
 | Container System | 🟢 DONE | CRITICAL | Nested container support |
-| Trade System | 🟡 IN PROGRESS | HIGH | Player-to-player trading |
+| Trade System | 🟢 DONE | HIGH | Player-to-player trading |
 | Channel System | 🟢 DONE | HIGH | Chat channels (public, guild, party) |
 
 ### Protocol Versions Supported
@@ -176,7 +176,7 @@ The Shadow OT Game Server is a high-performance, Rust-based implementation of th
 | 8.60 | Classic | Original gameplay | 🔴 Planned |
 | 10.98 | Popular | Most OT servers | 🟢 Primary |
 | 11.00 | Prey | Prey system | 🔴 Planned |
-| 12.00 | Modern | Store, analytics | 🟡 IN PROGRESS |
+| 12.00 | Modern | Store, analytics | 🟢 DONE |
 | 12.85+ | Latest | All features | 🔴 Planned |
 | 13.x | Future | Upcoming | 🔴 Planned |
 
@@ -585,12 +585,15 @@ Forums
 - Email newsletter
 - Push notifications
 
-### Wiki/Library
-- Item database
-- Monster database
-- Quest guides
-- Spell lists
-- Map information
+### Wiki/Library ✅ Complete
+- Item database with search and filters
+- Monster database (Bestiary) with kill tracking
+- Quest guides with progress tracking
+- Spell lists with 600+ spells (`/spells`)
+- Map information and exploration guides
+- Kill statistics server-wide (`/kill-statistics`)
+- Events calendar with boosted creatures (`/events`)
+- Player tools and calculators (`/tools`)
 - Community-editable
 
 ### Support Center
@@ -2317,7 +2320,7 @@ Security and secrets
 | Prey System | ✅ | 🟢 DONE |
 | Bosstiary | ✅ | 🟢 DONE |
 | Achievements | ✅ | 🟢 DONE |
-| Cyclopedia | ✅ | 🟡 IN PROGRESS |
+| Cyclopedia | ✅ | 🟢 DONE |
 | Imbuements | ✅ | 🟢 DONE |
 | Store | ✅ | 🟢 DONE |
 | Tournament | ✅ | 🟢 DONE |
@@ -2560,12 +2563,60 @@ See `/docs/api/` for complete API documentation including:
 
 ---
 
-*Last Updated: 2025-12-05*
-*Version: 2.2.0*
+*Last Updated: 2025-12-06*
+*Version: 2.5.0*
 
 ---
 
 ## Recent Updates
+
+### v2.5.0 - Beyond Tibia Features (2025-12-06)
+
+**Kill Statistics Page** ✅ Complete (`/kill-statistics`)
+- Server-wide PvP/PvE death tracking
+- Top killers leaderboard with K/D ratios
+- Live kill feed with real-time updates
+- Boss kill hunters rankings
+- Realm filtering and time range selection
+- Kill type categorization (PvP, PvE, Boss)
+- Server-wide statistics overview
+
+**Spell Library** ✅ Complete (`/spells`)
+- Complete spell database (600+ spells)
+- Filter by element (Fire, Ice, Energy, Earth, Holy, Death)
+- Filter by vocation (Knight, Paladin, Sorcerer, Druid)
+- Filter by type (Attack, Healing, Support, Summon)
+- Spell cards with incantations and requirements
+- Damage/healing ranges and cooldowns
+- Premium and Rune indicators
+- Sortable by level, mana, cooldown, name
+
+**Events & Calendar** ✅ Complete (`/events`)
+- Daily Boosted Creature with loot/exp bonuses
+- Daily Boosted Boss with charm point bonuses
+- Active and upcoming events display
+- World Quests with progress tracking
+- Event calendar with visual indicators
+- Event types: Experience, Seasonal, Tournament, World Boss
+- Realm-specific event filtering
+- Reward previews and prize pools
+
+**Player Tools & Calculators** ✅ Complete (`/tools`)
+- Damage Calculator (weapon attack, skill, armor, criticals)
+- Experience Calculator (leveling time, stamina optimization)
+- Loot/Profit Calculator (hunt duration, supplies, profit/hour)
+- Monster quick reference table
+- DPS calculations
+- Coming soon: Training and Imbuement calculators
+
+**Features Beyond Official Tibia:**
+- Live kill feed (Tibia doesn't have this)
+- Boosted Boss system (Shadow OT exclusive)
+- World Quest progress tracking
+- Integrated calculators (no external tools needed)
+- Real-time event notifications
+
+---
 
 ### v2.4.0 - Complete Security Suite (2025-12-06)
 
