@@ -160,6 +160,59 @@ export const userApi = {
 
   cancelAccountDeletion: () =>
     apiClient.post('/users/me/deletion/cancel'),
+
+  // Activity Log
+  getActivityLog: (params?: { limit?: number; page?: number }) =>
+    apiClient.get<{
+      logs: Array<{
+        id: string
+        action: string
+        ip: string
+        location: string
+        userAgent: string
+        timestamp: string
+      }>
+      total: number
+    }>('/users/me/activity', params),
+
+  // Security Keys (FIDO2/WebAuthn)
+  getSecurityKeys: () =>
+    apiClient.get<{
+      keys: Array<{
+        id: string
+        name: string
+        type: 'yubikey' | 'fido2'
+        addedAt: string
+        lastUsed: string
+      }>
+    }>('/users/me/security-keys'),
+
+  challengeSecurityKey: () =>
+    apiClient.post<{ options: PublicKeyCredentialCreationOptions }>('/users/me/security-keys/challenge'),
+
+  registerSecurityKey: (data: { name: string; credential: unknown }) =>
+    apiClient.post<{ id: string; name: string; type: string }>('/users/me/security-keys', data),
+
+  deleteSecurityKey: (id: string) =>
+    apiClient.delete(`/users/me/security-keys/${id}`),
+
+  // SSO Settings
+  getSSOStatus: () =>
+    apiClient.get<{
+      enabled: boolean
+      realms: Array<{
+        realmId: string
+        realmName: string
+        enabled: boolean
+        lastSync: string | null
+      }>
+    }>('/users/me/sso'),
+
+  toggleSSO: (enabled: boolean) =>
+    apiClient.patch('/users/me/sso', { enabled }),
+
+  toggleSSOForRealm: (realmId: string, enabled: boolean) =>
+    apiClient.patch(`/users/me/sso/realms/${realmId}`, { enabled }),
 }
 
 // ============================================

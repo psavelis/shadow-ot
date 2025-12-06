@@ -529,3 +529,216 @@ export function useAccountDeletion() {
   return { requestDeletion, confirmDeletion, cancelDeletion, isLoading, error }
 }
 
+// ====== Security Keys (FIDO2/WebAuthn) ======
+
+interface SecurityKey {
+  id: string
+  name: string
+  type: 'yubikey' | 'fido2'
+  addedAt: string
+  lastUsed: string
+}
+
+export function useSecurityKeys() {
+  const [keys, setKeys] = useState<SecurityKey[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isRegistering, setIsRegistering] = useState(false)
+
+  const fetchKeys = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const response = await userApi.getSecurityKeys()
+      setKeys(response.keys)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch security keys')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const registerKey = useCallback(async (name: string) => {
+    setIsRegistering(true)
+    setError(null)
+    
+    try {
+      // Get challenge from server
+      const challenge = await userApi.challengeSecurityKey()
+      
+      // Use WebAuthn to create credential
+      const credential = await navigator.credentials.create({
+        publicKey: challenge.options
+      })
+      
+      if (!credential) {
+        throw new Error('Failed to create credential')
+      }
+      
+      // Register with server
+      await userApi.registerSecurityKey({ name, credential })
+      await fetchKeys()
+      return true
+    } catch (err: any) {
+      setError(err.message || 'Failed to register security key')
+      return false
+    } finally {
+      setIsRegistering(false)
+    }
+  }, [fetchKeys])
+
+  const deleteKey = useCallback(async (id: string) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      await userApi.deleteSecurityKey(id)
+      setKeys(prev => prev.filter(k => k.id !== id))
+      return true
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete security key')
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchKeys()
+  }, [fetchKeys])
+
+  return {
+    keys,
+    isLoading,
+    isRegistering,
+    error,
+    registerKey,
+    deleteKey,
+    refreshKeys: fetchKeys,
+    clearError: () => setError(null),
+  }
+}
+
+// ====== Activity Log ======
+
+interface ActivityLogEntry {
+  id: string
+  action: string
+  ip: string
+  location: string
+  userAgent: string
+  timestamp: string
+}
+
+export function useActivityLog(limit = 20) {
+  const [logs, setLogs] = useState<ActivityLogEntry[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchLogs = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const response = await userApi.getActivityLog({ limit })
+      setLogs(response.logs)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch activity log')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [limit])
+
+  useEffect(() => {
+    fetchLogs()
+  }, [fetchLogs])
+
+  return {
+    logs,
+    isLoading,
+    error,
+    refreshLogs: fetchLogs,
+  }
+}
+
+// ====== SSO Management ======
+
+interface SSORealmStatus {
+  realmId: string
+  realmName: string
+  enabled: boolean
+  lastSync: string | null
+}
+
+export function useSSO() {
+  const [realms, setRealms] = useState<SSORealmStatus[]>([])
+  const [isEnabled, setIsEnabled] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchStatus = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const response = await userApi.getSSOStatus()
+      setRealms(response.realms)
+      setIsEnabled(response.enabled)
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch SSO status')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const toggleRealm = useCallback(async (realmId: string, enabled: boolean) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      await userApi.toggleSSOForRealm(realmId, enabled)
+      setRealms(prev => prev.map(r => 
+        r.realmId === realmId ? { ...r, enabled } : r
+      ))
+      return true
+    } catch (err: any) {
+      setError(err.message || 'Failed to toggle SSO')
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const toggleGlobal = useCallback(async (enabled: boolean) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      await userApi.toggleSSO(enabled)
+      setIsEnabled(enabled)
+      return true
+    } catch (err: any) {
+      setError(err.message || 'Failed to toggle SSO')
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchStatus()
+  }, [fetchStatus])
+
+  return {
+    realms,
+    isEnabled,
+    isLoading,
+    error,
+    toggleRealm,
+    toggleGlobal,
+    refreshStatus: fetchStatus,
+    clearError: () => setError(null),
+  }
+}
+

@@ -2561,11 +2561,40 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.11.0*
+*Version: 2.12.0*
 
 ---
 
 ## Recent Updates
+
+### v2.12.0 - Security Page API Integration (2025-12-06)
+
+**Dashboard Security Page** (`/dashboard/security`) ✅
+- Removed all mock data arrays (sessions, activityLog, backupCodes, mockSecurityKeys)
+- Uses real auth hooks for all security features:
+  - `useSessions()` - Active sessions with revoke functionality
+  - `useTwoFactor()` - 2FA setup, enable, backup codes
+  - `useSecurityKeys()` - FIDO2/WebAuthn key management
+  - `useActivityLog()` - Recent account activity
+  - `useSSO()` - Cross-realm SSO settings
+  - `useChangePassword()` - Password change with validation
+
+**New API Endpoints** (`web/shared/src/api/endpoints.ts`)
+- `userApi.getActivityLog()` - Fetch activity history
+- `userApi.getSecurityKeys()` - List registered keys
+- `userApi.challengeSecurityKey()` - Get WebAuthn challenge
+- `userApi.registerSecurityKey()` - Register new key
+- `userApi.deleteSecurityKey()` - Remove a key
+- `userApi.getSSOStatus()` - SSO enabled status
+- `userApi.toggleSSO()` - Enable/disable SSO
+- `userApi.toggleSSOForRealm()` - Per-realm SSO toggle
+
+**New Auth Hooks** (`web/shared/src/hooks/useAuth.ts`)
+- `useSecurityKeys()` - Full FIDO2/WebAuthn lifecycle
+- `useActivityLog(limit)` - Paginated activity history
+- `useSSO()` - Cross-realm SSO management
+
+---
 
 ### v2.11.0 - Dashboard Mock Removal (2025-12-06)
 
