@@ -87,6 +87,9 @@ public:
     // Main loop processing
     void poll();
 
+    // Message callback for Connection
+    void onRecvMessage(framework::NetworkMessage& msg);
+
     // Send packets
     void sendPing();
     void sendLogout();

@@ -184,13 +184,15 @@ public:
     GameStartCallback onGameStart;
     GameEndCallback onGameEnd;
 
+    // Protocol access for session management
+    void setLocalPlayer(LocalPlayerPtr player) { m_localPlayer = player; }
+    void processLogin();
+    void processLogout();
+
 private:
     Game() = default;
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
-
-    void processLogin();
-    void processLogout();
 
     GameState m_gameState{GameState::NotConnected};
     LocalPlayerPtr m_localPlayer;

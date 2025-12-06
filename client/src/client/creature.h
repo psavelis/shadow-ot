@@ -112,6 +112,11 @@ public:
     uint8_t getLightColor() const override { return m_lightColor; }
     void setLightColor(uint8_t color) { m_lightColor = color; }
 
+    void setLight(uint8_t intensity, uint8_t color) {
+        m_lightIntensity = intensity;
+        m_lightColor = color;
+    }
+
     // Combat square
     bool hasSquare() const { return m_hasSquare; }
     uint8_t getSquareColor() const { return m_squareColor; }

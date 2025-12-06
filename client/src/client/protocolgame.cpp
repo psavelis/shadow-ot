@@ -32,6 +32,12 @@ bool ProtocolGame::connect(const std::string& host, uint16_t port,
     m_accountToken = token;
 
     m_connection = std::make_shared<Connection>();
+
+    // Set message callback to handle incoming packets
+    m_connection->setMessageCallback([this](NetworkMessage& msg) {
+        onRecvMessage(msg);
+    });
+
     m_connection->connect(host, port);
     // Connection is async, check state
     if (m_connection->getState() == ConnectionState::Error) {
@@ -62,49 +68,37 @@ bool ProtocolGame::isConnected() const {
 void ProtocolGame::poll() {
     if (!isConnected()) return;
 
-    // Poll the connection
+    // Poll the connection - this processes any pending callbacks
     if (m_connection) {
         m_connection->poll();
     }
+}
 
-    // TODO: Implement proper message handling when Connection API is complete
-    // The current Connection class uses callbacks for message handling
-    // rather than a polling hasData()/read() pattern
-    return;
-
-#if 0  // Disabled until Connection API is updated
-    // Read available data
-    while (m_connection->hasData()) {
-        m_recvBuffer.reset();
-
-        if (!m_connection->read(m_recvBuffer)) {
-            disconnect();
-            return;
-        }
-
-        // Decrypt if XTEA is enabled
-        if (m_xtea.isEnabled() && m_firstReceived) {
-            m_xtea.decrypt(m_recvBuffer);
-        }
-
-        // Skip packet size header
-        m_recvBuffer.setPosition(NetworkMessage::HEADER_SIZE);
-
-        // Parse all messages in packet
-        while (!m_recvBuffer.isEof()) {
-            parsePacket(m_recvBuffer);
-        }
-
-        m_firstReceived = true;
+void ProtocolGame::onRecvMessage(NetworkMessage& msg) {
+    // Decrypt if XTEA is enabled
+    if (m_xtea.isEnabled() && m_firstReceived) {
+        m_xtea.decrypt(msg);
     }
-#endif // Disabled until Connection API is updated
+
+    // Skip packet size header
+    msg.setPosition(NetworkMessage::HEADER_SIZE);
+
+    // Parse all messages in packet
+    while (!msg.isEof()) {
+        parsePacket(msg);
+    }
+
+    m_firstReceived = true;
 }
 
 void ProtocolGame::setXTEAKey(const std::array<uint32_t, 4>& key) {
     m_xtea.setKey(key);
 }
 
-#if 0 // TODO: Parsing disabled until Creature/Game APIs are aligned
+// TODO: Enable full packet parsing when Creature/Game/Map APIs are aligned
+// The parsePacket implementation is complete but uses APIs that differ from current classes
+// APIs to align: Map::cleanTile, Map::setWorldLight, g_effects, g_missiles, InventorySlot namespace
+#if 0
 void ProtocolGame::parsePacket(NetworkMessage& msg) {
     uint8_t opcode = msg.readByte();
 
@@ -393,10 +387,10 @@ CreaturePtr ProtocolGame::parseCreature(NetworkMessage& msg, uint16_t type) {
     creature->setSpeed(msg.readU16());
 
     // Skull
-    creature->setSkull(msg.readByte());
+    creature->setSkull(static_cast<Skull>(msg.readByte()));
 
     // Shield (party)
-    creature->setShield(msg.readByte());
+    creature->setShield(static_cast<Shield>(msg.readByte()));
 
     // Emblem (if new creature)
     if (type == 0x61) {
@@ -534,47 +528,47 @@ void ProtocolGame::parseDeath(NetworkMessage& msg) {
 void ProtocolGame::parseMapDescription(NetworkMessage& msg) {
     Position pos = parsePosition(msg);
 
-    g_map.setCenterPosition(pos);
+    g_map.setCentralPosition(pos);
 
     // Parse visible area (18x14 tiles, 8 floors)
     parseMapArea(msg, Position(pos.x - 8, pos.y - 6, pos.z), 18, 14);
 }
 
 void ProtocolGame::parseMoveNorth(NetworkMessage& msg) {
-    auto& pos = g_map.getCenterPosition();
+    auto& pos = g_map.getCentralPosition();
     Position newPos(pos.x, pos.y - 1, pos.z);
 
-    g_map.setCenterPosition(newPos);
+    g_map.setCentralPosition(newPos);
 
     // Parse new row at north
     parseMapArea(msg, Position(newPos.x - 8, newPos.y - 6, newPos.z), 18, 1);
 }
 
 void ProtocolGame::parseMoveEast(NetworkMessage& msg) {
-    auto& pos = g_map.getCenterPosition();
+    auto& pos = g_map.getCentralPosition();
     Position newPos(pos.x + 1, pos.y, pos.z);
 
-    g_map.setCenterPosition(newPos);
+    g_map.setCentralPosition(newPos);
 
     // Parse new column at east
     parseMapArea(msg, Position(newPos.x + 9, newPos.y - 6, newPos.z), 1, 14);
 }
 
 void ProtocolGame::parseMoveSouth(NetworkMessage& msg) {
-    auto& pos = g_map.getCenterPosition();
+    auto& pos = g_map.getCentralPosition();
     Position newPos(pos.x, pos.y + 1, pos.z);
 
-    g_map.setCenterPosition(newPos);
+    g_map.setCentralPosition(newPos);
 
     // Parse new row at south
     parseMapArea(msg, Position(newPos.x - 8, newPos.y + 7, newPos.z), 18, 1);
 }
 
 void ProtocolGame::parseMoveWest(NetworkMessage& msg) {
-    auto& pos = g_map.getCenterPosition();
+    auto& pos = g_map.getCentralPosition();
     Position newPos(pos.x - 1, pos.y, pos.z);
 
-    g_map.setCenterPosition(newPos);
+    g_map.setCentralPosition(newPos);
 
     // Parse new column at west
     parseMapArea(msg, Position(newPos.x - 8, newPos.y - 6, newPos.z), 1, 14);
@@ -596,7 +590,7 @@ void ProtocolGame::parseUpdateTile(NetworkMessage& msg) {
 }
 
 void ProtocolGame::parseFloorChange(NetworkMessage& msg, uint8_t direction) {
-    auto& pos = g_map.getCenterPosition();
+    auto& pos = g_map.getCentralPosition();
     Position newPos = pos;
 
     if (direction == ServerOpcode::FloorChange) {
@@ -739,7 +733,7 @@ void ProtocolGame::parseCreatureSquare(NetworkMessage& msg) {
 
     auto creature = g_map.getCreatureById(id);
     if (creature) {
-        creature->setSquareColor(color);
+        creature->setSquare(color);
     }
 }
 
@@ -1138,7 +1132,15 @@ void ProtocolGame::parseVipState(NetworkMessage& msg) {
         player->addVIP(vip);
     }
 }
-#endif // TODO: Parsing disabled until Creature/Game APIs are aligned
+#endif // Parsing disabled - API alignment needed
+
+// Stub parsePacket for compilation - full implementation above
+void ProtocolGame::parsePacket(NetworkMessage& msg) {
+    // Read opcode but don't process - full parsing available when APIs aligned
+    if (!msg.isEof()) {
+        msg.readByte(); // consume opcode
+    }
+}
 
 // Send packets
 

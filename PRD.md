@@ -2561,7 +2561,7 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.13.0*
+*Version: 2.14.0*
 
 ---
 

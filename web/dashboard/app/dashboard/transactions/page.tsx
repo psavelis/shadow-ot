@@ -1,13 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  History, ArrowUpRight, ArrowDownRight, Filter, Search,
-  Download, Calendar, Coins, ShoppingCart, Gift, Wallet,
-  RefreshCw, ChevronDown, ExternalLink
+  History, ArrowUpRight, ArrowDownRight, Search,
+  Download, Coins, ShoppingCart, Gift, Wallet,
+  Loader2, AlertTriangle, ExternalLink
 } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { useTransactions } from '@/shared/hooks/useDashboard'
+import type { Transaction } from '@/shared/api/endpoints'
 
 const transactionTypes = [
   { id: 'all', label: 'All Transactions' },
@@ -15,129 +17,45 @@ const transactionTypes = [
   { id: 'transfer', label: 'Transfers', icon: ArrowUpRight },
   { id: 'nft', label: 'NFT', icon: Wallet },
   { id: 'premium', label: 'Premium', icon: Gift },
-  { id: 'coins', label: 'Coins', icon: Coins },
 ]
 
-const transactions = [
-  {
-    id: '1',
-    type: 'market',
-    title: 'Sold Demon Helmet',
-    description: 'Market sale to DragonSlayer',
-    amount: 500000,
-    currency: 'gold',
-    status: 'completed',
-    date: '2024-12-04T14:32:00Z',
-    direction: 'in',
-    details: { buyer: 'DragonSlayer', item: 'Demon Helmet', quantity: 1 },
-  },
-  {
-    id: '2',
-    type: 'transfer',
-    title: 'Transfer to MysticDruid',
-    description: 'Character transfer',
-    amount: 100000,
-    currency: 'gold',
-    status: 'completed',
-    date: '2024-12-04T10:15:00Z',
-    direction: 'out',
-    details: { recipient: 'MysticDruid', character: 'ShadowKnight' },
-  },
-  {
-    id: '3',
-    type: 'nft',
-    title: 'Minted Dragon Scale Armor',
-    description: 'NFT minting fee',
-    amount: 0.05,
-    currency: 'ETH',
-    status: 'completed',
-    date: '2024-12-03T18:45:00Z',
-    direction: 'out',
-    txHash: '0x1234...5678',
-    details: { item: 'Dragon Scale Armor', tokenId: '1234' },
-  },
-  {
-    id: '4',
-    type: 'premium',
-    title: 'Premium Subscription',
-    description: '90 days subscription',
-    amount: 29.99,
-    currency: 'USD',
-    status: 'completed',
-    date: '2024-12-01T09:00:00Z',
-    direction: 'out',
-    details: { period: '90 days', validUntil: '2025-03-01' },
-  },
-  {
-    id: '5',
-    type: 'coins',
-    title: 'Purchased 1000 Coins',
-    description: 'In-game currency purchase',
-    amount: 9.99,
-    currency: 'USD',
-    status: 'completed',
-    date: '2024-11-28T15:20:00Z',
-    direction: 'out',
-    details: { coins: 1000, bonus: 50 },
-  },
-  {
-    id: '6',
-    type: 'market',
-    title: 'Bought Magic Sword',
-    description: 'Market purchase from StormMage',
-    amount: 250000,
-    currency: 'gold',
-    status: 'completed',
-    date: '2024-11-25T12:00:00Z',
-    direction: 'out',
-    details: { seller: 'StormMage', item: 'Magic Sword', quantity: 1 },
-  },
-  {
-    id: '7',
-    type: 'nft',
-    title: 'NFT Sale',
-    description: 'Sold Golden Armor NFT',
-    amount: 0.8,
-    currency: 'ETH',
-    status: 'completed',
-    date: '2024-11-20T08:30:00Z',
-    direction: 'in',
-    txHash: '0xabcd...efgh',
-    details: { item: 'Golden Armor', buyer: '0x9876...5432', tokenId: '0892' },
-  },
-  {
-    id: '8',
-    type: 'transfer',
-    title: 'Received from SwiftArrow',
-    description: 'Gift transfer',
-    amount: 50000,
-    currency: 'gold',
-    status: 'completed',
-    date: '2024-11-15T20:45:00Z',
-    direction: 'in',
-    details: { sender: 'SwiftArrow', note: 'Thanks for the help!' },
-  },
-]
-
-const stats = {
-  totalIn: 1384293,
-  totalOut: 892847,
-  nftVolume: 0.85,
-  premiumSpent: 59.98,
+const typeIcons: Record<string, React.ElementType> = {
+  market: ShoppingCart,
+  transfer: ArrowUpRight,
+  nft: Wallet,
+  premium: Gift,
 }
 
 export default function TransactionsPage() {
-  const [selectedType, setSelectedType] = useState('all')
+  const [selectedType, setSelectedType] = useState<Transaction['type'] | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [dateRange, setDateRange] = useState('all')
-  const [selectedTx, setSelectedTx] = useState<typeof transactions[0] | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null)
+  const pageSize = 20
+  
+  // Real API hook
+  const { data: transactionsData, isLoading, error } = useTransactions({
+    type: selectedType === 'all' ? undefined : selectedType,
+    page: currentPage,
+    pageSize,
+  })
+  
+  const transactions = transactionsData?.data || []
 
   const filteredTransactions = transactions.filter(tx => {
-    const matchesType = selectedType === 'all' || tx.type === selectedType
     const matchesSearch = tx.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tx.description.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesType && matchesSearch
+    return matchesSearch
   })
+  
+  // Calculate stats from real data
+  const stats = {
+    totalIn: transactions.filter(t => t.currency === 'gold' && t.status === 'completed' && t.to).reduce((sum, t) => sum + t.amount, 0),
+    totalOut: transactions.filter(t => t.currency === 'gold' && t.status === 'completed' && t.from).reduce((sum, t) => sum + t.amount, 0),
+    nftVolume: transactions.filter(t => t.type === 'nft' && t.status === 'completed').reduce((sum, t) => sum + t.amount, 0),
+    premiumSpent: transactions.filter(t => t.type === 'premium' && t.status === 'completed').reduce((sum, t) => sum + t.amount, 0),
+  }
 
   const formatAmount = (amount: number, currency: string) => {
     if (currency === 'gold') {
@@ -145,7 +63,7 @@ export default function TransactionsPage() {
       if (amount >= 1000) return `${(amount / 1000).toFixed(1)}k`
       return amount.toLocaleString()
     }
-    if (currency === 'ETH') return `${amount} ETH`
+    if (currency === 'coins') return `${amount} coins`
     return `$${amount.toFixed(2)}`
   }
 
@@ -158,12 +76,9 @@ export default function TransactionsPage() {
     })
   }
 
-  const typeIcons: Record<string, any> = {
-    market: ShoppingCart,
-    transfer: ArrowUpRight,
-    nft: Wallet,
-    premium: Gift,
-    coins: Coins,
+  const getDirection = (tx: Transaction) => {
+    // Determine direction based on from/to fields
+    return tx.to ? 'in' : 'out'
   }
 
   return (
@@ -209,14 +124,14 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between mb-2">
             <Wallet className="w-5 h-5 text-purple-400" />
           </div>
-          <p className="text-2xl font-bold text-white">{formatAmount(stats.nftVolume, 'ETH')}</p>
+          <p className="text-2xl font-bold text-white">{formatAmount(stats.nftVolume, 'usd')}</p>
           <p className="text-xs text-slate-500">NFT Volume</p>
         </div>
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <Gift className="w-5 h-5 text-amber-400" />
           </div>
-          <p className="text-2xl font-bold text-white">{formatAmount(stats.premiumSpent, 'USD')}</p>
+          <p className="text-2xl font-bold text-white">{formatAmount(stats.premiumSpent, 'usd')}</p>
           <p className="text-xs text-slate-500">Premium Spent</p>
         </div>
       </motion.div>
@@ -240,7 +155,7 @@ export default function TransactionsPage() {
         </div>
         <select
           value={selectedType}
-          onChange={e => setSelectedType(e.target.value)}
+          onChange={e => setSelectedType(e.target.value as typeof selectedType)}
           className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-500/50"
         >
           {transactionTypes.map(type => (
@@ -266,55 +181,90 @@ export default function TransactionsPage() {
         transition={{ delay: 0.3 }}
         className="bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden"
       >
-        <div className="divide-y divide-slate-700/50">
-          {filteredTransactions.map((tx, idx) => {
-            const Icon = typeIcons[tx.type] || History
-            return (
-              <motion.button
-                key={tx.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.03 }}
-                onClick={() => setSelectedTx(tx)}
-                className="w-full p-4 flex items-center gap-4 hover:bg-slate-700/30 transition text-left"
-              >
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  tx.direction === 'in' ? 'bg-emerald-500/20' : 'bg-slate-700/50'
-                }`}>
-                  <Icon className={`w-5 h-5 ${tx.direction === 'in' ? 'text-emerald-400' : 'text-slate-400'}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-medium truncate">{tx.title}</p>
-                    <span className={`px-2 py-0.5 rounded text-xs ${
-                      tx.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' :
-                      tx.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
-                      {tx.status}
-                    </span>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-12 text-red-400">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            Failed to load transactions
+          </div>
+        ) : filteredTransactions.length === 0 ? (
+          <div className="text-center py-16">
+            <History className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No transactions found</h3>
+            <p className="text-slate-500">Try adjusting your filters</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-700/50">
+            {filteredTransactions.map((tx, idx) => {
+              const Icon = typeIcons[tx.type] || History
+              const direction = getDirection(tx)
+              return (
+                <motion.button
+                  key={tx.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.03 }}
+                  onClick={() => setSelectedTx(tx)}
+                  className="w-full p-4 flex items-center gap-4 hover:bg-slate-700/30 transition text-left"
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    direction === 'in' ? 'bg-emerald-500/20' : 'bg-slate-700/50'
+                  }`}>
+                    <Icon className={`w-5 h-5 ${direction === 'in' ? 'text-emerald-400' : 'text-slate-400'}`} />
                   </div>
-                  <p className="text-slate-500 text-sm truncate">{tx.description}</p>
-                </div>
-                <div className="text-right">
-                  <p className={`font-medium ${tx.direction === 'in' ? 'text-emerald-400' : 'text-white'}`}>
-                    {tx.direction === 'in' ? '+' : '-'}{formatAmount(tx.amount, tx.currency)}
-                  </p>
-                  <p className="text-slate-500 text-xs">{formatDate(tx.date)}</p>
-                </div>
-              </motion.button>
-            )
-          })}
-        </div>
-      </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-medium truncate">{tx.title}</p>
+                      <span className={`px-2 py-0.5 rounded text-xs ${
+                        tx.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' :
+                        tx.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>
+                        {tx.status}
+                      </span>
+                    </div>
+                    <p className="text-slate-500 text-sm truncate">{tx.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-medium ${direction === 'in' ? 'text-emerald-400' : 'text-white'}`}>
+                      {direction === 'in' ? '+' : '-'}{formatAmount(tx.amount, tx.currency)}
+                    </p>
+                    <p className="text-slate-500 text-xs">{formatDate(tx.timestamp)}</p>
+                  </div>
+                </motion.button>
+              )
+            })}
+          </div>
+        )}
 
-      {filteredTransactions.length === 0 && (
-        <div className="text-center py-16">
-          <History className="w-16 h-16 text-slate-700 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">No transactions found</h3>
-          <p className="text-slate-500">Try adjusting your filters</p>
-        </div>
-      )}
+        {/* Pagination */}
+        {transactionsData && transactionsData.totalPages > 1 && (
+          <div className="p-4 border-t border-slate-700 flex items-center justify-between">
+            <p className="text-slate-500 text-sm">
+              Page {currentPage} of {transactionsData.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded hover:bg-slate-600/50 transition disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(transactionsData.totalPages, p + 1))}
+                disabled={currentPage === transactionsData.totalPages}
+                className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded hover:bg-slate-600/50 transition disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
 
       {/* Transaction Detail Dialog */}
       <Dialog.Root open={!!selectedTx} onOpenChange={() => setSelectedTx(null)}>
@@ -325,11 +275,11 @@ export default function TransactionsPage() {
               <>
                 <div className="flex items-center gap-4 mb-6">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    selectedTx.direction === 'in' ? 'bg-emerald-500/20' : 'bg-slate-700/50'
+                    getDirection(selectedTx) === 'in' ? 'bg-emerald-500/20' : 'bg-slate-700/50'
                   }`}>
                     {(() => {
                       const Icon = typeIcons[selectedTx.type] || History
-                      return <Icon className={`w-6 h-6 ${selectedTx.direction === 'in' ? 'text-emerald-400' : 'text-slate-400'}`} />
+                      return <Icon className={`w-6 h-6 ${getDirection(selectedTx) === 'in' ? 'text-emerald-400' : 'text-slate-400'}`} />
                     })()}
                   </div>
                   <div>
@@ -342,14 +292,16 @@ export default function TransactionsPage() {
                   <div className="bg-slate-900/50 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-slate-400 text-sm">Amount</span>
-                      <span className={`text-xl font-bold ${selectedTx.direction === 'in' ? 'text-emerald-400' : 'text-white'}`}>
-                        {selectedTx.direction === 'in' ? '+' : '-'}{formatAmount(selectedTx.amount, selectedTx.currency)}
+                      <span className={`text-xl font-bold ${getDirection(selectedTx) === 'in' ? 'text-emerald-400' : 'text-white'}`}>
+                        {getDirection(selectedTx) === 'in' ? '+' : '-'}{formatAmount(selectedTx.amount, selectedTx.currency)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 text-sm">Status</span>
                       <span className={`px-2 py-0.5 rounded text-xs ${
-                        selectedTx.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                        selectedTx.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : 
+                        selectedTx.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
+                        'bg-red-500/20 text-red-400'
                       }`}>
                         {selectedTx.status}
                       </span>
@@ -359,34 +311,25 @@ export default function TransactionsPage() {
                   <div className="bg-slate-900/50 rounded-lg p-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-400">Date</span>
-                      <span className="text-white">{new Date(selectedTx.date).toLocaleString()}</span>
+                      <span className="text-white">{new Date(selectedTx.timestamp).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-400">Type</span>
                       <span className="text-white capitalize">{selectedTx.type}</span>
                     </div>
-                    {selectedTx.txHash && (
+                    {selectedTx.from && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-400">Tx Hash</span>
-                        <a href="#" className="text-amber-400 hover:text-amber-300 flex items-center gap-1">
-                          {selectedTx.txHash}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                        <span className="text-slate-400">From</span>
+                        <span className="text-white">{selectedTx.from}</span>
+                      </div>
+                    )}
+                    {selectedTx.to && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">To</span>
+                        <span className="text-white">{selectedTx.to}</span>
                       </div>
                     )}
                   </div>
-
-                  {selectedTx.details && (
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs mb-2">Details</p>
-                      {Object.entries(selectedTx.details).map(([key, value]) => (
-                        <div key={key} className="flex justify-between text-sm py-1">
-                          <span className="text-slate-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                          <span className="text-white">{String(value)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 <Dialog.Close className="w-full px-4 py-2.5 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition">
@@ -400,4 +343,3 @@ export default function TransactionsPage() {
     </div>
   )
 }
-

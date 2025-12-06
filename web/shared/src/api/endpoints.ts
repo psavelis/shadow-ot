@@ -213,6 +213,126 @@ export const userApi = {
 
   toggleSSOForRealm: (realmId: string, enabled: boolean) =>
     apiClient.patch(`/users/me/sso/realms/${realmId}`, { enabled }),
+
+  // Transactions
+  getTransactions: (params?: { 
+    type?: 'market' | 'transfer' | 'nft' | 'premium'
+    page?: number
+    pageSize?: number 
+  }) => apiClient.get<PaginatedResponse<Transaction>>('/users/me/transactions', params),
+
+  // Notifications
+  getNotifications: (params?: { 
+    type?: 'levelup' | 'trade' | 'achievement' | 'guild' | 'system'
+    unreadOnly?: boolean
+    page?: number
+    pageSize?: number 
+  }) => apiClient.get<PaginatedResponse<Notification>>('/users/me/notifications', params),
+
+  markNotificationRead: (id: string) =>
+    apiClient.patch(`/users/me/notifications/${id}/read`),
+
+  markAllNotificationsRead: () =>
+    apiClient.post('/users/me/notifications/read-all'),
+
+  deleteNotification: (id: string) =>
+    apiClient.delete(`/users/me/notifications/${id}`),
+
+  // Premium
+  getPremiumStatus: () =>
+    apiClient.get<{
+      active: boolean
+      plan: 'monthly' | 'quarterly' | 'yearly' | null
+      expiresAt: string | null
+      coins: number
+    }>('/users/me/premium'),
+
+  purchasePremium: (plan: 'monthly' | 'quarterly' | 'yearly') =>
+    apiClient.post('/users/me/premium/purchase', { plan }),
+
+  purchaseCoins: (packageId: number) =>
+    apiClient.post('/users/me/premium/coins', { packageId }),
+
+  getPremiumHistory: () =>
+    apiClient.get<Array<{
+      id: string
+      type: 'subscription' | 'coins'
+      description: string
+      amount: number
+      date: string
+      status: 'completed' | 'pending' | 'failed'
+    }>>('/users/me/premium/history'),
+}
+
+// ============================================
+// Transaction Type
+// ============================================
+export interface Transaction {
+  id: string
+  type: 'market' | 'transfer' | 'nft' | 'premium'
+  title: string
+  description: string
+  amount: number
+  currency: 'gold' | 'coins' | 'usd'
+  timestamp: string
+  status: 'completed' | 'pending' | 'failed'
+  from?: string
+  to?: string
+  itemId?: string
+}
+
+// ============================================
+// Notification Type
+// ============================================
+export interface Notification {
+  id: string
+  type: 'levelup' | 'trade' | 'achievement' | 'guild' | 'system'
+  title: string
+  message: string
+  timestamp: string
+  read: boolean
+  actionUrl?: string
+  data?: Record<string, unknown>
+}
+
+// ============================================
+// Inventory Endpoints
+// ============================================
+export const inventoryApi = {
+  getItems: (params?: {
+    characterId?: string
+    category?: string
+    search?: string
+    page?: number
+    pageSize?: number
+  }) => apiClient.get<PaginatedResponse<InventoryItem>>('/inventory', params),
+
+  getItem: (id: string) =>
+    apiClient.get<InventoryItem>(`/inventory/${id}`),
+
+  transferItem: (itemId: string, toCharacterId: string) =>
+    apiClient.post(`/inventory/${itemId}/transfer`, { toCharacterId }),
+
+  listOnMarket: (itemId: string, price: number) =>
+    apiClient.post(`/inventory/${itemId}/list`, { price }),
+}
+
+export interface InventoryItem {
+  id: string
+  name: string
+  type: 'weapon' | 'armor' | 'helmet' | 'legs' | 'boots' | 'shield' | 'amulet' | 'ring' | 'consumable' | 'tool' | 'quest'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  quantity: number
+  attributes: Record<string, number>
+  imbuements?: string[]
+  spriteId: number
+  equipped: boolean
+  characterId: string
+  description?: string
+  requirements?: {
+    level?: number
+    vocation?: string[]
+  }
 }
 
 // ============================================
