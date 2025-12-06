@@ -2561,11 +2561,43 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.14.0*
+*Version: 2.15.0*
 
 ---
 
 ## Recent Updates
+
+### v2.15.0 - Complete Dashboard API Integration (2025-12-06)
+
+**ALL DASHBOARD PAGES NOW USE REAL API - NO MORE MOCKS!**
+
+**Dashboard Support Page** (`/dashboard/support`) ✅
+- Uses `useSupportTickets()` hook for ticket list
+- Uses `useCreateTicket()` mutation for new tickets
+- Uses `useFAQ()` hook for knowledge base
+
+**Dashboard Auctions Page** (`/dashboard/auctions`) ✅
+- Uses `useCharacterAuctions()` and `useItemAuctions()` hooks
+- Uses `useMyBids()` for user's active bids
+- Uses `usePlaceBid()` and `useBuyout()` mutations
+
+**Dashboard Houses Page** (`/dashboard/houses`) ✅
+- Uses `useHouses()` hook with town/size/status filtering
+- Uses `useMyHouses()` for owned houses
+- Uses `useBidOnHouse()` and `useLeaveHouse()` mutations
+
+**Dashboard Achievements Page** (`/dashboard/achievements`) ✅
+- Uses `useAchievements()` hook for player achievements
+- Uses `useAchievementLeaderboard()` for top hunters
+- Category filtering with progress bars
+
+**New API Endpoints Added** ✅
+- Support: `getTickets`, `createTicket`, `replyToTicket`, `closeTicket`, `getFAQ`
+- Auctions: `getCharacterAuctions`, `getItemAuctions`, `getMyBids`, `placeBid`, `buyout`
+- Houses: `getHouses`, `getMyHouses`, `bidOnHouse`, `leaveHouse`, `transferHouse`
+- Achievements: `getAll`, `getPlayerAchievements`, `getLeaderboard`
+
+---
 
 ### v2.14.0 - Dashboard Pages API Integration (2025-12-06)
 
