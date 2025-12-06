@@ -2,10 +2,16 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Shield, Target, Wand2, Leaf, User, Globe, Trophy, Skull, Clock, Filter } from 'lucide-react'
+import { 
+  Search, Shield, Target, Wand2, Leaf, User, Globe, Trophy, Skull, Clock, 
+  Loader2, AlertCircle
+} from 'lucide-react'
+import { useCharacterByName, useCharacterDeaths } from '@/shared/hooks/useCharacters'
+import { getOutfitSprite } from '@/shared/utils/assets'
+import type { Character, Vocation, RealmId } from '@/shared/types'
 
-const realmOptions = [
-  { id: 'all', label: 'All Realms' },
+const realmOptions: { id: RealmId | 'all'; label: string }[] = [
+  { id: 'all' as any, label: 'All Realms' },
   { id: 'shadowveil', label: 'Shadowveil' },
   { id: 'aetheria', label: 'Aetheria' },
   { id: 'warbound', label: 'Warbound' },
@@ -47,37 +53,6 @@ const realmColors: Record<string, string> = {
   grimhollow: 'text-slate-400',
 }
 
-// Mock character data
-const mockCharacter = {
-  name: 'Shadow Knight',
-  level: 312,
-  vocation: 'Elite Knight',
-  realm: 'shadowveil',
-  online: true,
-  sex: 'male',
-  residence: 'Thais',
-  guild: { name: 'Dark Legion', rank: 'Leader' },
-  lastLogin: '2024-12-05T10:30:00Z',
-  accountAge: '2 years, 3 months',
-  experience: 2847593842,
-  achievementPoints: 1250,
-  deaths: [
-    { killer: 'a demon', level: 310, date: '2024-12-03T14:22:00Z' },
-    { killer: 'DragonSlayer (Player)', level: 308, date: '2024-12-01T20:15:00Z' },
-    { killer: 'a dragon lord', level: 305, date: '2024-11-28T09:45:00Z' },
-  ],
-  skills: {
-    fist: { level: 32, percent: 45 },
-    club: { level: 15, percent: 12 },
-    sword: { level: 118, percent: 78 },
-    axe: { level: 95, percent: 23 },
-    distance: { level: 25, percent: 56 },
-    shielding: { level: 112, percent: 34 },
-    fishing: { level: 45, percent: 89 },
-    magicLevel: { level: 28, percent: 67 },
-  },
-}
-
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -94,35 +69,44 @@ function formatNumber(num: number) {
 
 export default function CharacterLookupPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedRealm, setSelectedRealm] = useState('all')
-  const [character, setCharacter] = useState<typeof mockCharacter | null>(null)
-  const [searching, setSearching] = useState(false)
+  const [searchName, setSearchName] = useState('')
+
+  // Fetch character data from API
+  const { 
+    data: character, 
+    isLoading, 
+    error, 
+    refetch 
+  } = useCharacterByName(searchName)
+
+  // Fetch deaths separately if character exists
+  const { data: deaths } = useCharacterDeaths(character?.id || '')
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
-    
-    setSearching(true)
-    // Simulate API call
-    setTimeout(() => {
-      setCharacter(mockCharacter)
-      setSearching(false)
-    }, 500)
+    setSearchName(searchQuery.trim())
   }
 
-  const VocationIcon = character ? vocationIcons[character.vocation] : User
+  const VocationIcon = character ? vocationIcons[character.vocation] || User : User
 
   return (
-    <div className="min-h-screen bg-shadow-950 py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-20">
+      <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">Character Lookup</h1>
-          <p className="text-shadow-400 text-lg max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-sm mb-6">
+            <User className="w-4 h-4" />
+            Character Lookup
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Find <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Characters</span>
+          </h1>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
             Search for any character across all realms
           </p>
         </motion.div>
@@ -133,37 +117,50 @@ export default function CharacterLookupPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           onSubmit={handleSearch}
-          className="card mb-8"
+          className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 mb-8"
         >
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-shadow-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Enter character name..."
-                className="w-full pl-12 pr-4 py-3 bg-shadow-800 border border-shadow-600 rounded-lg text-white placeholder:text-shadow-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50"
+                className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               />
             </div>
-            <select
-              value={selectedRealm}
-              onChange={(e) => setSelectedRealm(e.target.value)}
-              className="px-4 py-3 bg-shadow-800 border border-shadow-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50"
-            >
-              {realmOptions.map((realm) => (
-                <option key={realm.id} value={realm.id}>{realm.label}</option>
-              ))}
-            </select>
             <button
               type="submit"
-              disabled={searching}
-              className="btn-primary px-8 disabled:opacity-50"
+              disabled={isLoading || !searchQuery.trim()}
+              className="px-8 py-3 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {searching ? 'Searching...' : 'Search'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Searching...
+                </>
+              ) : (
+                'Search'
+              )}
             </button>
           </div>
         </motion.form>
+
+        {/* Error State */}
+        {error && searchName && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center"
+          >
+            <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+            <h3 className="text-white font-bold text-lg mb-2">Character Not Found</h3>
+            <p className="text-slate-400">
+              No character named "{searchName}" was found. Please check the spelling and try again.
+            </p>
+          </motion.div>
+        )}
 
         {/* Character Profile */}
         {character && (
@@ -173,11 +170,22 @@ export default function CharacterLookupPage() {
             className="space-y-6"
           >
             {/* Main Info */}
-            <div className="card">
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
               <div className="flex flex-col md:flex-row md:items-start gap-6">
                 <div className="flex-shrink-0">
-                  <div className="w-24 h-24 rounded-xl bg-shadow-700 flex items-center justify-center">
-                    <VocationIcon className={`w-12 h-12 ${vocationColors[character.vocation]}`} />
+                  <div className="w-24 h-24 rounded-xl bg-slate-700/50 border border-slate-600/50 flex items-center justify-center overflow-hidden">
+                    {character.outfit ? (
+                      <img 
+                        src={getOutfitSprite(character.outfit)} 
+                        alt={character.name}
+                        className="w-16 h-16 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                          ;(e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden')
+                        }}
+                      />
+                    ) : null}
+                    <VocationIcon className={`w-12 h-12 ${vocationColors[character.vocation]} ${character.outfit ? 'hidden' : ''}`} />
                   </div>
                 </div>
                 <div className="flex-1">
@@ -190,42 +198,42 @@ export default function CharacterLookupPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-shadow-400 mb-4">
-                    Level {character.level} - {character.vocation}
+                  <p className="text-slate-400 mb-4">
+                    Level {character.level} - <span className={vocationColors[character.vocation]}>{character.vocation}</span>
                   </p>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2">
                       <Globe className={`w-4 h-4 ${realmColors[character.realm]}`} />
-                      <span className="text-shadow-400">Realm:</span>
+                      <span className="text-slate-400">Realm:</span>
                       <span className={`font-medium capitalize ${realmColors[character.realm]}`}>{character.realm}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-shadow-500" />
-                      <span className="text-shadow-400">Sex:</span>
+                      <User className="w-4 h-4 text-slate-500" />
+                      <span className="text-slate-400">Sex:</span>
                       <span className="text-white capitalize">{character.sex}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-shadow-500" />
-                      <span className="text-shadow-400">Residence:</span>
+                      <Globe className="w-4 h-4 text-slate-500" />
+                      <span className="text-slate-400">Residence:</span>
                       <span className="text-white">{character.residence}</span>
                     </div>
                     {character.guild && (
                       <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-shadow-500" />
-                        <span className="text-shadow-400">Guild:</span>
+                        <Shield className="w-4 h-4 text-slate-500" />
+                        <span className="text-slate-400">Guild:</span>
                         <span className="text-white">{character.guild.name}</span>
-                        <span className="text-shadow-500">({character.guild.rank})</span>
+                        <span className="text-slate-500">({character.guild.rank})</span>
                       </div>
                     )}
                     <div className="flex items-center gap-2">
                       <Trophy className="w-4 h-4 text-yellow-500" />
-                      <span className="text-shadow-400">Achievements:</span>
-                      <span className="text-white">{formatNumber(character.achievementPoints)} pts</span>
+                      <span className="text-slate-400">Achievements:</span>
+                      <span className="text-white">{formatNumber(character.achievementPoints || 0)} pts</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-shadow-500" />
-                      <span className="text-shadow-400">Account Age:</span>
-                      <span className="text-white">{character.accountAge}</span>
+                      <Clock className="w-4 h-4 text-slate-500" />
+                      <span className="text-slate-400">Last Login:</span>
+                      <span className="text-white">{character.lastLogin ? formatDate(character.lastLogin) : 'Unknown'}</span>
                     </div>
                   </div>
                 </div>
@@ -233,68 +241,91 @@ export default function CharacterLookupPage() {
             </div>
 
             {/* Skills */}
-            <div className="card">
-              <h3 className="text-lg font-semibold text-white mb-4">Skills</h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Object.entries(character.skills).map(([skill, data]) => (
-                  <div key={skill} className="bg-shadow-800/50 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-shadow-400 capitalize">{skill === 'magicLevel' ? 'Magic Level' : skill}</span>
-                      <span className="font-semibold text-white">{data.level}</span>
-                    </div>
-                    <div className="h-1.5 bg-shadow-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-accent-500 rounded-full"
-                        style={{ width: `${data.percent}%` }}
-                      />
-                    </div>
-                    <div className="text-right text-xs text-shadow-500 mt-1">{data.percent}%</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Deaths */}
-            <div className="card">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Skull className="w-5 h-5 text-red-500" />
-                Recent Deaths
-              </h3>
-              {character.deaths.length > 0 ? (
-                <div className="space-y-3">
-                  {character.deaths.map((death, index) => (
-                    <div key={index} className="flex items-center justify-between py-3 border-b border-shadow-700 last:border-0">
-                      <div>
-                        <p className="text-white">
-                          Killed by <span className="text-red-400">{death.killer}</span>
-                        </p>
-                        <p className="text-sm text-shadow-500">at level {death.level}</p>
+            {character.skills && (
+              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Skills</h3>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {Object.entries(character.skills).map(([skill, data]) => (
+                    <div key={skill} className="bg-slate-900/50 rounded-lg p-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-slate-400 text-sm capitalize">{skill.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        <span className="text-white font-bold">{data.level}</span>
                       </div>
-                      <span className="text-shadow-500 text-sm">{formatDate(death.date)}</span>
+                      <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all"
+                          style={{ width: `${data.percent}%` }}
+                        />
+                      </div>
+                      <p className="text-slate-500 text-xs mt-1 text-right">{data.percent}%</p>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-shadow-500 text-center py-8">No deaths recorded</p>
-              )}
+              </div>
+            )}
+
+            {/* Deaths */}
+            {deaths && deaths.length > 0 && (
+              <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Skull className="w-5 h-5 text-red-400" />
+                  Recent Deaths
+                </h3>
+                <div className="space-y-3">
+                  {deaths.slice(0, 5).map((death, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                      <div>
+                        <p className="text-white">
+                          Killed by <span className="text-red-400 font-medium">{death.killerName}</span>
+                        </p>
+                        <p className="text-slate-500 text-sm">at level {death.levelAtDeath}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-400 text-sm">{formatDate(death.timestamp)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Experience */}
+            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-white mb-4">Experience</h3>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-slate-400 text-sm mb-1">Total Experience</p>
+                  <p className="text-2xl font-bold text-amber-400">{formatNumber(character.experience)}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm mb-1">Experience to Next Level</p>
+                  <div className="h-4 bg-slate-700 rounded-full overflow-hidden mt-2">
+                    <div 
+                      className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"
+                      style={{ width: `${((character.experience % 1000000) / 1000000) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
 
-        {/* Initial State */}
-        {!character && !searching && (
+        {/* No Search Yet */}
+        {!character && !error && !isLoading && !searchName && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             className="text-center py-16"
           >
-            <Search className="w-16 h-16 text-shadow-700 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Search for a character</h3>
-            <p className="text-shadow-500">Enter a character name to view their profile</p>
+            <User className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+            <h3 className="text-white font-bold text-xl mb-2">Search for a Character</h3>
+            <p className="text-slate-400">
+              Enter a character name above to view their profile, skills, and recent deaths.
+            </p>
           </motion.div>
         )}
       </div>
     </div>
   )
 }
-

@@ -2564,11 +2564,50 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.8.0*
+*Version: 2.9.0*
 
 ---
 
 ## Recent Updates
+
+### v2.9.0 - Final Mock Elimination (2025-12-06)
+
+**ALL REMAINING MOCKS REMOVED** ✅ Complete
+
+**Character Lookup Page** (`/characters`) - NO MORE MOCKS
+- Uses `useCharacterByName` hook for real character search
+- Uses `useCharacterDeaths` for death history
+- Character outfit sprites from `getOutfitSprite()` utility
+- Skills display with progress bars
+- Experience tracking
+- Proper loading/error states
+
+**News Pages** (`/news`, `/news/[slug]`) - NO MORE MOCKS
+- `/news` uses `useNews` hook with category filtering
+- `/news` uses `useFeaturedNews` for highlighted articles
+- `/news/[slug]` uses `useNewsArticle` for individual articles
+- Markdown content rendering with `react-markdown`
+- Proper pagination
+- Reactions display (likes, comments)
+
+**Pages Verified Clean (static config only):**
+- `/wiki` - Category configuration is static (acceptable)
+- `/download` - Platform/version info is static (acceptable)
+- Landing home components - No mock data found
+
+**Web Frontend: 100% API-Driven**
+All pages now use real React Query hooks:
+- Characters: `useCharacterByName`, `useCharacterDeaths`
+- News: `useNews`, `useFeaturedNews`, `useNewsArticle`
+- Highscores: `useHighscores`
+- Guilds: `useGuilds`
+- Realms: `useRealms`
+- Kill Stats: `useKillStatistics`, `useTopKillers`, `useRecentDeaths`
+- Spells: `useSpells`
+- Events: `useDailyBoosted`, `useActiveWorldQuests`
+- Tools: `useCreatures`
+
+---
 
 ### v2.8.0 - Complete Mock Removal & API Integration (2025-12-06)
 

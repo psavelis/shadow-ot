@@ -3,95 +3,25 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Calendar, User, Tag, ChevronRight, MessageSquare, Heart, Filter } from 'lucide-react'
-
-const newsCategories = [
-  { id: 'all', label: 'All News', count: 156 },
-  { id: 'announcement', label: 'Announcements', count: 23 },
-  { id: 'update', label: 'Updates', count: 45 },
-  { id: 'event', label: 'Events', count: 34 },
-  { id: 'community', label: 'Community', count: 28 },
-  { id: 'maintenance', label: 'Maintenance', count: 12 },
-  { id: 'development', label: 'Development', count: 14 },
-]
-
-const newsArticles = [
-  {
-    id: '1',
-    slug: 'winter-event-2024',
-    title: 'Winter Event 2024 - Frozen Realms Await!',
-    excerpt: 'The most anticipated event of the year is here! Explore frozen dungeons, defeat ice bosses, and earn exclusive winter-themed rewards.',
-    category: 'event',
-    author: 'Shadow Team',
-    publishedAt: '2024-12-01T10:00:00Z',
-    featured: true,
-    image: 'https://placehold.co/800x400/1a1a2e/e94560?text=Winter+Event',
-    reactions: { likes: 342, comments: 89 },
-    tags: ['event', 'seasonal', 'rewards'],
-  },
-  {
-    id: '2',
-    slug: 'patch-2-5-combat-rebalance',
-    title: 'Patch 2.5 - Major Combat Rebalance',
-    excerpt: 'We\'ve made significant changes to the combat system based on community feedback. Check out the full changelog.',
-    category: 'update',
-    author: 'Dev Team',
-    publishedAt: '2024-11-28T14:30:00Z',
-    featured: true,
-    image: 'https://placehold.co/800x400/1a1a2e/4a90d9?text=Patch+2.5',
-    reactions: { likes: 256, comments: 134 },
-    tags: ['patch', 'combat', 'balance'],
-  },
-  {
-    id: '3',
-    slug: 'new-realm-grimhollow',
-    title: 'Introducing Grimhollow - A New Horror-Themed Realm',
-    excerpt: 'Dare to enter Grimhollow, our newest realm featuring dark dungeons, terrifying creatures, and hardcore PvP.',
-    category: 'announcement',
-    author: 'Shadow Team',
-    publishedAt: '2024-11-25T09:00:00Z',
-    featured: false,
-    image: 'https://placehold.co/800x400/1a1a2e/64748b?text=Grimhollow',
-    reactions: { likes: 567, comments: 203 },
-    tags: ['realm', 'new', 'pvp'],
-  },
-  {
-    id: '4',
-    slug: 'community-spotlight-november',
-    title: 'Community Spotlight - November 2024',
-    excerpt: 'Celebrating our amazing community members who have contributed maps, guides, and more this month.',
-    category: 'community',
-    author: 'Community Manager',
-    publishedAt: '2024-11-20T16:00:00Z',
-    featured: false,
-    reactions: { likes: 189, comments: 45 },
-    tags: ['community', 'spotlight'],
-  },
-  {
-    id: '5',
-    slug: 'scheduled-maintenance-dec-5',
-    title: 'Scheduled Maintenance - December 5th',
-    excerpt: 'All servers will be offline for approximately 2 hours for database optimization and security updates.',
-    category: 'maintenance',
-    author: 'Tech Team',
-    publishedAt: '2024-12-03T08:00:00Z',
-    featured: false,
-    reactions: { likes: 45, comments: 12 },
-    tags: ['maintenance', 'downtime'],
-  },
-]
+import { 
+  Calendar, User, Tag, ChevronRight, MessageSquare, Heart, 
+  Loader2, AlertCircle, Newspaper 
+} from 'lucide-react'
+import { useNews, useFeaturedNews, NEWS_CATEGORIES } from '@/shared/hooks/useNews'
+import type { NewsCategory, NewsArticle } from '@/shared/types'
 
 const categoryColors: Record<string, string> = {
-  announcement: 'bg-yellow-500/20 text-yellow-400',
-  update: 'bg-blue-500/20 text-blue-400',
-  event: 'bg-purple-500/20 text-purple-400',
-  community: 'bg-green-500/20 text-green-400',
-  maintenance: 'bg-orange-500/20 text-orange-400',
-  development: 'bg-cyan-500/20 text-cyan-400',
+  announcement: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  update: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  event: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  community: 'bg-green-500/20 text-green-400 border-green-500/30',
+  maintenance: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+  development: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
 }
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('en-US', {
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -99,179 +29,232 @@ function formatDate(date: string) {
 }
 
 export default function NewsPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  
-  const filteredArticles = selectedCategory === 'all' 
-    ? newsArticles 
-    : newsArticles.filter(a => a.category === selectedCategory)
+  const [selectedCategory, setSelectedCategory] = useState<NewsCategory | undefined>(undefined)
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
 
-  const featuredArticles = newsArticles.filter(a => a.featured)
+  // Fetch news from API
+  const { data: newsData, isLoading, error } = useNews(selectedCategory, currentPage, pageSize)
+  const { data: featuredNews, isLoading: featuredLoading } = useFeaturedNews()
+
+  const articles = newsData?.data || []
 
   return (
-    <div className="min-h-screen bg-shadow-950 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-20">
+      <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">News & Updates</h1>
-          <p className="text-shadow-400 text-lg max-w-2xl mx-auto">
-            Stay informed about the latest happenings in Shadow OT
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm mb-6">
+            <Newspaper className="w-4 h-4" />
+            News & Updates
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Shadow OT <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">News</span>
+          </h1>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            Stay updated with the latest announcements, patches, events, and community highlights
           </p>
         </motion.div>
 
-        {/* Featured Articles */}
+        {/* Featured News */}
+        {!featuredLoading && featuredNews && featuredNews.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-12"
+          >
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+              Featured
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {featuredNews.slice(0, 2).map((article, idx) => (
+                <Link href={`/news/${article.slug}`} key={article.id}>
+                  <div className="group relative h-64 rounded-2xl overflow-hidden bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/50 transition-all">
+                    {article.image && (
+                      <img 
+                        src={article.image} 
+                        alt={article.title}
+                        className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent" />
+                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                      <span className={`inline-flex items-center w-fit px-2 py-1 text-xs rounded border mb-3 ${categoryColors[article.category] || 'bg-slate-500/20 text-slate-400 border-slate-500/30'}`}>
+                        {article.category}
+                      </span>
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition">
+                        {article.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm line-clamp-2">{article.excerpt}</p>
+                      <div className="flex items-center gap-4 mt-4 text-xs text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {formatDate(article.publishedAt)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {article.author}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3 h-3" />
+                          {article.reactions?.likes || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="w-3 h-3" />
+                          {article.reactions?.comments || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {/* Category Filter */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid md:grid-cols-2 gap-6 mb-12"
+          transition={{ delay: 0.2 }}
+          className="flex flex-wrap gap-2 mb-8"
         >
-          {featuredArticles.map((article, index) => (
-            <Link key={article.id} href={`/news/${article.slug}`}>
-              <div className="group relative h-80 rounded-2xl overflow-hidden border border-shadow-700 hover:border-accent-500/50 transition-all">
-                <div className="absolute inset-0 bg-gradient-to-t from-shadow-950 via-shadow-950/80 to-transparent z-10" />
-                <img
-                  src={article.image}
-                  alt={article.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium mb-3 ${categoryColors[article.category]}`}>
-                    {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-                  </span>
-                  <h2 className="text-xl font-bold text-white mb-2 group-hover:text-accent-400 transition-colors">
-                    {article.title}
-                  </h2>
-                  <p className="text-shadow-400 text-sm line-clamp-2 mb-3">{article.excerpt}</p>
-                  <div className="flex items-center gap-4 text-sm text-shadow-500">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {formatDate(article.publishedAt)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Heart className="w-4 h-4" />
-                      {article.reactions.likes}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MessageSquare className="w-4 h-4" />
-                      {article.reactions.comments}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
+          <button
+            onClick={() => {
+              setSelectedCategory(undefined)
+              setCurrentPage(1)
+            }}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              !selectedCategory 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:border-slate-600'
+            }`}
+          >
+            All News
+          </button>
+          {NEWS_CATEGORIES.map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => {
+                setSelectedCategory(cat.value)
+                setCurrentPage(1)
+              }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                selectedCategory === cat.value
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:border-slate-600'
+              }`}
+            >
+              {cat.label}
+            </button>
           ))}
         </motion.div>
 
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Categories Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-1"
-          >
-            <div className="card sticky top-24">
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <Filter className="w-5 h-5 text-accent-500" />
-                Categories
-              </h3>
-              <div className="space-y-1">
-                {newsCategories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
-                      selectedCategory === cat.id
-                        ? 'bg-accent-500/20 text-accent-400'
-                        : 'text-shadow-400 hover:bg-shadow-800 hover:text-white'
-                    }`}
-                  >
-                    <span>{cat.label}</span>
-                    <span className="text-xs bg-shadow-700 px-2 py-0.5 rounded">{cat.count}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Articles List */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:col-span-3 space-y-6"
-          >
-            {filteredArticles.map((article) => (
-              <Link key={article.id} href={`/news/${article.slug}`}>
-                <article className="card flex gap-6 group hover:border-accent-500/50 transition-all">
-                  {article.image && (
-                    <div className="hidden sm:block w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden">
-                      <img
-                        src={article.image}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${categoryColors[article.category]}`}>
-                        {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-                      </span>
-                      <span className="text-shadow-500 text-sm">{formatDate(article.publishedAt)}</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-white group-hover:text-accent-400 transition-colors mb-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-shadow-400 text-sm line-clamp-2 mb-3">{article.excerpt}</p>
-                    <div className="flex items-center gap-4 text-sm text-shadow-500">
-                      <span className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        {article.author}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        {article.reactions.likes}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageSquare className="w-4 h-4" />
-                        {article.reactions.comments}
-                      </span>
-                      {article.tags && (
-                        <span className="flex items-center gap-1">
-                          <Tag className="w-4 h-4" />
-                          {article.tags.length} tags
-                        </span>
+        {/* News Grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-12 h-12 animate-spin text-blue-400" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 text-red-400">
+            <AlertCircle className="w-12 h-12 mb-4" />
+            <p>Failed to load news. Please try again.</p>
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <Newspaper className="w-12 h-12 mb-4 opacity-50" />
+            <p>No news articles found</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {articles.map((article, idx) => (
+                <motion.div
+                  key={article.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.05, 0.3) }}
+                >
+                  <Link href={`/news/${article.slug}`}>
+                    <div className="group bg-slate-800/50 border border-slate-700/50 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all h-full flex flex-col">
+                      {article.image && (
+                        <div className="h-40 overflow-hidden">
+                          <img 
+                            src={article.image} 
+                            alt={article.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
                       )}
+                      <div className="p-5 flex-1 flex flex-col">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className={`px-2 py-1 text-xs rounded border ${categoryColors[article.category] || 'bg-slate-500/20 text-slate-400 border-slate-500/30'}`}>
+                            {article.category}
+                          </span>
+                          <span className="text-slate-500 text-xs">
+                            {formatDate(article.publishedAt)}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition line-clamp-2">
+                          {article.title}
+                        </h3>
+                        <p className="text-slate-400 text-sm flex-1 line-clamp-3">
+                          {article.excerpt}
+                        </p>
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
+                          <div className="flex items-center gap-3 text-xs text-slate-500">
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3" />
+                              {article.reactions?.likes || 0}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageSquare className="w-3 h-3" />
+                              {article.reactions?.comments || 0}
+                            </span>
+                          </div>
+                          <span className="text-blue-400 text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                            Read more
+                            <ChevronRight className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-shadow-600 group-hover:text-accent-500 transition-colors self-center" />
-                </article>
-              </Link>
-            ))}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-center gap-2 pt-8">
-              <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">
-                Previous
-              </button>
-              <button className="px-4 py-2 rounded-lg bg-accent-500 text-white">1</button>
-              <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">2</button>
-              <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">3</button>
-              <span className="text-shadow-600">...</span>
-              <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">16</button>
-              <button className="px-4 py-2 rounded-lg bg-shadow-800 text-shadow-400 hover:text-white transition-colors">
-                Next
-              </button>
-            </div>
-          </motion.div>
-        </div>
+            {newsData && newsData.totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <span className="text-slate-400">
+                  Page {currentPage} of {newsData.totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(newsData.totalPages, p + 1))}
+                  disabled={currentPage === newsData.totalPages}
+                  className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )
 }
-
