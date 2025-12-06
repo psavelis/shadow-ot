@@ -1,0 +1,104 @@
+InventorySlot < UIWidget
+  size: 36 36
+  border-width: 1
+  border-color: #444444
+  background-color: #2d2d2d
+  border-radius: 4
+
+  $hover:
+    border-color: #666666
+
+  UIItem
+    id: item
+    anchors.fill: parent
+    margin: 2
+    virtual: true
+
+MainWindow
+  id: inventoryWindow
+  !text: tr('Inventory')
+  size: 180 250
+  @onEscape: modules.game_inventory.Inventory.toggle()
+
+  Panel
+    id: slotsPanel
+    anchors.fill: parent
+
+    InventorySlot
+      id: slotHead
+      anchors.top: parent.top
+      anchors.horizontalCenter: parent.horizontalCenter
+
+    InventorySlot
+      id: slotNecklace
+      anchors.top: slotHead.bottom
+      anchors.right: slotHead.left
+      margin-top: 2
+      margin-right: 2
+
+    InventorySlot
+      id: slotBackpack
+      anchors.top: slotHead.bottom
+      anchors.left: slotHead.right
+      margin-top: 2
+      margin-left: 2
+
+    InventorySlot
+      id: slotArmor
+      anchors.top: slotHead.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 2
+
+    InventorySlot
+      id: slotLeftHand
+      anchors.top: slotArmor.top
+      anchors.right: slotArmor.left
+      margin-right: 2
+
+    InventorySlot
+      id: slotRightHand
+      anchors.top: slotArmor.top
+      anchors.left: slotArmor.right
+      margin-left: 2
+
+    InventorySlot
+      id: slotLegs
+      anchors.top: slotArmor.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 2
+
+    InventorySlot
+      id: slotRing
+      anchors.top: slotLegs.top
+      anchors.right: slotLegs.left
+      margin-right: 2
+
+    InventorySlot
+      id: slotAmmo
+      anchors.top: slotLegs.top
+      anchors.left: slotLegs.right
+      margin-left: 2
+
+    InventorySlot
+      id: slotFeet
+      anchors.top: slotLegs.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 2
+
+    Panel
+      id: statsPanel
+      anchors.top: slotFeet.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-top: 8
+
+      Label
+        id: capacityLabel
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        text-align: center
+        font: verdana-11px
+        color: #aaaaaa
+        text: Cap: 0

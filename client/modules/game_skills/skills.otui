@@ -1,0 +1,169 @@
+SkillEntry < Panel
+  height: 22
+
+  Label
+    id: name
+    anchors.left: parent.left
+    anchors.top: parent.top
+    font: verdana-10px
+    color: #888888
+    width: 80
+
+  Label
+    id: value
+    anchors.left: name.right
+    anchors.top: parent.top
+    anchors.right: parent.right
+    font: verdana-10px-bold
+    color: #ffffff
+    text-align: right
+
+  ProgressBar
+    id: progress
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 4
+    border-radius: 2
+    background-color: #2d5a2d
+
+StatEntry < Panel
+  height: 18
+
+  Label
+    id: label
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-10px
+    color: #888888
+
+  Label
+    id: value
+    anchors.left: label.right
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-10px-bold
+    color: #ffffff
+    text-align: right
+
+MainWindow
+  id: skillsWindow
+  !text: tr('Skills')
+  size: 200 400
+  @onEscape: modules.game_skills.Skills.toggle()
+
+  ScrollablePanel
+    id: skillsPanel
+    anchors.fill: parent
+    vertical-scrollbar: skillsScrollBar
+    layout:
+      type: verticalBox
+      spacing: 2
+
+    StatEntry
+      id: experience
+      Label
+        id: label
+        text: Experience
+
+    SkillEntry
+      id: level
+      Label
+        id: name
+        text: Level
+
+    StatEntry
+      id: health
+      Label
+        id: label
+        text: Health
+
+    StatEntry
+      id: mana
+      Label
+        id: label
+        text: Mana
+
+    StatEntry
+      id: soul
+      Label
+        id: label
+        text: Soul
+
+    StatEntry
+      id: capacity
+      Label
+        id: label
+        text: Cap
+
+    SkillEntry
+      id: magicLevel
+      Label
+        id: name
+        text: Magic Level
+
+    StatEntry
+      id: stamina
+      Label
+        id: label
+        text: Stamina
+
+    UIWidget
+      height: 8
+
+    Label
+      text: Skills
+      font: verdana-11px-bold
+      color: #ffffff
+      height: 16
+      margin-bottom: 4
+
+    SkillEntry
+      id: skill0
+      Label
+        id: name
+        text: Fist Fighting
+
+    SkillEntry
+      id: skill1
+      Label
+        id: name
+        text: Club Fighting
+
+    SkillEntry
+      id: skill2
+      Label
+        id: name
+        text: Sword Fighting
+
+    SkillEntry
+      id: skill3
+      Label
+        id: name
+        text: Axe Fighting
+
+    SkillEntry
+      id: skill4
+      Label
+        id: name
+        text: Distance Fighting
+
+    SkillEntry
+      id: skill5
+      Label
+        id: name
+        text: Shielding
+
+    SkillEntry
+      id: skill6
+      Label
+        id: name
+        text: Fishing
+
+  VerticalScrollBar
+    id: skillsScrollBar
+    anchors.top: skillsPanel.top
+    anchors.right: skillsPanel.right
+    anchors.bottom: skillsPanel.bottom
+    step: 28
+    pixels-scroll: true

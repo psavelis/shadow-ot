@@ -4,6 +4,7 @@ export * from './api/endpoints'
 
 // Hooks
 export * from './hooks/useAuth'
+export * from './hooks/useOAuth'
 export * from './hooks/useRealtime'
 export * from './hooks/useCharacters'
 export * from './hooks/useHighscores'

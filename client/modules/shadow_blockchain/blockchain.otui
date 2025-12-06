@@ -1,0 +1,209 @@
+NFTCard < UIWidget
+  height: 120
+  margin-bottom: 8
+  background-color: #2d2d2d
+  border-radius: 8
+
+  $hover:
+    background-color: #3d3d3d
+
+  UIWidget
+    id: nftImage
+    anchors.left: parent.left
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    width: 100
+    margin: 8
+    border-radius: 4
+    background-color: #1a1a1a
+
+  Label
+    id: nftName
+    anchors.left: nftImage.right
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin-left: 12
+    margin-top: 12
+    margin-right: 12
+    font: verdana-12px-bold
+    color: #ffffff
+    text-auto-resize: true
+
+  UIWidget
+    id: rarityBadge
+    anchors.left: nftImage.right
+    anchors.top: nftName.bottom
+    margin-left: 12
+    margin-top: 4
+    padding: 2 8
+    border-radius: 4
+    font: verdana-10px
+    color: #ffffff
+    background-color: #3498db33
+
+  UIWidget
+    id: equippedBadge
+    anchors.left: rarityBadge.right
+    anchors.top: nftName.bottom
+    margin-left: 4
+    margin-top: 4
+    padding: 2 8
+    border-radius: 4
+    font: verdana-10px
+    text: Equipped
+    color: #2ecc71
+    background-color: #2ecc7133
+    visible: false
+
+  Button
+    id: equipButton
+    anchors.left: nftImage.right
+    anchors.bottom: parent.bottom
+    margin-left: 12
+    margin-bottom: 12
+    width: 70
+    height: 28
+    text: Equip
+
+  Button
+    id: viewButton
+    anchors.left: equipButton.right
+    anchors.bottom: parent.bottom
+    margin-left: 8
+    margin-bottom: 12
+    width: 70
+    height: 28
+    text: Details
+
+BalanceEntry < UIWidget
+  height: 32
+  margin-bottom: 4
+  background-color: #2d2d2d44
+  border-radius: 4
+
+  Label
+    id: symbol
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 12
+    font: verdana-11px-bold
+    color: #ffffff
+
+  Label
+    id: amount
+    anchors.right: usdValue.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 8
+    font: verdana-11px
+    color: #ffffff
+    text-align: right
+
+  Label
+    id: usdValue
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 12
+    font: verdana-10px
+    color: #888888
+    text-align: right
+    width: 60
+
+MainWindow
+  id: walletWindow
+  !text: tr('Wallet')
+  size: 400 500
+  @onEscape: modules.shadow_blockchain.Blockchain.hide()
+
+  Panel
+    id: headerPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 60
+    background-color: #1a1a1a
+    border-radius: 8
+
+    ComboBox
+      id: networkSelector
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 12
+      width: 120
+
+    Label
+      id: walletAddress
+      anchors.left: networkSelector.right
+      anchors.right: connectButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 12
+      margin-right: 12
+      font: verdana-11px
+      color: #888888
+      text: Not connected
+      text-align: center
+
+    Button
+      id: connectButton
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 12
+      width: 120
+      height: 32
+      text: Connect Wallet
+
+  TabBar
+    id: tabBar
+    anchors.top: headerPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 12
+    height: 32
+
+    TabButton
+      text: NFTs
+      checked: true
+
+    TabButton
+      text: Balances
+
+    TabButton
+      text: Activity
+
+  TabContent
+    id: tabContent
+    anchors.top: tabBar.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-top: 8
+
+    ScrollablePanel
+      id: nftPanel
+      anchors.fill: parent
+      vertical-scrollbar: nftScrollBar
+      layout:
+        type: verticalBox
+
+    VerticalScrollBar
+      id: nftScrollBar
+      anchors.top: nftPanel.top
+      anchors.right: nftPanel.right
+      anchors.bottom: nftPanel.bottom
+      step: 40
+      pixels-scroll: true
+
+    ScrollablePanel
+      id: balancePanel
+      anchors.fill: parent
+      vertical-scrollbar: balanceScrollBar
+      visible: false
+      layout:
+        type: verticalBox
+
+    VerticalScrollBar
+      id: balanceScrollBar
+      anchors.top: balancePanel.top
+      anchors.right: balancePanel.right
+      anchors.bottom: balancePanel.bottom
+      step: 20
+      pixels-scroll: true

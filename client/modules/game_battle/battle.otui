@@ -1,0 +1,126 @@
+BattleEntry < UIWidget
+  height: 36
+  margin-bottom: 2
+  background-color: #2d2d2d
+  border-radius: 4
+
+  $hover:
+    background-color: #3d3d3d
+
+  UICreature
+    id: creatureOutfit
+    anchors.left: parent.left
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    width: 36
+    margin: 2
+
+  Label
+    id: creatureName
+    anchors.left: creatureOutfit.right
+    anchors.top: parent.top
+    anchors.right: skullIcon.left
+    margin-left: 8
+    margin-top: 4
+    font: verdana-11px-bold
+    color: #ffffff
+    text-auto-resize: true
+
+  UIWidget
+    id: skullIcon
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-right: 8
+    margin-top: 4
+    size: 16 16
+    visible: false
+
+  UIWidget
+    id: followIcon
+    anchors.right: skullIcon.left
+    anchors.top: parent.top
+    margin-right: 4
+    margin-top: 4
+    size: 16 16
+    image-source: /images/game/follow
+    visible: false
+
+  ProgressBar
+    id: healthBar
+    anchors.left: creatureOutfit.right
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    margin-left: 8
+    margin-bottom: 4
+    margin-right: 8
+    height: 6
+    border-radius: 3
+    background-color: #00bc00
+
+MainWindow
+  id: battleWindow
+  !text: tr('Battle')
+  size: 200 400
+  @onEscape: modules.game_battle.Battle.toggle()
+
+  Panel
+    id: filterPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 30
+
+    CheckBox
+      id: filterPlayers
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      text: P
+      width: 24
+      checked: true
+      @onCheckChange: modules.game_battle.Battle.refresh()
+
+    CheckBox
+      id: filterNPCs
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 4
+      text: N
+      width: 24
+      checked: true
+
+    CheckBox
+      id: filterMonsters
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 4
+      text: M
+      width: 24
+      checked: true
+
+    CheckBox
+      id: filterSkulled
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 4
+      text: S
+      width: 24
+      checked: true
+
+  ScrollablePanel
+    id: battleList
+    anchors.top: filterPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-top: 4
+    vertical-scrollbar: battleScrollBar
+    layout:
+      type: verticalBox
+
+  VerticalScrollBar
+    id: battleScrollBar
+    anchors.top: battleList.top
+    anchors.right: battleList.right
+    anchors.bottom: battleList.bottom
+    step: 28
+    pixels-scroll: true

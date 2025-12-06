@@ -1,0 +1,237 @@
+RealmEntry < UIWidget
+  height: 80
+  margin-bottom: 4
+  background-color: #2d2d2d
+  border-radius: 4
+
+  $hover:
+    background-color: #3d3d3d
+
+  $pressed:
+    background-color: #4d4d4d
+
+  UIWidget
+    id: statusDot
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 8
+    size: 12 12
+    border-radius: 6
+    background-color: #2ecc71
+
+  Label
+    id: name
+    anchors.left: prev.right
+    anchors.top: parent.top
+    margin-left: 12
+    margin-top: 8
+    font: verdana-14px-bold
+    color: #ffffff
+    text-auto-resize: true
+
+  UIWidget
+    id: typeBadge
+    anchors.left: prev.right
+    anchors.verticalCenter: prev.verticalCenter
+    margin-left: 8
+    padding: 2 6
+    border-radius: 3
+    background-color: #3498db33
+    font: verdana-10px
+    color: #3498db
+
+  UIWidget
+    id: premiumBadge
+    anchors.left: prev.right
+    anchors.verticalCenter: prev.verticalCenter
+    margin-left: 4
+    size: 16 16
+    image-source: /images/ui/premium_star
+    visible: false
+
+  Label
+    id: description
+    anchors.left: statusDot.right
+    anchors.top: name.bottom
+    anchors.right: parent.right
+    margin-left: 12
+    margin-top: 4
+    margin-right: 150
+    font: verdana-10px
+    color: #888888
+    text-wrap: true
+    text-auto-resize: true
+
+  Panel
+    id: statsPanel
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    margin-right: 8
+    width: 130
+
+    Label
+      id: playerCount
+      anchors.top: parent.top
+      anchors.right: parent.right
+      margin-top: 8
+      font: verdana-12px-bold
+      color: #ffffff
+      text-align: right
+
+    ProgressBar
+      id: loadBar
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+      height: 4
+      border-radius: 2
+      background-color: #2d5a2d
+
+    Label
+      id: expRate
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      margin-top: 8
+      font: verdana-10px
+      color: #2ecc71
+
+    Label
+      id: lootRate
+      anchors.top: prev.top
+      anchors.right: parent.right
+      font: verdana-10px
+      color: #f39c12
+
+    Label
+      id: pvpType
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      margin-bottom: 8
+      font: verdana-10px
+      color: #e74c3c
+
+MainWindow
+  id: realmWindow
+  !text: tr('Select Realm')
+  size: 600 500
+  @onEscape: modules.shadow_realms.Realms.hide()
+
+  Panel
+    id: filterPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 40
+    margin-top: 4
+
+    ComboBox
+      id: typeFilter
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      width: 120
+      @onOptionChange: |
+        modules.shadow_realms.Realms.filterByType(self:getCurrentOption().data)
+
+    ComboBox
+      id: pvpFilter
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      width: 120
+      @onOptionChange: |
+        modules.shadow_realms.Realms.filterByPvP(self:getCurrentOption().data)
+
+    ComboBox
+      id: sortBy
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      width: 120
+      @onOptionChange: |
+        local opt = self:getCurrentOption().data
+        if opt == 'players' then
+          modules.shadow_realms.Realms.sortByPlayers(true)
+        elseif opt == 'name' then
+          modules.shadow_realms.Realms.sortByName()
+        end
+
+    Button
+      id: refreshButton
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 80
+      !text: tr('Refresh')
+
+  ScrollablePanel
+    id: realmList
+    anchors.top: filterPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: themePreview.top
+    margin-top: 8
+    margin-bottom: 8
+    vertical-scrollbar: realmListScrollbar
+    layout:
+      type: verticalBox
+
+  VerticalScrollBar
+    id: realmListScrollbar
+    anchors.top: realmList.top
+    anchors.right: realmList.right
+    anchors.bottom: realmList.bottom
+    step: 28
+    pixels-scroll: true
+
+  Panel
+    id: themePreview
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: buttonPanel.top
+    height: 60
+    margin-bottom: 8
+    background-color: #1a1a1a
+    border-radius: 4
+
+    Label
+      id: previewText
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 12
+      text: Theme Preview
+      font: verdana-12px
+      color: #d4d4d4
+
+    UIWidget
+      id: previewAccent
+      anchors.right: parent.right
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      width: 4
+      border-radius: 0 4 4 0
+      background-color: #3498db
+
+  Panel
+    id: buttonPanel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 40
+
+    Button
+      id: connectButton
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 100
+      !text: tr('Connect')
+      enabled: false
+
+    Button
+      id: cancelButton
+      anchors.right: prev.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 8
+      width: 80
+      !text: tr('Cancel')
+      @onClick: modules.shadow_realms.Realms.hide()

@@ -380,7 +380,7 @@ The Shadow OT website is a comprehensive platform providing all community, accou
 |--------|-------------|--------|
 | Email/Password | Traditional login | 🟢 DONE |
 | Two-Factor Auth | TOTP (Google Auth) | 🟢 DONE |
-| Social Login | Google, Discord, Twitch | 🔴 TODO |
+| Social Login | Google, Discord, Twitch | 🟢 DONE |
 | Wallet Login | MetaMask, WalletConnect | 🟢 DONE |
 | Hardware Keys | YubiKey, FIDO2 | 🔴 TODO |
 | SSO | Cross-realm single sign-on | 🔴 TODO |
@@ -2563,6 +2563,24 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 ## Recent Updates
+
+### v2.3.1 - OAuth & Social Login (2025-12-06)
+
+**Social Login Integration** ✅ Complete
+- Google OAuth 2.0 authentication
+- Discord OAuth authentication  
+- Twitch OAuth authentication
+- OAuth callback handling with CSRF protection
+- Session state management for OAuth flows
+- Account linking/unlinking in security settings
+
+**Auth Enhancements**
+- `useOAuth` hook for social login flows
+- OAuth provider icons (Google, Discord, Twitch)
+- Linked accounts management in Security settings
+- Wallet connection alongside social accounts
+
+---
 
 ### v2.3.0 - Dashboard Features Complete (2025-12-06)
 
