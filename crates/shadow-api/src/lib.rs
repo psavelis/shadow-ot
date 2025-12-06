@@ -63,6 +63,20 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         routes::auction::create_character_auction,
         routes::auction::create_item_auction,
         routes::auction::cancel_auction,
+        routes::kill_statistics::get_statistics,
+        routes::kill_statistics::get_top_killers,
+        routes::kill_statistics::get_recent_deaths,
+        routes::kill_statistics::get_boss_hunters,
+        routes::kill_statistics::get_character_kills,
+        routes::boosted::get_boosted_creature,
+        routes::boosted::get_boosted_boss,
+        routes::boosted::get_creature_history,
+        routes::boosted::get_boss_history,
+        routes::creatures::list_creatures,
+        routes::creatures::get_creature,
+        routes::creatures::get_creature_by_name,
+        routes::creatures::get_bestiary_progress,
+        routes::creatures::get_bestiary_entry,
     ),
     components(
         schemas(
@@ -99,6 +113,19 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
             routes::auction::CreateItemAuctionRequest,
             routes::auction::PaginatedCharacterAuctions,
             routes::auction::PaginatedItemAuctions,
+            routes::kill_statistics::KillStatistics,
+            routes::kill_statistics::TopKiller,
+            routes::kill_statistics::KillEntry,
+            routes::kill_statistics::BossHunter,
+            routes::kill_statistics::KillType,
+            routes::kill_statistics::PaginatedKillEntries,
+            routes::boosted::BoostedCreature,
+            routes::boosted::BoostedBoss,
+            routes::creatures::Creature,
+            routes::creatures::CreatureDifficulty,
+            routes::creatures::LootItem,
+            routes::creatures::BestiaryEntry,
+            routes::creatures::PaginatedCreatures,
         )
     ),
     tags(
@@ -113,6 +140,9 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         (name = "news", description = "News and announcements"),
         (name = "support", description = "Support ticket system"),
         (name = "auctions", description = "Character and item auctions"),
+        (name = "kill-statistics", description = "Kill statistics and death records"),
+        (name = "boosted", description = "Boosted creatures and bosses"),
+        (name = "creatures", description = "Creature database and bestiary"),
     ),
     info(
         title = "Shadow OT API",
@@ -194,6 +224,23 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/auctions/items/:id", get(routes::auction::get_item_auction))
         .route("/auctions/items/:id/bid", post(routes::auction::bid_on_item_auction))
         .route("/auctions/:auction_type/:id", delete(routes::auction::cancel_auction))
+        // Kill statistics
+        .route("/kill-statistics", get(routes::kill_statistics::get_statistics))
+        .route("/kill-statistics/top-killers", get(routes::kill_statistics::get_top_killers))
+        .route("/kill-statistics/recent", get(routes::kill_statistics::get_recent_deaths))
+        .route("/kill-statistics/boss-hunters", get(routes::kill_statistics::get_boss_hunters))
+        .route("/kill-statistics/character/:character_id", get(routes::kill_statistics::get_character_kills))
+        // Boosted creatures/bosses
+        .route("/boosted/creature", get(routes::boosted::get_boosted_creature))
+        .route("/boosted/boss", get(routes::boosted::get_boosted_boss))
+        .route("/boosted/creature/history", get(routes::boosted::get_creature_history))
+        .route("/boosted/boss/history", get(routes::boosted::get_boss_history))
+        // Creatures/Bestiary
+        .route("/creatures", get(routes::creatures::list_creatures))
+        .route("/creatures/:id", get(routes::creatures::get_creature))
+        .route("/creatures/name/:name", get(routes::creatures::get_creature_by_name))
+        .route("/characters/:character_id/bestiary", get(routes::creatures::get_bestiary_progress))
+        .route("/characters/:character_id/bestiary/:creature_id", get(routes::creatures::get_bestiary_entry))
         // Admin routes (protected)
         .route("/admin/stats", get(routes::admin::get_stats))
         .route("/admin/players/online", get(routes::admin::get_online_players))

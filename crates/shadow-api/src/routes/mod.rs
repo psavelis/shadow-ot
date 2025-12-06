@@ -14,3 +14,6 @@ pub mod houses;
 pub mod admin;
 pub mod support;
 pub mod auction;
+pub mod kill_statistics;
+pub mod boosted;
+pub mod creatures;
