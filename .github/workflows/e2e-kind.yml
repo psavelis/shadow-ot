@@ -15,21 +15,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build server image (local) and load into kind
-        run: |
-          docker buildx build -f docker/Dockerfile.server -t shadow-ot/server:e2e --load .
-          kind load docker-image shadow-ot/server:e2e --name shadow-e2e
-
-      - name: Build web image (local) and load into kind
-        run: |
-          docker buildx build -f web/landing/Dockerfile -t shadow-ot/web:e2e --load web/landing
-          kind load docker-image shadow-ot/web:e2e --name shadow-e2e
-
-      - name: Build admin image (local) and load into kind
-        run: |
-          docker buildx build -f web/admin/Dockerfile -t shadow-ot/admin:e2e --load web/admin
-          kind load docker-image shadow-ot/admin:e2e --name shadow-e2e
-
       - name: Install kind and kubectl
         uses: helm/kind-action@v1.7.0
         with:
@@ -39,6 +24,15 @@ jobs:
         uses: helm/kind-action@v1.7.0
         with:
           cluster_name: shadow-e2e
+
+      - name: Build images and load into kind
+        run: |
+          docker buildx build -f docker/Dockerfile.server -t shadow-ot/server:e2e --load .
+          docker buildx build -f web/landing/Dockerfile -t shadow-ot/web:e2e --load web/landing
+          docker buildx build -f web/admin/Dockerfile -t shadow-ot/admin:e2e --load web/admin
+          kind load docker-image shadow-ot/server:e2e --name shadow-e2e
+          kind load docker-image shadow-ot/web:e2e --name shadow-e2e
+          kind load docker-image shadow-ot/admin:e2e --name shadow-e2e
 
       - name: Install MetalLB
         run: |
