@@ -2,6 +2,8 @@ name: E2E Local K8s (kind)
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 jobs:
   e2e:
@@ -85,11 +87,25 @@ jobs:
         run: |
           kubectl get svc -n shadow-ot -o wide
 
+      - name: Assert external IPs present
+        run: |
+          for svc in shadow-web-external shadow-admin-external shadow-server-external shadow-download; do
+            ip=$(kubectl get svc $svc -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+            echo "$svc -> $ip"
+            if [ -z "$ip" ]; then echo "Missing external IP for $svc" && exit 1; fi
+          done
+
       - name: Smoke test web
         run: |
           EXTERNAL=$(kubectl get svc shadow-web-external -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           echo "WEB_IP=$EXTERNAL"
           curl -fsS --max-time 10 http://$EXTERNAL || exit 1
+
+      - name: Smoke test downloads
+        run: |
+          DL_IP=$(kubectl get svc shadow-download -n shadow-ot -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "DL_IP=$DL_IP"
+          curl -fsS --max-time 10 http://$DL_IP/ || exit 1
 
       - name: Smoke test API
         run: |

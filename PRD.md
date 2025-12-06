@@ -1189,12 +1189,9 @@ docker-compose -f docker/docker-compose.yml up -d
 
 ### Kubernetes Deployment
 ```bash
-# Production deployment
+# Base + environment overlay
+kubectl apply -k k8s/base
 kubectl apply -k k8s/overlays/production
-
-# With Helm
-helm install shadow-ot ./k8s/helm-charts/shadow-server
-helm install shadow-web ./k8s/helm-charts/shadow-web
 
 # Local E2E with kind + MetalLB (CI recipe)
 gh workflow run e2e-kind.yml
@@ -2152,9 +2149,9 @@ end
 
 ##### 10.2.1 Infrastructure AI (Agent #4) — Scope & Interfaces
 
-- Scope: Kubernetes manifests, Helm charts, Kustomize overlays, cluster provisioning, CI/CD, observability, security, and cost controls
+- Scope: Kubernetes manifests, Kustomize overlays, cluster provisioning, CI/CD, observability, security, and cost controls
 - Environments: `dev`, `staging`, `production` with `k8s/overlays/{env}` and per-realm scaling policies
-- Deliverables: `k8s/base`, `k8s/overlays`, `k8s/helm-charts`, `.github/workflows/*`, secrets strategy and backup plans
+- Deliverables: `k8s/base`, `k8s/overlays`, `.github/workflows/*`, secrets strategy and backup plans
 - SLOs: availability 99.9%, p95 API <50ms, rollback <10m, RTO 30m, RPO 15m
 
 Interfaces with other agents
@@ -3035,7 +3032,7 @@ All pages now use real React Query hooks:
 - Images built and pushed to GHCR via `.github/workflows/build-images.yml`
 - Environment deployment via `.github/workflows/deploy-k8s.yml` using overlays
 - Tags map to image channels: `latest` (main), `staging` (pre-release), `stable` (production)
-- E2E local validation: `.github/workflows/e2e-kind.yml` provisions kind + MetalLB, deploys `base` + `dev`, verifies external IPs and performs web/API smoke tests
+- E2E local validation: `.github/workflows/e2e-kind.yml` provisions kind + MetalLB, builds and loads images, deploys `base` + `dev`, asserts external IPs and performs web/API/download smoke tests
 
 #### Docker (Local Dev)
 - Compose stack: `docker/docker-compose.yml`

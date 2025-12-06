@@ -10,7 +10,11 @@ spec:
       containers:
         - name: shadow-web
           image: ghcr.io/psavelis/shadow-ot/web:latest
----
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://shadow-server.shadow-ot.svc.cluster.local:8080"
+            - name: NEXT_PUBLIC_WS_URL
+              value: "ws://shadow-server.shadow-ot.svc.cluster.local:8081"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,3 +27,6 @@ spec:
       containers:
         - name: shadow-admin
           image: ghcr.io/psavelis/shadow-ot/admin:latest
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://shadow-server.shadow-ot.svc.cluster.local:8080"
