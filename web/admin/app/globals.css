@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-shadow-950 text-white;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #1a1a2e; }
+  ::-webkit-scrollbar-thumb { background: #434449; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #e94560; }
+}
+
+@layer components {
+  .btn-primary { @apply bg-accent-500 hover:bg-accent-600 text-white font-semibold py-2.5 px-5 rounded-lg transition-all; }
+  .btn-secondary { @apply bg-shadow-800 hover:bg-shadow-700 text-white font-semibold py-2.5 px-5 rounded-lg border border-shadow-600 transition-all; }
+  .btn-danger { @apply bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 px-5 rounded-lg transition-all; }
+  .card { @apply bg-shadow-900/50 backdrop-blur-lg rounded-xl border border-shadow-700/50 p-5; }
+  .stat-card { @apply bg-shadow-900/50 rounded-xl border border-shadow-700/50 p-4; }
+  .input { @apply w-full px-4 py-2.5 bg-shadow-800 border border-shadow-600 rounded-lg text-white placeholder-shadow-500 focus:outline-none focus:border-accent-500 transition-all; }
+  .sidebar-link { @apply flex items-center space-x-3 px-4 py-3 rounded-lg text-shadow-400 hover:text-white hover:bg-shadow-800 transition-all; }
+  .sidebar-link.active { @apply bg-accent-500/10 text-accent-500 border-l-2 border-accent-500; }
+}
+

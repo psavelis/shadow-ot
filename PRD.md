@@ -153,10 +153,10 @@ The Shadow OT Game Server is a high-performance, Rust-based implementation of th
 |---------|--------|----------|-------------|
 | RSA Key Exchange | 🟢 DONE | CRITICAL | 1024-bit RSA encryption for initial handshake |
 | XTEA Encryption | 🟢 DONE | CRITICAL | Symmetric encryption for game packets |
-| Account Authentication | 🟡 IN PROGRESS | CRITICAL | Email/password + 2FA support |
+| Account Authentication | 🟢 DONE | CRITICAL | Email/password + 2FA support |
 | Character List | 🟢 DONE | CRITICAL | Multi-realm character display |
 | Session Token | 🟢 DONE | CRITICAL | JWT-based session management |
-| HWID Validation | 🔴 TODO | HIGH | Hardware fingerprinting |
+| HWID Validation | 🟢 DONE | HIGH | Hardware fingerprinting |
 | IP Geolocation | 🔴 TODO | MEDIUM | Optimal server routing |
 
 ### Game Server Protocol
@@ -378,10 +378,10 @@ The Shadow OT website is a comprehensive platform providing all community, accou
 ### Login Methods
 | Method | Description | Status |
 |--------|-------------|--------|
-| Email/Password | Traditional login | 🔴 TODO |
-| Two-Factor Auth | TOTP (Google Auth) | 🔴 TODO |
+| Email/Password | Traditional login | 🟢 DONE |
+| Two-Factor Auth | TOTP (Google Auth) | 🟢 DONE |
 | Social Login | Google, Discord, Twitch | 🔴 TODO |
-| Wallet Login | MetaMask, WalletConnect | 🔴 TODO |
+| Wallet Login | MetaMask, WalletConnect | 🟢 DONE |
 | Hardware Keys | YubiKey, FIDO2 | 🔴 TODO |
 | SSO | Cross-realm single sign-on | 🔴 TODO |
 

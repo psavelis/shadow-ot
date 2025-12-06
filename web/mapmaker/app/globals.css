@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-shadow-950 text-white; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #1a1a2e; }
+  ::-webkit-scrollbar-thumb { background: #434449; border-radius: 4px; }
+}
+
+@layer components {
+  .btn-primary { @apply bg-accent-500 hover:bg-accent-600 text-white font-semibold py-2 px-4 rounded-lg transition-all; }
+  .btn-secondary { @apply bg-shadow-800 hover:bg-shadow-700 text-white font-semibold py-2 px-4 rounded-lg border border-shadow-600 transition-all; }
+  .btn-tool { @apply p-2 rounded-lg text-shadow-400 hover:text-white hover:bg-shadow-700 transition-all; }
+  .btn-tool.active { @apply bg-accent-500/20 text-accent-500; }
+  .panel { @apply bg-shadow-900/90 backdrop-blur-lg border border-shadow-700/50; }
+  .input { @apply w-full px-3 py-2 bg-shadow-800 border border-shadow-600 rounded-lg text-white text-sm placeholder-shadow-500 focus:outline-none focus:border-accent-500 transition-all; }
+}
+
