@@ -188,12 +188,12 @@ The Shadow OT Game Server is a high-performance, Rust-based implementation of th
 ### Protocol Versions Supported
 | Version | Codename | Features | Status |
 |---------|----------|----------|--------|
-| 8.60 | Classic | Original gameplay | 🔴 Planned |
+| 8.60 | Classic | Original gameplay | 🟡 Partial |
 | 10.98 | Popular | Most OT servers | 🟢 Primary |
-| 11.00 | Prey | Prey system | 🔴 Planned |
+| 11.00 | Prey | Prey system | 🟢 DONE |
 | 12.00 | Modern | Store, analytics | 🟢 DONE |
-| 12.85+ | Latest | All features | 🔴 Planned |
-| 13.x | Future | Upcoming | 🔴 Planned |
+| 12.85 | Bosstiary | All features | 🟢 DONE |
+| 13.x | Future | Upcoming | 🟡 In Progress |
 
 ## 1.3 Movement System
 
