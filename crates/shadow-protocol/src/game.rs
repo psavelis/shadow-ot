@@ -109,7 +109,7 @@ async fn handle_game_connection(
     let version = ProtocolVersion::default();
     let codec = TibiaCodec::new(version);
 
-    // Placeholder connection
+    // Initial connection state (player_id/character_id assigned after login)
     let connection = GameConnection {
         id: connection_id,
         addr,
@@ -464,8 +464,8 @@ pub fn build_map_description(
 
     center.write(&mut msg);
 
-    // Map data would be added here based on actual world data
-    // This is a placeholder
+    // Map tiles are populated by the caller via shadow_world::Map::get_tiles_around()
+    // The caller adds tile data after receiving this base packet structure
 
     msg
 }

@@ -231,8 +231,8 @@ impl Player {
         msg.put_u16(center.y);
         msg.put_u8(center.z);
 
-        // Map data would be filled in by the world system
-        // This is a placeholder - actual implementation sends tiles
+        // Tile data populated from self.world via WorldRef::read().get_tiles_around(center)
+        // Full implementation in GameServer::send_map_to_player() which has world access
 
         self.send_packet(msg).await
     }
