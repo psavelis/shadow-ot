@@ -112,3 +112,26 @@ jobs:
           SRV_IP=$(kubectl get svc shadow-server -n shadow-ot -o jsonpath='{.spec.clusterIP}')
           echo "SERVER_CLUSTER_IP=$SRV_IP"
           kubectl run nctmp --rm -it --image=busybox -n shadow-ot --restart=Never -- sh -c "nc -z -v $SRV_IP 7171 && nc -z -v $SRV_IP 7172"
+
+      - name: Create test user and character
+        run: |
+          API_IP=$(kubectl get svc shadow-server -n shadow-ot -o jsonpath='{.spec.clusterIP}')
+          echo "API_CLUSTER_IP=$API_IP"
+          # Register user
+          kubectl run curlreg --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- \
+            sh -c "curl -fsS -X POST http://$API_IP:8080/api/v1/auth/register \
+              -H 'Content-Type: application/json' \
+              -d '{"email":"testuser@example.com","password":"Test1234!","username":"testuser"}'"
+          # Login and extract access token
+          TOKEN=$(kubectl run curllogin --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- \
+            sh -c "curl -fsS -X POST http://$API_IP:8080/api/v1/auth/login \
+              -H 'Content-Type: application/json' \
+              -d '{"email":"testuser@example.com","password":"Test1234!"}' | sed -n 's/.*\"accessToken\":\"\([^\"]*\)\".*/\1/p'")
+          echo "ACCESS_TOKEN_LENGTH=${#TOKEN}"
+          if [ -z "$TOKEN" ]; then echo "Failed to get access token" && exit 1; fi
+          # Create character on default realm
+          kubectl run curlchar --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- \
+            sh -c "curl -fsS -X POST http://$API_IP:8080/api/v1/characters \
+              -H 'Content-Type: application/json' \
+              -H 'Authorization: Bearer $TOKEN' \
+              -d '{"name":"Test Knight","vocation":"knight","sex":"male","realm":"shadowveil"}'"
