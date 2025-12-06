@@ -67,6 +67,21 @@ Shadow OT is the most advanced, feature-complete Open Tibia server platform ever
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Implementation Reality (Dec 2025)
+
+- K8s manifests are operational with Kustomize base/overlays; labels use `labels.pairs`.
+- Services expose external IPs locally via MetalLB for `web`, `admin`, `server`, and `downloads`.
+- E2E workflow provisions kind, installs MetalLB, deploys manifests, asserts external IPs, and smoke-tests web, downloads, API health, and game ports.
+- Downloads service fetches real open-source assets at startup via an init-container and serves them via Nginx.
+- Admin app port aligned to `3001` across deployment and app scripts for consistency with services.
+- Next.js landing site safely rewrites `/api/*` using `NEXT_PUBLIC_API_URL` with fallback.
+- No mocks policy: infrastructure and downloads are using real implementations and assets.
+
+Known gaps
+- Asset URL curation: replace example open-source URLs with curated client installers and sprite/art sources.
+- Frontend lint/typecheck execution depends on Node tooling in the runner; define commands or install tooling for CI steps.
+- Broader feature completeness in PRD table is aspirational; specific subsystems should be validated and tracked incrementally.
+
 ---
 
 ## Executive Summary
