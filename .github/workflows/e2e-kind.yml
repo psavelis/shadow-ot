@@ -72,3 +72,9 @@ jobs:
           API_IP=$(kubectl get svc shadow-server -n shadow-ot -o jsonpath='{.spec.clusterIP}')
           echo "API_CLUSTER_IP=$API_IP"
           kubectl run tmp --rm -it --image=curlimages/curl -n shadow-ot --restart=Never -- curl -fsS http://$API_IP:8080/health
+
+      - name: Check game ports reachable
+        run: |
+          SRV_IP=$(kubectl get svc shadow-server -n shadow-ot -o jsonpath='{.spec.clusterIP}')
+          echo "SERVER_CLUSTER_IP=$SRV_IP"
+          kubectl run nctmp --rm -it --image=busybox -n shadow-ot --restart=Never -- sh -c "nc -z -v $SRV_IP 7171 && nc -z -v $SRV_IP 7172"
