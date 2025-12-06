@@ -10,7 +10,15 @@ patchesStrategicMerge:
   - deployment-server-patch.yaml
   - deployment-web-patch.yaml
   - ingress-patch.yaml
-  - deployment-download-patch.yaml
+  - service-nodeports-patch.yaml
+
+patchesJson6902:
+  - target:
+      version: v1
+      kind: Deployment
+      name: shadow-download
+      namespace: shadow-ot-dev
+    path: deployment-download-jsonpatch.yaml
 
 commonLabels:
   environment: dev
