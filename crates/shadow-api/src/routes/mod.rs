@@ -17,3 +17,6 @@ pub mod auction;
 pub mod kill_statistics;
 pub mod boosted;
 pub mod creatures;
+pub mod achievements;
+pub mod world_quests;
+pub mod inventory;

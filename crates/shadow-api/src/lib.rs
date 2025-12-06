@@ -77,6 +77,17 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         routes::creatures::get_creature_by_name,
         routes::creatures::get_bestiary_progress,
         routes::creatures::get_bestiary_entry,
+        routes::achievements::list_achievements,
+        routes::achievements::get_player_achievements,
+        routes::achievements::get_leaderboard,
+        routes::world_quests::list_world_quests,
+        routes::world_quests::get_active_quests,
+        routes::world_quests::get_world_quest,
+        routes::world_quests::contribute_to_quest,
+        routes::inventory::get_inventory_items,
+        routes::inventory::get_inventory_item,
+        routes::inventory::transfer_item,
+        routes::inventory::list_on_market,
     ),
     components(
         schemas(
@@ -126,6 +137,28 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
             routes::creatures::LootItem,
             routes::creatures::BestiaryEntry,
             routes::creatures::PaginatedCreatures,
+            routes::achievements::Achievement,
+            routes::achievements::AchievementCategory,
+            routes::achievements::AchievementRarity,
+            routes::achievements::PlayerAchievement,
+            routes::achievements::AchievementProgress,
+            routes::achievements::AchievementSummary,
+            routes::achievements::AchievementLeaderboardEntry,
+            routes::achievements::PaginatedAchievements,
+            routes::achievements::PaginatedLeaderboard,
+            routes::world_quests::WorldQuest,
+            routes::world_quests::WorldQuestStatus,
+            routes::world_quests::WorldQuestReward,
+            routes::world_quests::TopContributor,
+            routes::world_quests::ContributeRequest,
+            routes::world_quests::ContributeResponse,
+            routes::inventory::InventoryItem,
+            routes::inventory::ItemAttributes,
+            routes::inventory::Imbuement,
+            routes::inventory::TransferRequest,
+            routes::inventory::TransferResponse,
+            routes::inventory::ListOnMarketRequest,
+            routes::inventory::ListOnMarketResponse,
         )
     ),
     tags(
@@ -143,6 +176,9 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
         (name = "kill-statistics", description = "Kill statistics and death records"),
         (name = "boosted", description = "Boosted creatures and bosses"),
         (name = "creatures", description = "Creature database and bestiary"),
+        (name = "achievements", description = "Achievement system"),
+        (name = "world-quests", description = "World quest events"),
+        (name = "inventory", description = "Character inventory management"),
     ),
     info(
         title = "Shadow OT API",
@@ -241,6 +277,20 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/creatures/name/:name", get(routes::creatures::get_creature_by_name))
         .route("/characters/:character_id/bestiary", get(routes::creatures::get_bestiary_progress))
         .route("/characters/:character_id/bestiary/:creature_id", get(routes::creatures::get_bestiary_entry))
+        // Achievements
+        .route("/achievements", get(routes::achievements::list_achievements))
+        .route("/achievements/player", get(routes::achievements::get_player_achievements))
+        .route("/achievements/leaderboard", get(routes::achievements::get_leaderboard))
+        // World Quests
+        .route("/world-quests", get(routes::world_quests::list_world_quests))
+        .route("/world-quests/active", get(routes::world_quests::get_active_quests))
+        .route("/world-quests/:id", get(routes::world_quests::get_world_quest))
+        .route("/world-quests/:id/contribute", post(routes::world_quests::contribute_to_quest))
+        // Inventory
+        .route("/inventory", get(routes::inventory::get_inventory_items))
+        .route("/inventory/:id", get(routes::inventory::get_inventory_item))
+        .route("/inventory/:id/transfer", post(routes::inventory::transfer_item))
+        .route("/inventory/:id/list-on-market", post(routes::inventory::list_on_market))
         // Admin routes (protected)
         .route("/admin/stats", get(routes::admin::get_stats))
         .route("/admin/players/online", get(routes::admin::get_online_players))
