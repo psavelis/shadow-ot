@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "shadow-server.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "shadow-server.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: login
+      port: {{ .Values.service.ports.login }}
+      targetPort: {{ .Values.service.ports.login }}
+      protocol: TCP
+    - name: game
+      port: {{ .Values.service.ports.game }}
+      targetPort: {{ .Values.service.ports.game }}
+      protocol: TCP
+    - name: api
+      port: {{ .Values.service.ports.api }}
+      targetPort: {{ .Values.service.ports.api }}
+      protocol: TCP
+    - name: websocket
+      port: {{ .Values.service.ports.websocket }}
+      targetPort: {{ .Values.service.ports.websocket }}
+      protocol: TCP
+    - name: metrics
+      port: {{ .Values.service.ports.metrics }}
+      targetPort: {{ .Values.service.ports.metrics }}
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "shadow-server.name" . }}

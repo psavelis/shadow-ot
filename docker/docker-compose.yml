@@ -1,0 +1,136 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: shadow-postgres
+    environment:
+      POSTGRES_USER: shadow
+      POSTGRES_PASSWORD: shadow_dev_password
+      POSTGRES_DB: shadow_ot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shadow -d shadow_ot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: shadow-redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy volatile-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Shadow OT Server
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.server
+    container_name: shadow-server
+    environment:
+      - RUST_LOG=info,shadow_core=debug
+      - DATABASE_URL=postgres://shadow:shadow_dev_password@postgres:5432/shadow_ot
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev_jwt_secret_change_in_production
+    ports:
+      - "7171:7171"  # Login server
+      - "7172:7172"  # Game server
+      - "8080:8080"  # API
+      - "8081:8081"  # WebSocket
+      - "9090:9090"  # Metrics
+    volumes:
+      - ./config:/config:ro
+      - server_data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Web Frontend
+  web:
+    build:
+      context: ../web/landing
+      dockerfile: Dockerfile
+    container_name: shadow-web
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8081
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+  # Admin Panel
+  admin:
+    build:
+      context: ../web/admin
+      dockerfile: Dockerfile
+    container_name: shadow-admin
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    ports:
+      - "3001:3001"
+    depends_on:
+      - server
+
+  # Prometheus (Monitoring)
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: shadow-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+
+  # Grafana (Dashboards)
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: shadow-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3002:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:
+  redis_data:
+  server_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    name: shadow-network

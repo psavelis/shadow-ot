@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shadow-ingress
+spec:
+  tls:
+    - hosts:
+        - dev.shadow-ot.local
+      secretName: shadow-ot-dev-tls
+  rules:
+    - host: dev.shadow-ot.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shadow-web
+                port:
+                  number: 3000

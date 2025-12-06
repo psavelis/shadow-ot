@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-server
+  namespace: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-server
+    app.kubernetes.io/component: game-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: shadow-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shadow-server
+        app.kubernetes.io/component: game-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      serviceAccountName: shadow-server
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: shadow-server
+          image: ghcr.io/psavelis/shadow-ot/server:latest
+          imagePullPolicy: Always
+          ports:
+            - name: login
+              containerPort: 7171
+              protocol: TCP
+            - name: game
+              containerPort: 7172
+              protocol: TCP
+            - name: api
+              containerPort: 8080
+              protocol: TCP
+            - name: websocket
+              containerPort: 8081
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          env:
+            - name: RUST_LOG
+              value: "info,shadow_core=debug"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shadow-secrets
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shadow-secrets
+                  key: redis-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: shadow-secrets
+                  key: jwt-secret
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "4000m"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: realms-config
+              mountPath: /data/realms
+              readOnly: true
+            - name: data
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: api
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: api
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: shadow-server-config
+        - name: realms-config
+          configMap:
+            name: shadow-realms-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: shadow-data-pvc
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: shadow-server
+  namespace: shadow-ot
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shadow-data-pvc
+  namespace: shadow-ot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard

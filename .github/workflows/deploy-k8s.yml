@@ -1,0 +1,49 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy (dev|staging|production)
+        required: true
+        default: staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Write kubeconfig
+        shell: bash
+        run: |
+          echo "$KUBECONFIG_DATA" > kubeconfig
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBE_CONFIG_STAGING }}
+
+      - name: Use kubeconfig
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl version --client
+
+      - name: Deploy overlays
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          case "${{ github.event.inputs.environment }}" in
+            dev)
+              kubectl apply -k k8s/overlays/dev
+              ;;
+            staging)
+              kubectl apply -k k8s/overlays/staging
+              ;;
+            production)
+              kubectl apply -k k8s/overlays/production
+              ;;
+            *)
+              echo "Invalid environment" && exit 1
+              ;;
+          esac

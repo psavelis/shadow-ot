@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-server
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: shadow-server
+          image: ghcr.io/psavelis/shadow-ot/server:latest

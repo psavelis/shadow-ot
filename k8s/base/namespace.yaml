@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shadow-ot
+  labels:
+    app.kubernetes.io/name: shadow-ot
+    app.kubernetes.io/part-of: shadow-ot-platform

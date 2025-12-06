@@ -1,0 +1,2 @@
+-- Shadow OT development database initialization placeholder
+-- Migrations are applied by the application; this file reserves the hook.

@@ -1,0 +1,40 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/psavelis/shadow-ot/server
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  ports:
+    login: 7171
+    game: 7172
+    api: 8080
+    websocket: 8081
+    metrics: 9090
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 4000m
+    memory: 4Gi
+
+env:
+  RUST_LOG: "info,shadow_core=debug"
+  secretsRef: shadow-secrets
+  databaseKey: database-url
+  redisKey: redis-url
+  jwtKey: jwt-secret
+
+persistentVolume:
+  enabled: true
+  storageClass: standard
+  size: 50Gi
+  claimName: shadow-data-pvc
+
+serviceAccount:
+  create: true
+  name: shadow-server

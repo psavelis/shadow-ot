@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shadow-web.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "shadow-web.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "shadow-web.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "shadow-web.name" . }}
+    spec:
+      containers:
+        - name: shadow-web
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          env:
+            - name: NODE_ENV
+              value: "{{ .Values.env.NODE_ENV }}"
+            - name: NEXT_PUBLIC_API_URL
+              value: "{{ .Values.env.NEXT_PUBLIC_API_URL }}"
+            - name: NEXT_PUBLIC_WS_URL
+              value: "{{ .Values.env.NEXT_PUBLIC_WS_URL }}"

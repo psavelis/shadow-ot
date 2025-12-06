@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-web
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: shadow-web
+          image: ghcr.io/psavelis/shadow-ot/web:staging
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-admin
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: shadow-admin
+          image: ghcr.io/psavelis/shadow-ot/admin:staging

@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shadow-server.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "shadow-server.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: game-server
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "shadow-server.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "shadow-server.name" . }}
+        app.kubernetes.io/component: game-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.service.ports.metrics }}"
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: shadow-server
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: login
+              containerPort: {{ .Values.service.ports.login }}
+            - name: game
+              containerPort: {{ .Values.service.ports.game }}
+            - name: api
+              containerPort: {{ .Values.service.ports.api }}
+            - name: websocket
+              containerPort: {{ .Values.service.ports.websocket }}
+            - name: metrics
+              containerPort: {{ .Values.service.ports.metrics }}
+          env:
+            - name: RUST_LOG
+              value: "{{ .Values.env.RUST_LOG }}"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.secretsRef }}
+                  key: {{ .Values.env.databaseKey }}
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.secretsRef }}
+                  key: {{ .Values.env.redisKey }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.secretsRef }}
+                  key: {{ .Values.env.jwtKey }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: api
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: api
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistentVolume.claimName }}

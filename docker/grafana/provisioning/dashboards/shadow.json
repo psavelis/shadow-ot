@@ -1,0 +1,21 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Server CPU",
+      "targets": [{"expr": "process_cpu_seconds_total", "legendFormat": "cpu"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "graph",
+      "title": "Server Memory",
+      "targets": [{"expr": "process_resident_memory_bytes", "legendFormat": "rss"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    }
+  ],
+  "schemaVersion": 30,
+  "version": 1,
+  "title": "Shadow OT"
+}

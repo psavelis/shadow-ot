@@ -1,0 +1,6 @@
+apiVersion: v2
+name: shadow-web
+description: Shadow OT Web Frontend
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

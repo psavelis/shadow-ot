@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-web
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: shadow-web
+          image: ghcr.io/psavelis/shadow-ot/web:stable
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadow-admin
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: shadow-admin
+          image: ghcr.io/psavelis/shadow-ot/admin:stable
