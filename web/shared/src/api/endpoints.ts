@@ -5,6 +5,8 @@ import {
   LoginRequest,
   RegisterRequest,
   Character,
+  CharacterDeath,
+  CharacterKill,
   Realm,
   Guild,
   HighscoreEntry,
@@ -186,10 +188,10 @@ export const characterApi = {
     apiClient.post(`/characters/${id}/transfer`, { realm: targetRealm }),
 
   getDeaths: (id: string, page = 1, pageSize = 20) =>
-    apiClient.get<PaginatedResponse<{ killer: string; time: string; level: number }>>(`/characters/${id}/deaths`, { page, pageSize }),
+    apiClient.get<CharacterDeath[]>(`/characters/${id}/deaths`, { page, pageSize }),
 
   getKills: (id: string, page = 1, pageSize = 20) =>
-    apiClient.get<PaginatedResponse<{ victim: string; time: string }>>(`/characters/${id}/kills`, { page, pageSize }),
+    apiClient.get<CharacterKill[]>(`/characters/${id}/kills`, { page, pageSize }),
 
   getAchievements: (id: string) =>
     apiClient.get<Achievement[]>(`/characters/${id}/achievements`),

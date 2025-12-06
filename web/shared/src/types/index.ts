@@ -55,8 +55,15 @@ export interface Character {
   outfit: Outfit
   guild?: GuildMembership
   achievements: number
+  achievementPoints?: number
   deaths: number
   kills: number
+  residence?: string
+  accountAge?: string
+  balance?: number
+  bankBalance?: number
+  stamina?: number
+  premiumDays?: number
 }
 
 export interface CharacterSkills {
@@ -85,6 +92,24 @@ export interface Outfit {
   lookMount?: number
 }
 
+export interface CharacterDeath {
+  id: string
+  characterId: string
+  killerName: string
+  killerIsPlayer: boolean
+  levelAtDeath: number
+  timestamp: string
+  reason?: string
+}
+
+export interface CharacterKill {
+  id: string
+  characterId: string
+  victimName: string
+  victimIsPlayer: boolean
+  timestamp: string
+}
+
 export type Vocation = 
   | 'None'
   | 'Knight' 
@@ -109,15 +134,21 @@ export interface Realm {
   id: RealmId
   name: string
   description: string
-  theme: RealmTheme
-  status: 'online' | 'offline' | 'maintenance'
+  tagline?: string
+  theme: string
+  status: 'online' | 'offline' | 'maintenance' | 'coming_soon'
   playersOnline: number
+  peakPlayers: number
   playersRecord: number
   recordDate: string
   rates: RealmRates
-  pvpType: 'open' | 'optional' | 'hardcore' | 'retro'
+  pvpType: string
   createdAt: string
   features: string[]
+  featured?: boolean
+  seasonal?: boolean
+  seasonEnd?: string
+  launchDate?: string
 }
 
 export interface RealmTheme {
@@ -286,22 +317,29 @@ export interface ItemAttributes {
 }
 
 // News
+export interface NewsAuthor {
+  name: string
+  avatar?: string
+}
+
 export interface NewsArticle {
   id: string
   title: string
   slug: string
   excerpt: string
-  content: string
+  content?: string
   category: NewsCategory
-  author: string
+  author: string | NewsAuthor
   publishedAt: string
   updatedAt?: string
   featured: boolean
   image?: string
   tags: string[]
-  reactions: {
+  readTime?: number
+  reactions?: {
     likes: number
     comments: number
+    shares?: number
   }
 }
 

@@ -2561,11 +2561,55 @@ See `/docs/api/` for complete API documentation including:
 ---
 
 *Last Updated: 2025-12-06*
-*Version: 2.9.0*
+*Version: 2.10.0*
 
 ---
 
 ## Recent Updates
+
+### v2.10.0 - Type System Review & Integration Fixes (2025-12-06)
+
+**Type Definition Improvements** ✅ Complete
+
+**Character Type Enhanced:**
+- Added `achievementPoints` (optional number)
+- Added `residence` (optional string)
+- Added `accountAge` (optional string)
+- Added `balance` and `bankBalance` (optional numbers)
+- Added `stamina` and `premiumDays` (optional numbers)
+
+**New Types Added:**
+- `CharacterDeath` - Death records with killer info, level at death, timestamp
+- `CharacterKill` - Kill records with victim info, timestamp
+
+**Realm Type Enhanced:**
+- Added `tagline` (optional string)
+- Added `peakPlayers` (number)
+- Added `featured` (optional boolean)
+- Added `seasonal` (optional boolean)
+- Added `seasonEnd` and `launchDate` (optional strings)
+- Changed `status` to include `'coming_soon'`
+- Changed `theme` to string (for CSS gradient classes)
+- Changed `pvpType` to string (flexible naming)
+
+**NewsArticle Type Enhanced:**
+- Added `NewsAuthor` interface (name, avatar)
+- Changed `author` to support string | NewsAuthor
+- Added `readTime` (optional number)
+- Added `shares` to reactions (optional)
+- Made `content` optional (for list views)
+- Made `reactions` optional
+
+**API Endpoint Types Fixed:**
+- `characterApi.getDeaths()` now returns `CharacterDeath[]`
+- `characterApi.getKills()` now returns `CharacterKill[]`
+
+**Integration Verified:**
+- All pages correctly use typed hooks
+- Type imports updated in endpoints.ts
+- No TypeScript errors across web frontend
+
+---
 
 ### v2.9.0 - Final Mock Elimination (2025-12-06)
 
