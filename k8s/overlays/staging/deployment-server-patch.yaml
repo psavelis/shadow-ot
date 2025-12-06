@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shadow-server
+  namespace: shadow-ot
 spec:
   replicas: 2
   template:

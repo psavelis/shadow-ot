@@ -55,6 +55,7 @@ services:
     volumes:
       - ./config:/config:ro
       - server_data:/data
+      - ../realms:/data/realms:ro
     depends_on:
       postgres:
         condition: service_healthy

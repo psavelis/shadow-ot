@@ -43,7 +43,7 @@ COPY --from=builder /app/target/release/shadow-server /app/shadow-server
 
 # Copy data files
 COPY data /app/data
-COPY realms /app/realms
+COPY realms /data/realms
 
 # Set ownership
 RUN chown -R shadow:shadow /app
