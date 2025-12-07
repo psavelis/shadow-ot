@@ -482,6 +482,80 @@ Known gaps (Resolved Dec 2025)
 - Storage: validate PVC bindings and capacity in CI; no schema or container changes.
 - Image Sources: continue using `ghcr.io/psavelis/*`; avoid registry or tag changes to prevent conflicts with application agents.
 
+### Operational Runbook
+
+- Cluster setup
+  - Create kind cluster and install MetalLB (`/.github/workflows/e2e-kind.yml:37–56`).
+  - Apply base and dev overlay (`/.github/workflows/e2e-kind.yml:62–66`).
+  - Switch deployments to locally built images (`/.github/workflows/e2e-kind.yml:67–71`).
+- Secrets
+  - Apply `k8s/base/secrets-example.yaml` and replace placeholders for non-prod use.
+  - Keys used by server: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET` (`k8s/base/deployment-server.yaml:51–65`).
+- External IPs
+  - Verify `shadow-web-external`, `shadow-admin-external`, `shadow-server-external`, `shadow-download` get IPs (`/.github/workflows/e2e-kind.yml:84–90`).
+- Smoke tests
+  - Web and downloads HTTP checks (`/.github/workflows/e2e-kind.yml:92–102`).
+  - API health and game ports reachability (`/.github/workflows/e2e-kind.yml:73–79,104–114`).
+- User flow
+  - Register, login, and create character with real API (`/.github/workflows/e2e-kind.yml:121–143`).
+
+### Environment Matrix
+
+- Dev (kind): `shadow-ot-dev` overlay, `LoadBalancer` via MetalLB for externals.
+- Staging: same manifests with different namespace and DNS; letsencrypt staging issuer.
+- Prod: base manifests with production issuer, external DNS annotations (k8s/base/service.yaml:41–42,83–84,103–104).
+
+### Domain & Routing Map
+
+- `shadow-ot.com`, `www.shadow-ot.com` → `shadow-web:3000` (k8s/base/ingress.yaml:29–48).
+- `api.shadow-ot.com` → `shadow-server:8080` (k8s/base/ingress.yaml:51–60).
+- `admin.shadow-ot.com` → `shadow-admin:3001` (k8s/base/ingress.yaml:63–72).
+- `download.shadow-ot.com` → `shadow-download:80` (k8s/base/ingress.yaml:75–84).
+- `ws.shadow-ot.com` → `shadow-server:8081` (k8s/base/ingress.yaml:136–149).
+
+### Security Baseline
+
+- TLS via cert-manager with `letsencrypt-prod` (`k8s/base/ingress.yaml:10`).
+- JWT secret stored in Kubernetes Secret; mounted via env (`k8s/base/deployment-server.yaml:61–65`).
+- Rate limiting and body size on ingress (`k8s/base/ingress.yaml:12–14`).
+- Non-root execution and restricted resources (server: `runAsNonRoot`, resource limits in `k8s/base/deployment-server.yaml:24–27,66–72`).
+
+### SLOs & Monitoring
+
+- Availability: `web`, `admin`, `api` deployments available within 5 minutes of deploy.
+- Latency: `api` P99 < 300ms for health/read endpoints.
+- Error budget: < 1% 5xx over 24h.
+- Metrics: Prometheus scrape from server (`k8s/base/deployment-server.yaml:20–21,46–47`).
+- Dashboards: Grafana provisioning available under `docker/grafana`.
+
+### Release Process
+
+- Build images from Dockerfiles (server: `docker/Dockerfile.server`; web/admin: `web/*/Dockerfile`).
+- Tag and push to GHCR using CI; deployments consume `:latest` or release tags.
+- Deploy via `kubectl apply -k` for base and overlays.
+- Post-deploy checks: external IPs, liveness/readiness probes, smoke tests, user flow.
+
+### Asset Policy
+
+- Downloads source: curated open-source client installers, sprites, and artwork.
+- Configured via `download-assets-config.urls` (`k8s/base/configmap.yaml:174–186`).
+- Init-container fetches assets and generates index (`k8s/base/deployment-download.yaml:20–38`).
+- Licensing: only assets compatible with permissive licenses; track sources in `PRD.md`.
+
+### Game Readiness Checklist
+
+- API health OK (`/health`) and readiness OK (`/ready`) (`k8s/base/deployment-server.yaml:83–93`).
+- Login `7171` and game `7172` ports reachable (`/.github/workflows/e2e-kind.yml:110–114`).
+- Web and Admin respond over external IP.
+- Downloads index lists real assets.
+- User can register, login, and create a character on `shadowveil` default realm.
+
+### Rollback & DR
+
+- Rollback: redeploy previous image tags via `kubectl set image` for server/web/admin.
+- Backup: Postgres PVC snapshot policy; Redis persistence with AOF.
+- Recovery: reapply base manifests, secrets, and restore DB from snapshot.
+
 ---
 
 ## Executive Summary
