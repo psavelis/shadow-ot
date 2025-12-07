@@ -402,7 +402,7 @@ impl<'a> CharacterRepository<'a> {
         .bind(&death.mostdamage_by)
         .bind(death.mostdamage_is_player)
         .bind(death.unjustified)
-        .bind(&death.time)
+        .bind(&death.died_at)
         .fetch_one(self.pool)
         .await
         .map_err(|e| DbError::Query(e.to_string()))?;

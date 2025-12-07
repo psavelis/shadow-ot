@@ -48,6 +48,7 @@ pub struct HouseAccess {
 pub enum HouseAccessType {
     Guest,
     SubOwner,
+    Owner,
 }
 
 /// House auction bid

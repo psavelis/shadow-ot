@@ -164,7 +164,7 @@ impl<'a> HouseRepository<'a> {
         )
         .bind(access.house_id)
         .bind(&access.character_id)
-        .bind(&access.access_level)
+        .bind(&access.access_type)
         .bind(&access.granted_by)
         .bind(&access.granted_at)
         .fetch_one(self.pool)

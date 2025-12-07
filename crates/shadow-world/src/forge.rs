@@ -455,12 +455,16 @@ impl ForgeManager {
 
             ForgeResult::Broken { new_tier }
         } else {
-            // Normal failure
+            // Normal failure - capture tier before releasing borrow
+            let current_tier = item_mut.tier;
+            let dust_lost = req.dust;
+            drop(item_mut); // Release the mutable borrow
+            
             self.record_history(player_id, item.item_type_id, ForgeAction::Upgrade, ForgeResultType::Failure);
 
             ForgeResult::Failure {
-                current_tier: item_mut.tier,
-                dust_lost: req.dust,
+                current_tier,
+                dust_lost,
             }
         }
     }

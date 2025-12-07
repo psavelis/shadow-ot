@@ -22,8 +22,8 @@ impl<'a> MarketRepository<'a> {
         let result = sqlx::query_as::<_, MarketOffer>(
             r#"
             INSERT INTO market_offers (
-                id, realm_id, character_id, item_id, amount, price,
-                offer_type, state, anonymous, created_at, expires_at
+                id, realm_id, character_id, item_type_id, amount, price,
+                offer_type, status, anonymous, created_at, expires_at
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
@@ -32,11 +32,11 @@ impl<'a> MarketRepository<'a> {
         .bind(&offer.id)
         .bind(&offer.realm_id)
         .bind(&offer.character_id)
-        .bind(offer.item_id)
+        .bind(offer.item_type_id)
         .bind(offer.amount)
         .bind(offer.price)
         .bind(&offer.offer_type)
-        .bind(&offer.state)
+        .bind(&offer.status)
         .bind(offer.anonymous)
         .bind(&offer.created_at)
         .bind(&offer.expires_at)
@@ -224,7 +224,7 @@ impl<'a> MarketRepository<'a> {
         )
         .bind(history_id)
         .bind(&offer.realm_id)
-        .bind(offer.item_id)
+        .bind(offer.item_type_id)
         .bind(amount)
         .bind(offer.price)
         .bind(&offer.character_id)
