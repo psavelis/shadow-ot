@@ -1,0 +1,394 @@
+{
+  "outfits": [
+    {
+      "id": 128,
+      "name": "Citizen",
+      "sex": "male",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Standard male citizen outfit"
+    },
+    {
+      "id": 136,
+      "name": "Citizen",
+      "sex": "female",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Standard female citizen outfit"
+    },
+    {
+      "id": 129,
+      "name": "Hunter",
+      "sex": "male",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Male hunter outfit"
+    },
+    {
+      "id": 137,
+      "name": "Hunter",
+      "sex": "female",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Female hunter outfit"
+    },
+    {
+      "id": 130,
+      "name": "Mage",
+      "sex": "male",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Male mage outfit"
+    },
+    {
+      "id": 138,
+      "name": "Mage",
+      "sex": "female",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Female mage outfit"
+    },
+    {
+      "id": 131,
+      "name": "Knight",
+      "sex": "male",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Male knight outfit"
+    },
+    {
+      "id": 139,
+      "name": "Knight",
+      "sex": "female",
+      "premium": false,
+      "unlocked": true,
+      "type": "default",
+      "description": "Female knight outfit"
+    },
+    {
+      "id": 132,
+      "name": "Nobleman",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "premium",
+      "description": "Male nobleman outfit"
+    },
+    {
+      "id": 140,
+      "name": "Noblewoman",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "premium",
+      "description": "Female noblewoman outfit"
+    },
+    {
+      "id": 133,
+      "name": "Summoner",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "premium",
+      "description": "Male summoner outfit"
+    },
+    {
+      "id": 141,
+      "name": "Summoner",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "premium",
+      "description": "Female summoner outfit"
+    },
+    {
+      "id": 134,
+      "name": "Warrior",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male warrior outfit - Earned through combat"
+    },
+    {
+      "id": 142,
+      "name": "Warrior",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female warrior outfit - Earned through combat"
+    },
+    {
+      "id": 143,
+      "name": "Barbarian",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male barbarian outfit"
+    },
+    {
+      "id": 147,
+      "name": "Barbarian",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female barbarian outfit"
+    },
+    {
+      "id": 144,
+      "name": "Druid",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male druid outfit"
+    },
+    {
+      "id": 148,
+      "name": "Druid",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female druid outfit"
+    },
+    {
+      "id": 145,
+      "name": "Wizard",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male wizard outfit"
+    },
+    {
+      "id": 149,
+      "name": "Wizard",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female wizard outfit"
+    },
+    {
+      "id": 146,
+      "name": "Oriental",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male oriental outfit"
+    },
+    {
+      "id": 150,
+      "name": "Oriental",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female oriental outfit"
+    },
+    {
+      "id": 151,
+      "name": "Pirate",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male pirate outfit"
+    },
+    {
+      "id": 155,
+      "name": "Pirate",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female pirate outfit"
+    },
+    {
+      "id": 152,
+      "name": "Assassin",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male assassin outfit"
+    },
+    {
+      "id": 156,
+      "name": "Assassin",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female assassin outfit"
+    },
+    {
+      "id": 153,
+      "name": "Beggar",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male beggar outfit"
+    },
+    {
+      "id": 157,
+      "name": "Beggar",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female beggar outfit"
+    },
+    {
+      "id": 154,
+      "name": "Shaman",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Male shaman outfit"
+    },
+    {
+      "id": 158,
+      "name": "Shaman",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "quest",
+      "description": "Female shaman outfit"
+    },
+    {
+      "id": 268,
+      "name": "Elementalist",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "store",
+      "description": "Male elementalist outfit - Store exclusive"
+    },
+    {
+      "id": 269,
+      "name": "Elementalist",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "store",
+      "description": "Female elementalist outfit - Store exclusive"
+    },
+    {
+      "id": 325,
+      "name": "Demon Hunter",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "store",
+      "description": "Male demon hunter outfit - Store exclusive"
+    },
+    {
+      "id": 326,
+      "name": "Demon Hunter",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "store",
+      "description": "Female demon hunter outfit - Store exclusive"
+    },
+    {
+      "id": 430,
+      "name": "Chaos Knight",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "nft",
+      "description": "Male chaos knight outfit - NFT exclusive"
+    },
+    {
+      "id": 431,
+      "name": "Chaos Knight",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "nft",
+      "description": "Female chaos knight outfit - NFT exclusive"
+    },
+    {
+      "id": 440,
+      "name": "Void Mage",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "nft",
+      "description": "Male void mage outfit - NFT exclusive"
+    },
+    {
+      "id": 441,
+      "name": "Void Mage",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "nft",
+      "description": "Female void mage outfit - NFT exclusive"
+    },
+    {
+      "id": 450,
+      "name": "Shadow Lord",
+      "sex": "male",
+      "premium": true,
+      "unlocked": false,
+      "type": "nft",
+      "description": "Male shadow lord outfit - NFT exclusive legendary"
+    },
+    {
+      "id": 451,
+      "name": "Shadow Lord",
+      "sex": "female",
+      "premium": true,
+      "unlocked": false,
+      "type": "nft",
+      "description": "Female shadow lord outfit - NFT exclusive legendary"
+    }
+  ],
+  "addons": [
+    {
+      "outfitId": 128,
+      "addon": 1,
+      "name": "First Addon",
+      "type": "quest",
+      "requirements": ["100 minotaur leather"]
+    },
+    {
+      "outfitId": 128,
+      "addon": 2,
+      "name": "Second Addon",
+      "type": "quest",
+      "requirements": ["100 minotaur horns", "50 blue cloth"]
+    },
+    {
+      "outfitId": 136,
+      "addon": 1,
+      "name": "First Addon",
+      "type": "quest",
+      "requirements": ["100 minotaur leather"]
+    },
+    {
+      "outfitId": 136,
+      "addon": 2,
+      "name": "Second Addon",
+      "type": "quest",
+      "requirements": ["100 minotaur horns", "50 blue cloth"]
+    }
+  ]
+}
