@@ -125,3 +125,4 @@ export const SearchInput = forwardRef<HTMLInputElement, Omit<InputProps, 'leftIc
 
 SearchInput.displayName = 'SearchInput'
 
+

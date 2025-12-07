@@ -40,3 +40,4 @@ export function getRealmConfig(realm: RealmId) {
   return realmConfig[realm]
 }
 
+

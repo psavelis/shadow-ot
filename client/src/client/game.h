@@ -10,6 +10,7 @@
 #include "position.h"
 #include "creature.h"
 #include "protocolgame.h"
+#include <framework/net/connection.h>
 #include <string>
 #include <memory>
 #include <functional>
@@ -185,12 +186,21 @@ public:
     GameStartCallback onGameStart;
     GameEndCallback onGameEnd;
 
+    // Character list callback
+    using CharacterListCallback = std::function<void(const std::vector<framework::ProtocolLogin::Character>& characters)>;
+    using LoginErrorCallback = std::function<void(const std::string& error)>;
+    void setOnCharacterList(CharacterListCallback cb) { m_onCharacterList = cb; }
+    void setOnLoginError(LoginErrorCallback cb) { m_onLoginError = cb; }
+
     // Protocol access for session management
     void setLocalPlayer(LocalPlayerPtr player) { m_localPlayer = player; }
     void setProtocol(std::shared_ptr<ProtocolGame> protocol) { m_protocol = protocol; }
     std::shared_ptr<ProtocolGame> getProtocol() const { return m_protocol; }
     void processLogin();
     void processLogout();
+
+    // Poll network for incoming data
+    void poll();
 
 private:
     Game() = default;
@@ -200,10 +210,13 @@ private:
     GameState m_gameState{GameState::NotConnected};
     LocalPlayerPtr m_localPlayer;
     std::shared_ptr<ProtocolGame> m_protocol;
+    std::unique_ptr<framework::ProtocolLogin> m_loginProtocol;
 
     std::string m_accountName;
     std::string m_password;
     std::string m_characterName;
+    std::string m_loginHost;
+    uint16_t m_loginPort{7171};
 
     int m_protocolVersion{1098};
     int m_latency{0};
@@ -212,6 +225,8 @@ private:
     LogoutCallback m_onLogout;
     DeathCallback m_onDeath;
     TextMessageCallback m_onTextMessage;
+    CharacterListCallback m_onCharacterList;
+    LoginErrorCallback m_onLoginError;
 };
 
 } // namespace client

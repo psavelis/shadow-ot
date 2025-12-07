@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include "map.h"
+#include "protocolgame.h"
 #include <framework/net/connection.h>
 
 namespace shadow {
@@ -30,10 +31,29 @@ void Game::login(const std::string& host, uint16_t port,
 
     m_accountName = account;
     m_password = password;
+    m_loginHost = host;
+    m_loginPort = port;
     m_gameState = GameState::Connecting;
 
-    // Create login protocol connection
-    // This would connect to login server and get character list
+    // Create login protocol and connect
+    m_loginProtocol = std::make_unique<framework::ProtocolLogin>();
+    m_loginProtocol->setCallback([this](bool success, const std::string& message,
+                                        const std::vector<framework::ProtocolLogin::Character>& characters) {
+        if (success) {
+            m_gameState = GameState::CharacterList;
+            if (m_onCharacterList) {
+                m_onCharacterList(characters);
+            }
+        } else {
+            m_gameState = GameState::NotConnected;
+            if (m_onLoginError) {
+                m_onLoginError(message);
+            }
+        }
+        m_loginProtocol.reset();
+    });
+
+    m_loginProtocol->login(host, port, account, password);
 }
 
 void Game::loginWorld(const std::string& account, const std::string& password,
@@ -42,25 +62,59 @@ void Game::loginWorld(const std::string& account, const std::string& password,
     if (m_gameState != GameState::CharacterList) return;
 
     m_characterName = characterName;
+    m_accountName = account;
+    m_password = password;
     m_gameState = GameState::EnteringWorld;
 
-    // Create game protocol connection
-    // This would connect to game server with selected character
+    // Create game protocol and connect
+    m_protocol = std::make_shared<ProtocolGame>();
+
+    // Connect to game world
+    if (m_protocol->connect(worldHost, worldPort, account, password, characterName)) {
+        // Connection initiated, processLogin will be called on success
+    } else {
+        m_gameState = GameState::NotConnected;
+        if (m_onLoginError) {
+            m_onLoginError("Failed to connect to game server");
+        }
+    }
 }
 
 void Game::logout() {
     if (m_gameState == GameState::NotConnected) return;
 
-    if (m_gameState == GameState::Online) {
-        // Send logout request to server
+    if (m_gameState == GameState::Online && m_protocol) {
+        m_protocol->sendLogout();
     }
 
     processLogout();
 }
 
+void Game::poll() {
+    // Poll login protocol if active
+    if (m_loginProtocol) {
+        m_loginProtocol->poll();
+    }
+
+    // Poll game protocol if active
+    if (m_protocol) {
+        m_protocol->poll();
+    }
+}
+
 void Game::cancelLogin() {
     if (m_gameState == GameState::Connecting ||
         m_gameState == GameState::EnteringWorld) {
+        // Cancel login protocol if active
+        if (m_loginProtocol) {
+            m_loginProtocol->cancel();
+            m_loginProtocol.reset();
+        }
+        // Disconnect game protocol if active
+        if (m_protocol) {
+            m_protocol->disconnect();
+            m_protocol.reset();
+        }
         processLogout();
     }
 }
@@ -270,186 +324,238 @@ void Game::upContainer(uint8_t containerId) {
 
 void Game::say(const std::string& text) {
     if (!isOnline() || text.empty()) return;
-    // Send say message to server (type 1)
+    if (m_protocol) {
+        m_protocol->sendSay(SpeakType::Say, text);
+    }
 }
 
 void Game::yell(const std::string& text) {
     if (!isOnline() || text.empty()) return;
-    // Send yell message to server (type 3)
+    if (m_protocol) {
+        m_protocol->sendSay(SpeakType::Yell, text);
+    }
 }
 
 void Game::whisper(const std::string& text) {
     if (!isOnline() || text.empty()) return;
-    // Send whisper message to server (type 2)
+    if (m_protocol) {
+        m_protocol->sendSay(SpeakType::Whisper, text);
+    }
 }
 
 void Game::privateMessage(const std::string& receiver, const std::string& text) {
     if (!isOnline() || text.empty()) return;
-    // Send private message to server
+    if (m_protocol) {
+        m_protocol->sendSay(SpeakType::PrivateTo, text, receiver);
+    }
 }
 
 void Game::channelMessage(uint16_t channelId, const std::string& text) {
     if (!isOnline() || text.empty()) return;
-    // Send channel message to server
+    if (m_protocol) {
+        m_protocol->sendSay(SpeakType::Channel, text, "", channelId);
+    }
 }
 
 void Game::requestChannels() {
     if (!isOnline()) return;
-    // Send request channels to server
+    if (m_protocol) {
+        m_protocol->sendRequestChannels();
+    }
 }
 
 void Game::openChannel(uint16_t channelId) {
     if (!isOnline()) return;
-    // Send open channel request to server
+    if (m_protocol) {
+        m_protocol->sendOpenChannel(channelId);
+    }
 }
 
 void Game::closeChannel(uint16_t channelId) {
     if (!isOnline()) return;
-    // Send close channel request to server
+    if (m_protocol) {
+        m_protocol->sendCloseChannel(channelId);
+    }
 }
 
 void Game::openPrivateChannel(const std::string& name) {
     if (!isOnline() || name.empty()) return;
-    // Send open private channel request to server
+    if (m_protocol) {
+        m_protocol->sendOpenPrivateChannel(name);
+    }
 }
 
 void Game::requestOutfit() {
     if (!isOnline()) return;
-    // Send outfit request to server
+    if (m_protocol) {
+        m_protocol->sendRequestOutfit();
+    }
 }
 
 void Game::setOutfit(const Outfit& outfit) {
     if (!isOnline() || !m_localPlayer) return;
     m_localPlayer->setOutfit(outfit);
-    // Send set outfit request to server
+    if (m_protocol) {
+        m_protocol->sendSetOutfit(outfit);
+    }
 }
 
 void Game::requestTrade(const Position& pos, uint16_t itemId, uint8_t stackPos, uint32_t creatureId) {
     if (!isOnline()) return;
-    // Send trade request to server
+    // Player trade request - uses creature id to identify trade partner
+    // Note: This would require a sendRequestTrade method in protocol
 }
 
 void Game::inspectTrade(bool counterOffer, uint8_t index) {
     if (!isOnline()) return;
-    // Send inspect trade request to server
+    // Note: Trade inspection - would require sendInspectTrade method
 }
 
 void Game::acceptTrade() {
     if (!isOnline()) return;
-    // Send accept trade request to server
+    // Note: Would require sendAcceptTrade method
 }
 
 void Game::rejectTrade() {
     if (!isOnline()) return;
-    // Send reject trade request to server
+    // Note: Would require sendRejectTrade method
 }
 
 void Game::buyItem(uint16_t itemId, uint8_t subType, uint8_t amount, bool ignoreCapacity, bool buyWithBackpack) {
     if (!isOnline()) return;
-    // Send buy item request to server
+    if (m_protocol) {
+        m_protocol->sendBuyItem(itemId, subType, amount, ignoreCapacity, buyWithBackpack);
+    }
 }
 
 void Game::sellItem(uint16_t itemId, uint8_t subType, uint8_t amount, bool ignoreEquipped) {
     if (!isOnline()) return;
-    // Send sell item request to server
+    if (m_protocol) {
+        m_protocol->sendSellItem(itemId, subType, amount, ignoreEquipped);
+    }
 }
 
 void Game::closeNpcTrade() {
     if (!isOnline()) return;
-    // Send close NPC trade request to server
+    if (m_protocol) {
+        m_protocol->sendCloseNpcTrade();
+    }
 }
 
 void Game::browseMarket(uint16_t categoryId) {
     if (!isOnline()) return;
-    // Send browse market request to server
+    // Note: Market functionality would require sendBrowseMarket method
 }
 
 void Game::createMarketOffer(uint8_t type, uint16_t itemId, uint8_t tier, uint16_t amount, uint64_t price, bool anonymous) {
     if (!isOnline()) return;
-    // Send create market offer request to server
+    // Note: Market offer creation would require sendCreateMarketOffer method
 }
 
 void Game::cancelMarketOffer(uint32_t timestamp, uint16_t counter) {
     if (!isOnline()) return;
-    // Send cancel market offer request to server
+    // Note: Market offer cancellation would require sendCancelMarketOffer method
 }
 
 void Game::acceptMarketOffer(uint32_t timestamp, uint16_t counter, uint16_t amount) {
     if (!isOnline()) return;
-    // Send accept market offer request to server
+    // Note: Market offer acceptance would require sendAcceptMarketOffer method
 }
 
 void Game::inviteToParty(uint32_t creatureId) {
     if (!isOnline()) return;
-    // Send party invite request to server
+    if (m_protocol) {
+        m_protocol->sendInviteToParty(creatureId);
+    }
 }
 
 void Game::joinParty(uint32_t creatureId) {
     if (!isOnline()) return;
-    // Send join party request to server
+    if (m_protocol) {
+        m_protocol->sendJoinParty(creatureId);
+    }
 }
 
 void Game::revokePartyInvite(uint32_t creatureId) {
     if (!isOnline()) return;
-    // Send revoke party invite request to server
+    if (m_protocol) {
+        m_protocol->sendRevokeInvitation(creatureId);
+    }
 }
 
 void Game::passPartyLeadership(uint32_t creatureId) {
     if (!isOnline()) return;
-    // Send pass leadership request to server
+    if (m_protocol) {
+        m_protocol->sendPassLeadership(creatureId);
+    }
 }
 
 void Game::leaveParty() {
     if (!isOnline()) return;
-    // Send leave party request to server
+    if (m_protocol) {
+        m_protocol->sendLeaveParty();
+    }
 }
 
 void Game::enableSharedExperience(bool enable) {
     if (!isOnline()) return;
-    // Send shared experience request to server
+    if (m_protocol) {
+        m_protocol->sendEnableSharedExp(enable);
+    }
 }
 
 void Game::addVip(const std::string& name) {
     if (!isOnline() || name.empty()) return;
-    // Send add VIP request to server
+    if (m_protocol) {
+        m_protocol->sendAddVip(name);
+    }
 }
 
 void Game::removeVip(uint32_t playerId) {
     if (!isOnline()) return;
-    // Send remove VIP request to server
+    if (m_protocol) {
+        m_protocol->sendRemoveVip(playerId);
+    }
 }
 
 void Game::editVip(uint32_t playerId, const std::string& description, uint32_t iconId, bool notifyLogin) {
     if (!isOnline()) return;
-    // Send edit VIP request to server
+    // Note: VIP editing would require sendEditVip method
 }
 
 void Game::requestQuestLog() {
     if (!isOnline()) return;
-    // Send quest log request to server
+    if (m_protocol) {
+        m_protocol->sendRequestQuestLog();
+    }
 }
 
 void Game::requestQuestLine(uint16_t questId) {
     if (!isOnline()) return;
-    // Send quest line request to server
+    if (m_protocol) {
+        m_protocol->sendRequestQuestLine(questId);
+    }
 }
 
 void Game::reportBug(const std::string& comment) {
     if (!isOnline() || comment.empty()) return;
-    // Send bug report to server
+    if (m_protocol) {
+        m_protocol->sendBugReport(comment);
+    }
 }
 
 void Game::reportRuleViolation(const std::string& target, uint8_t reason, uint8_t action,
                                const std::string& comment, const std::string& statement,
                                uint16_t channelId, uint32_t translation) {
     if (!isOnline()) return;
-    // Send rule violation report to server
+    // Note: Rule violation reporting would require sendReportRuleViolation method
 }
 
 void Game::ping() {
     if (!isOnline()) return;
-    // Send ping to server
-    // Server response would update m_latency
+    if (m_protocol) {
+        m_protocol->sendPing();
+    }
 }
 
 } // namespace client

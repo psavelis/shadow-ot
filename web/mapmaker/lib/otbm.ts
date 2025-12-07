@@ -601,3 +601,4 @@ export function createEmptyMap(width: number, height: number): OTBMMap {
   }
 }
 
+

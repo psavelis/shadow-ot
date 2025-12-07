@@ -140,3 +140,4 @@ export function AvatarGroup({ avatars, max = 4, size = 'md', className }: Avatar
   )
 }
 
+

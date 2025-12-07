@@ -28,3 +28,4 @@ export function OnlineIndicator({ online, size = 'md', showLabel = false, classN
   return <span className={cn('inline-block rounded-full', sizes[size], online ? 'bg-green-500' : 'bg-shadow-500', online && pulse && 'animate-pulse', className)} />
 }
 
+

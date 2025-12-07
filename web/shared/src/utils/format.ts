@@ -182,3 +182,4 @@ export function getVocationColor(vocation: string): string {
   return colors[vocation] || 'text-gray-400'
 }
 
+

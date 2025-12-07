@@ -132,6 +132,40 @@ public:
     // Minimap color
     uint8_t getMinimapColor() const { return m_minimapColor; }
 
+    // LensHelp (for shop/help icons)
+    uint16_t getLensHelp() const { return m_lensHelp; }
+
+    // Text writable items
+    uint16_t getMaxTextLength() const { return m_maxTextLength; }
+
+    // Cloth slot (for equipment)
+    uint16_t getClothSlot() const { return m_clothSlot; }
+
+    // Market data
+    uint16_t getMarketCategory() const { return m_marketCategory; }
+    uint16_t getMarketTradeAs() const { return m_marketTradeAs; }
+    uint16_t getMarketShowAs() const { return m_marketShowAs; }
+    const std::string& getMarketName() const { return m_marketName; }
+
+    // Default action
+    uint16_t getDefaultAction() const { return m_defaultAction; }
+
+    // Cyclopedia
+    uint16_t getCyclopediaType() const { return m_cyclopediaType; }
+
+    // Upgrade classification
+    uint8_t getUpgradeClassification() const { return m_upgradeClassification; }
+
+    // Animation info
+    uint8_t getAnimationType() const { return m_animationType; }
+    int32_t getAnimationLoopCount() const { return m_animationLoopCount; }
+    uint8_t getAnimationStartPhase() const { return m_animationStartPhase; }
+    const std::vector<std::pair<uint32_t, uint32_t>>& getAnimationDurations() const { return m_animationDurations; }
+
+    // Sprite IDs
+    const std::vector<uint32_t>& getSpriteIds() const { return m_spriteIds; }
+    uint32_t getSpriteId(int index) const { return index < static_cast<int>(m_spriteIds.size()) ? m_spriteIds[index] : 0; }
+
     // Drawing
     void draw(int x, int y, float scale = 1.0f,
               int patternX = 0, int patternY = 0, int patternZ = 0,
@@ -169,8 +203,35 @@ private:
     int m_elevation{0};
     uint8_t m_containerSize{0};
     uint8_t m_minimapColor{0};
+    uint16_t m_lensHelp{0};
+    uint16_t m_maxTextLength{0};
 
-    // Sprites
+    // Cloth/equipment
+    uint16_t m_clothSlot{0};
+
+    // Market data
+    uint16_t m_marketCategory{0};
+    uint16_t m_marketTradeAs{0};
+    uint16_t m_marketShowAs{0};
+    std::string m_marketName;
+
+    // Actions
+    uint16_t m_defaultAction{0};
+
+    // Newer attributes
+    uint16_t m_cyclopediaType{0};
+    uint8_t m_upgradeClassification{0};
+
+    // Animation data
+    uint8_t m_animationType{0};
+    int32_t m_animationLoopCount{-1};
+    uint8_t m_animationStartPhase{0};
+    std::vector<std::pair<uint32_t, uint32_t>> m_animationDurations;
+
+    // Sprite IDs
+    std::vector<uint32_t> m_spriteIds;
+
+    // Loaded sprites (textures)
     std::vector<std::shared_ptr<framework::Texture>> m_sprites;
 };
 

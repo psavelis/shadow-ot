@@ -52,3 +52,4 @@ export function getVocationAbbr(vocation: Vocation): string {
   return vocationConfig[vocation]?.abbr || 'N'
 }
 
+

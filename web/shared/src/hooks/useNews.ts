@@ -80,3 +80,4 @@ export function getCategoryConfig(category: NewsCategory) {
   return NEWS_CATEGORIES.find(c => c.value === category)
 }
 
+

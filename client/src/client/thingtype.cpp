@@ -18,11 +18,10 @@ namespace client {
 ThingType::ThingType() = default;
 
 bool ThingType::load(const uint8_t* data, size_t size) {
-    // Parse DAT format for this thing type
-    // This is a simplified version - full implementation would parse all attributes
+    // Parse DAT format for this thing type - complete attribute parsing
     size_t pos = 0;
 
-    // Read flags until we hit 0xFF
+    // Read flags until we hit 0xFF (end of attributes marker)
     while (pos < size) {
         uint8_t attr = data[pos++];
         if (attr == 0xFF) break;
@@ -30,23 +29,64 @@ bool ThingType::load(const uint8_t* data, size_t size) {
         ThingAttr thingAttr = static_cast<ThingAttr>(attr);
         m_attrs[thingAttr] = true;
 
-        // Some attributes have additional data
-        switch (thingAttr) {
-            case ThingAttr::Ground:
+        // Parse attribute data based on type
+        switch (static_cast<int>(attr)) {
+            case 0: // Ground - has speed
                 if (pos + 2 <= size) {
                     m_speed = data[pos] | (data[pos + 1] << 8);
                     pos += 2;
                 }
                 break;
 
-            case ThingAttr::Light:
+            case 1: // TopOrder1 - on bottom (no data)
+            case 2: // TopOrder2 - on top (no data)
+            case 3: // TopOrder3 - above top (no data)
+            case 4: // Container (no data)
+            case 5: // Stackable (no data)
+            case 6: // ForceUse (no data)
+            case 7: // MultiUse (no data)
+                break;
+
+            case 8: // Writable - has max text length
+                if (pos + 2 <= size) {
+                    m_maxTextLength = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                }
+                break;
+
+            case 9: // WritableOnce - has max text length
+                if (pos + 2 <= size) {
+                    m_maxTextLength = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                }
+                break;
+
+            case 10: // FluidContainer (no data)
+            case 11: // Splash (no data)
+            case 12: // NotWalkable (no data)
+            case 13: // NotMoveable (no data)
+            case 14: // BlockProjectile (no data)
+            case 15: // NotPathable (no data)
+            case 16: // NoMoveAnimation (no data)
+            case 17: // Pickupable (no data)
+            case 18: // Hangable (no data)
+            case 19: // HookSouth (no data)
+            case 20: // HookEast (no data)
+            case 21: // Rotateable (no data)
+                break;
+
+            case 22: // Light - has intensity and color
                 if (pos + 2 <= size) {
                     m_lightIntensity = data[pos++];
                     m_lightColor = data[pos++];
                 }
                 break;
 
-            case ThingAttr::Displaced:
+            case 23: // DontHide (no data)
+            case 24: // Translucent (no data)
+                break;
+
+            case 25: // Displacement - has x,y offset
                 if (pos + 4 <= size) {
                     m_displacementX = data[pos] | (data[pos + 1] << 8);
                     m_displacementY = data[pos + 2] | (data[pos + 3] << 8);
@@ -54,29 +94,116 @@ bool ThingType::load(const uint8_t* data, size_t size) {
                 }
                 break;
 
-            case ThingAttr::Elevation:
+            case 26: // Elevation - has height
                 if (pos + 2 <= size) {
                     m_elevation = data[pos] | (data[pos + 1] << 8);
                     pos += 2;
                 }
                 break;
 
-            case ThingAttr::Minimap:
+            case 27: // LyingCorpse (no data)
+            case 28: // AnimateAlways (no data)
+                break;
+
+            case 29: // Minimap - has color
                 if (pos + 2 <= size) {
                     m_minimapColor = data[pos] | (data[pos + 1] << 8);
                     pos += 2;
                 }
                 break;
 
-            case ThingAttr::Cloth:
-            case ThingAttr::Market:
-            case ThingAttr::DefaultAction:
-                // Skip variable-length data
-                // Simplified: just skip some bytes
-                pos += 2;
+            case 30: // LensHelp - has value
+                if (pos + 2 <= size) {
+                    m_lensHelp = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                }
+                break;
+
+            case 31: // FullGround (no data)
+            case 32: // IgnoreLook (no data)
+                break;
+
+            case 33: // Cloth - has slot
+                if (pos + 2 <= size) {
+                    m_clothSlot = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                }
+                break;
+
+            case 34: // Market - has category, trade info
+                if (pos + 6 <= size) {
+                    m_marketCategory = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                    m_marketTradeAs = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                    m_marketShowAs = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                    // Read name string
+                    if (pos + 2 <= size) {
+                        uint16_t nameLen = data[pos] | (data[pos + 1] << 8);
+                        pos += 2;
+                        if (pos + nameLen <= size) {
+                            m_marketName = std::string(reinterpret_cast<const char*>(&data[pos]), nameLen);
+                            pos += nameLen;
+                        }
+                    }
+                    // Skip profession and level
+                    if (pos + 4 <= size) {
+                        pos += 4; // 2 bytes profession + 2 bytes level
+                    }
+                }
+                break;
+
+            case 35: // DefaultAction - has action type
+                if (pos + 2 <= size) {
+                    m_defaultAction = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                }
+                break;
+
+            case 36: // Wrappable (no data)
+            case 37: // Unwrappable (no data)
+            case 38: // TopEffect (no data)
+                break;
+
+            case 39: // NPCSaleData (newer clients)
+                // Skip 2 bytes
+                if (pos + 2 <= size) pos += 2;
+                break;
+
+            case 40: // ChangedToExpire (no data) - newer clients
+            case 41: // Corpse (no data)
+            case 42: // PlayerCorpse (no data)
+                break;
+
+            case 43: // CyclopediaItem - has cyclopedia type
+                if (pos + 2 <= size) {
+                    m_cyclopediaType = data[pos] | (data[pos + 1] << 8);
+                    pos += 2;
+                }
+                break;
+
+            case 44: // Ammo (no data)
+            case 45: // ShowOffSocket (no data)
+            case 46: // Reportable (no data)
+                break;
+
+            case 47: // UpgradeClassification
+                if (pos + 1 <= size) {
+                    m_upgradeClassification = data[pos++];
+                }
+                break;
+
+            case 48: // Podium (no data)
+            case 49: // Wearout (no data)
+            case 50: // ClockExpire (no data)
+            case 51: // Expire (no data)
+            case 52: // ExpireStop (no data)
                 break;
 
             default:
+                // Unknown attribute - try to skip safely
+                // Most unknown attributes have no data
                 break;
         }
     }
@@ -96,6 +223,43 @@ bool ThingType::load(const uint8_t* data, size_t size) {
     if (pos < size) m_patternY = data[pos++];
     if (pos < size) m_patternZ = data[pos++];
     if (pos < size) m_animPhases = data[pos++];
+
+    // Read animation info if present (newer formats)
+    if (m_animPhases > 1 && pos < size) {
+        // Animation type: 0 = async, 1 = sync
+        if (pos < size) {
+            m_animationType = data[pos++];
+        }
+        // Loop count (-1 = infinite)
+        if (pos + 4 <= size) {
+            m_animationLoopCount = static_cast<int32_t>(data[pos] | (data[pos + 1] << 8) |
+                                                        (data[pos + 2] << 16) | (data[pos + 3] << 24));
+            pos += 4;
+        }
+        // Start phase
+        if (pos < size) {
+            m_animationStartPhase = data[pos++];
+        }
+        // Per-phase timing
+        for (int i = 0; i < m_animPhases && pos + 8 <= size; i++) {
+            uint32_t minDuration = data[pos] | (data[pos + 1] << 8) |
+                                   (data[pos + 2] << 16) | (data[pos + 3] << 24);
+            pos += 4;
+            uint32_t maxDuration = data[pos] | (data[pos + 1] << 8) |
+                                   (data[pos + 2] << 16) | (data[pos + 3] << 24);
+            pos += 4;
+            m_animationDurations.push_back({minDuration, maxDuration});
+        }
+    }
+
+    // Read sprite IDs
+    int spriteCount = m_width * m_height * m_layers * m_patternX * m_patternY * m_patternZ * m_animPhases;
+    m_spriteIds.resize(spriteCount);
+    for (int i = 0; i < spriteCount && pos + 4 <= size; i++) {
+        m_spriteIds[i] = data[pos] | (data[pos + 1] << 8) |
+                         (data[pos + 2] << 16) | (data[pos + 3] << 24);
+        pos += 4;
+    }
 
     return true;
 }

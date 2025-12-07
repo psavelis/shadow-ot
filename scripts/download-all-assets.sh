@@ -269,3 +269,4 @@ echo "  1. Rebuild client: cd client/build && cmake .. && make"
 echo "  2. Run client: ./shadow-client"
 echo "  3. Connect to server: localhost:7171"
 
+

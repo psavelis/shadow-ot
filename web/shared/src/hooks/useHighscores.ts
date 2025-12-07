@@ -84,3 +84,4 @@ export function getCategoryLabel(category: HighscoreCategory): string {
   return HIGHSCORE_CATEGORIES.find(c => c.value === category)?.label || category
 }
 
+
