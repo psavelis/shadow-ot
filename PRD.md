@@ -498,7 +498,8 @@ Known gaps (Resolved Dec 2025)
   - API health and game ports reachability (`/.github/workflows/e2e-kind.yml:73–79,104–114`).
 - User flow
   - Register, login, and create character with real API (`/.github/workflows/e2e-kind.yml:121–143`).
-  - Local developer shortcut: `make up` provisions the cluster, deploys, asserts health, and runs the user flow; `make down` tears everything down gracefully.
+- Local developer shortcut: `make up` provisions the cluster, deploys, asserts health, and runs the user flow; `make down` tears everything down gracefully.
+  - CLI: `scripts/shadowctl` provides `up`, `down`, `status`, `iterate`, and `assets` commands to automate iteration.
 
 ### Environment Matrix
 

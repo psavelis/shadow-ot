@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CMD=${1:-help}
+shift || true
+
+CLUSTER=${CLUSTER:-shadow-local}
+NAMESPACE=${NAMESPACE:-shadow-ot}
+
+up() {
+  make up
+}
+
+down() {
+  make down
+}
+
+status() {
+  kubectl get deploy,svc -n "$NAMESPACE"
+}
+
+iterate() {
+  make up
+  kubectl get svc -n "$NAMESPACE" -o wide
+  kubectl wait --for=condition=available deploy/shadow-server -n "$NAMESPACE" --timeout=300s
+  API_IP=$(kubectl get svc shadow-server -n "$NAMESPACE" -o jsonpath='{.spec.clusterIP}')
+  kubectl run apihealth --rm -it --image=curlimages/curl -n "$NAMESPACE" --restart=Never -- curl -fsS "http://$API_IP:8080/health"
+  SRV_IP=$(kubectl get svc shadow-server -n "$NAMESPACE" -o jsonpath='{.spec.clusterIP}')
+  kubectl run gameports --rm -it --image=busybox -n "$NAMESPACE" --restart=Never -- sh -c "nc -z -v $SRV_IP 7171 && nc -z -v $SRV_IP 7172"
+  kubectl run curlweb --rm -it --image=curlimages/curl -n "$NAMESPACE" --restart=Never -- sh -c "WEB_IP=\$(kubectl get svc shadow-web-external -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'); curl -fsS http://\$WEB_IP/"
+  kubectl run curldl --rm -it --image=curlimages/curl -n "$NAMESPACE" --restart=Never -- sh -c "DL_IP=\$(kubectl get svc shadow-download -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'); curl -fsS http://\$DL_IP/"
+  API_IP=$(kubectl get svc shadow-server -n "$NAMESPACE" -o jsonpath='{.spec.clusterIP}')
+  kubectl run curlreg --rm -it --image=curlimages/curl -n "$NAMESPACE" --restart=Never -- sh -c "curl -fsS -X POST http://$API_IP:8080/api/v1/auth/register -H 'Content-Type: application/json' -d '{\"email\":\"testuser@example.com\",\"password\":\"Test1234!\",\"username\":\"testuser\"}'"
+  TOKEN=$(kubectl run curllogin --rm -it --image=curlimages/curl -n "$NAMESPACE" --restart=Never -- sh -c "curl -fsS -X POST http://$API_IP:8080/api/v1/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"testuser@example.com\",\"password\":\"Test1234!\"}' | sed -n 's/.*\"accessToken\":\"\([^\"]*\)\".*/\1/p'")
+  if [ -z "$TOKEN" ]; then echo "Failed to get access token" && exit 1; fi
+  kubectl run curlchar --rm -it --image=curlimages/curl -n "$NAMESPACE" --restart=Never -- sh -c "curl -fsS -X POST http://$API_IP:8080/api/v1/characters -H 'Content-Type: application/json' -H 'Authorization: Bearer $TOKEN' -d '{\"name\":\"Test Knight\",\"vocation\":\"knight\",\"sex\":\"male\",\"realm\":\"shadowveil\"}'"
+}
+
+assets() {
+  if [ "$#" -eq 0 ]; then echo "usage: shadowctl assets <url1> <url2> ..."; exit 1; fi
+  DATA=$(printf "%s\n" "$@")
+  cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: download-assets-config
+  namespace: $NAMESPACE
+data:
+  urls: |
+$(printf '    %s
+' $DATA)
+EOF
+  kubectl rollout restart deploy/shadow-download -n "$NAMESPACE"
+}
+
+case "${CMD}" in
+  up) up ;;
+  down) down ;;
+  status) status ;;
+  iterate) iterate ;;
+  assets) assets "$@" ;;
+  *) echo "usage: shadowctl {up|down|status|iterate|assets <urls...>}" ;;
+esac
