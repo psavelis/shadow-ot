@@ -1,0 +1,13 @@
+{
+  "version": 1285,
+  "type": "appearances",
+  "format": "protobuf",
+  "files": {
+    "appearances": "appearances.dat",
+    "items": "items.otb"
+  },
+  "sprites": {
+    "source": "appearances",
+    "fallback": null
+  }
+}

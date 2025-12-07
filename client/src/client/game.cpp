@@ -111,7 +111,9 @@ void Game::walk(Position::Direction dir) {
     m_localPlayer->preWalk(dir);
 
     // Send walk request to server
-    // The protocol would handle the actual packet sending
+    if (m_protocol) {
+        m_protocol->sendWalk(dir);
+    }
 }
 
 void Game::autoWalk(const std::vector<Position> path) {
@@ -139,7 +141,9 @@ void Game::turn(Position::Direction dir) {
 
     m_localPlayer->turn(dir);
 
-    // Send turn request to server
+    if (m_protocol) {
+        m_protocol->sendTurn(dir);
+    }
 }
 
 void Game::stop() {
@@ -149,7 +153,9 @@ void Game::stop() {
     m_localPlayer->cancelPreWalk();
     m_localPlayer->stopWalk();
 
-    // Send stop request to server
+    if (m_protocol) {
+        m_protocol->sendStop();
+    }
 }
 
 void Game::attack(uint32_t creatureId) {
@@ -157,7 +163,9 @@ void Game::attack(uint32_t creatureId) {
 
     m_localPlayer->setAttackingCreatureId(creatureId);
 
-    // Send attack request to server
+    if (m_protocol) {
+        m_protocol->sendAttack(creatureId);
+    }
 }
 
 void Game::follow(uint32_t creatureId) {
@@ -165,7 +173,9 @@ void Game::follow(uint32_t creatureId) {
 
     m_localPlayer->setFollowingCreatureId(creatureId);
 
-    // Send follow request to server
+    if (m_protocol) {
+        m_protocol->sendFollow(creatureId);
+    }
 }
 
 void Game::cancelAttackAndFollow() {
@@ -174,7 +184,9 @@ void Game::cancelAttackAndFollow() {
     m_localPlayer->setAttackingCreatureId(0);
     m_localPlayer->setFollowingCreatureId(0);
 
-    // Send cancel request to server
+    if (m_protocol) {
+        m_protocol->sendCancelAttackAndFollow();
+    }
 }
 
 void Game::setAttackMode(uint8_t mode) {

@@ -9,6 +9,7 @@
 #include "localplayer.h"
 #include "position.h"
 #include "creature.h"
+#include "protocolgame.h"
 #include <string>
 #include <memory>
 #include <functional>
@@ -186,6 +187,8 @@ public:
 
     // Protocol access for session management
     void setLocalPlayer(LocalPlayerPtr player) { m_localPlayer = player; }
+    void setProtocol(std::shared_ptr<ProtocolGame> protocol) { m_protocol = protocol; }
+    std::shared_ptr<ProtocolGame> getProtocol() const { return m_protocol; }
     void processLogin();
     void processLogout();
 
@@ -196,6 +199,7 @@ private:
 
     GameState m_gameState{GameState::NotConnected};
     LocalPlayerPtr m_localPlayer;
+    std::shared_ptr<ProtocolGame> m_protocol;
 
     std::string m_accountName;
     std::string m_password;
