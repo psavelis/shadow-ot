@@ -211,44 +211,61 @@ void Game::setPvPMode(uint8_t mode) {
 
 void Game::look(const Position& pos, uint16_t itemId, uint8_t stackPos) {
     if (!isOnline()) return;
-    // Send look request to server
+    if (m_protocol) {
+        m_protocol->sendLook(pos, itemId, stackPos);
+    }
 }
 
 void Game::use(const Position& pos, uint16_t itemId, uint8_t stackPos, uint8_t index) {
     if (!isOnline()) return;
-    // Send use request to server
+    if (m_protocol) {
+        m_protocol->sendUse(pos, itemId, stackPos, index);
+    }
 }
 
 void Game::useWith(const Position& fromPos, uint16_t fromItemId, uint8_t fromStackPos,
                    const Position& toPos, uint16_t toItemId, uint8_t toStackPos) {
     if (!isOnline()) return;
-    // Send use-with request to server
+    if (m_protocol) {
+        m_protocol->sendUseWith(fromPos, fromItemId, fromStackPos, toPos, toItemId, toStackPos);
+    }
 }
 
 void Game::move(const Position& fromPos, uint16_t itemId, uint8_t fromStackPos,
                 const Position& toPos, uint8_t count) {
     if (!isOnline()) return;
-    // Send move request to server
+    if (m_protocol) {
+        m_protocol->sendMove(fromPos, itemId, fromStackPos, toPos, count);
+    }
 }
 
 void Game::rotate(const Position& pos, uint16_t itemId, uint8_t stackPos) {
     if (!isOnline()) return;
-    // Send rotate request to server
+    if (m_protocol) {
+        m_protocol->sendRotate(pos, itemId, stackPos);
+    }
 }
 
 void Game::openContainer(const Position& pos, uint16_t itemId, uint8_t stackPos) {
     if (!isOnline()) return;
-    // Send open container request to server
+    // Use 'use' to open containers
+    if (m_protocol) {
+        m_protocol->sendUse(pos, itemId, stackPos, 0);
+    }
 }
 
 void Game::closeContainer(uint8_t containerId) {
     if (!isOnline()) return;
-    // Send close container request to server
+    if (m_protocol) {
+        m_protocol->sendCloseContainer(containerId);
+    }
 }
 
 void Game::upContainer(uint8_t containerId) {
     if (!isOnline()) return;
-    // Send up container request to server
+    if (m_protocol) {
+        m_protocol->sendUpContainer(containerId);
+    }
 }
 
 void Game::say(const std::string& text) {
