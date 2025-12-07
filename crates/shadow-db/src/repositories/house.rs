@@ -4,7 +4,8 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
-use crate::models::house::{House, HouseAccess, HouseBid, AccessLevel};
+use crate::models::house::{House, HouseAccess, HouseBid, HouseAccessType};
+use crate::models::AccessLevel; // Type alias for HouseAccessType
 use crate::{DbError, Result};
 
 /// Repository for house operations

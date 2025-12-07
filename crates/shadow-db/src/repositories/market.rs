@@ -4,7 +4,8 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use chrono::{DateTime, Utc, Duration};
 
-use crate::models::market::{MarketOffer, OfferType, OfferState, MarketHistory};
+use crate::models::market::{MarketOffer, MarketOfferType, MarketOfferStatus, MarketTransaction};
+use crate::models::{OfferType, OfferState, MarketHistory}; // Type aliases
 use crate::{DbError, Result};
 
 /// Repository for market operations
