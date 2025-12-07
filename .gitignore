@@ -1,5 +1,61 @@
+# Dependencies
+node_modules/
+.pnpm-store/
 
-# Tibia game assets (binary)
+# Next.js
+.next/
+out/
+build/
+
+# Rust
+target/
+Cargo.lock
+*.pdb
+
+# C++ Build
+client/build/CMakeFiles/
+client/build/cmake_install.cmake
+client/build/CMakeCache.txt
+client/build/Makefile
+client/build/compile_commands.json
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/settings.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Tibia game assets (binary - download separately)
 client/data/things/Tibia.dat
 client/data/things/Tibia.spr
+client/data/sprites/Tibia.spr
+client/data/sprites/Tibia.dat
+client/data/sprites/Tibia.pic
 *.zip
+
+# Docker
+docker/postgres_data/
+docker/redis_data/
+
+# Kubernetes secrets
+k8s/base/secrets.yaml
+k8s/overlays/*/secrets*.yaml
