@@ -362,7 +362,17 @@ Known gaps (Resolved Dec 2025)
 - Storage:
   - Server PVC `shadow-data-pvc` (`50Gi`) (k8s/base/deployment-server.yaml:112–122).
   - Downloads PVC `download-data-pvc` (`20Gi`) (k8s/base/deployment-download.yaml:66–77).
-  - Postgres and Redis StatefulSets with PVCs (k8s/base/database.yaml:73–81,156–164).
+- Postgres and Redis StatefulSets with PVCs (k8s/base/database.yaml:73–81,156–164).
+
+### Infra Attack Plan (Low-Conflict)
+
+- CI E2E: keep kind+MetalLB, add realm status check and WS handshake using a disposable pod; no code changes required in app.
+- Downloads: curate open-source asset URLs in `download-assets-config` only; no service/API changes.
+- Observability: enable basic Prometheus/Grafana via existing `docker/prometheus.yml` and `docker/grafana` provisioning in a separate namespace; avoid touching app code.
+- Secrets: provide non-prod values via `k8s/base/secrets-example.yaml` or sealed-secrets in dev overlay; do not rename keys.
+- Ingress/Domain: maintain current hosts; add local DNS hints in docs only; avoid changing ingress manifests.
+- Storage: validate PVC bindings and capacity in CI; no schema or container changes.
+- Image Sources: continue using `ghcr.io/psavelis/*`; avoid registry or tag changes to prevent conflicts with application agents.
 
 ---
 
