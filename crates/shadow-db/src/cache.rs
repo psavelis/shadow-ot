@@ -53,7 +53,7 @@ impl Cache {
     /// Delete a key from cache
     pub async fn delete(&self, key: &str) -> Result<()> {
         let mut conn = self.redis.clone();
-        conn.del(key).await?;
+        let _: () = conn.del(key).await?;
         Ok(())
     }
 
@@ -74,21 +74,21 @@ impl Cache {
     /// Set expiry on a key
     pub async fn expire(&self, key: &str, ttl: Duration) -> Result<()> {
         let mut conn = self.redis.clone();
-        conn.expire(key, ttl.as_secs() as i64).await?;
+        let _: () = conn.expire(key, ttl.as_secs() as i64).await?;
         Ok(())
     }
 
     /// Add to a set
     pub async fn sadd(&self, key: &str, member: &str) -> Result<()> {
         let mut conn = self.redis.clone();
-        conn.sadd(key, member).await?;
+        let _: () = conn.sadd(key, member).await?;
         Ok(())
     }
 
     /// Remove from a set
     pub async fn srem(&self, key: &str, member: &str) -> Result<()> {
         let mut conn = self.redis.clone();
-        conn.srem(key, member).await?;
+        let _: () = conn.srem(key, member).await?;
         Ok(())
     }
 
@@ -112,7 +112,7 @@ impl Cache {
         let count: i64 = conn.incr(&full_key, 1).await?;
 
         if count == 1 {
-            conn.expire(&full_key, window.as_secs() as i64).await?;
+            let _: () = conn.expire(&full_key, window.as_secs() as i64).await?;
         }
 
         Ok(count <= max_requests as i64)
