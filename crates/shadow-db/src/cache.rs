@@ -46,7 +46,7 @@ impl Cache {
         let mut conn = self.redis.clone();
         let json = serde_json::to_string(value)
             .map_err(|e| DbError::Serialization(e.to_string()))?;
-        conn.set_ex(key, json, ttl.as_secs()).await?;
+        let _: () = conn.set_ex(key, json, ttl.as_secs()).await?;
         Ok(())
     }
 
