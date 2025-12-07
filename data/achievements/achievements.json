@@ -1,0 +1,250 @@
+{
+  "version": "1.0.0",
+  "achievements": [
+    {
+      "id": 1,
+      "name": "First Steps",
+      "description": "Reach level 8",
+      "category": "progress",
+      "grade": 1,
+      "points": 1,
+      "secret": false,
+      "requirements": {
+        "level": 8
+      }
+    },
+    {
+      "id": 2,
+      "name": "Junior Adventurer",
+      "description": "Reach level 20",
+      "category": "progress",
+      "grade": 1,
+      "points": 2,
+      "secret": false,
+      "requirements": {
+        "level": 20
+      }
+    },
+    {
+      "id": 3,
+      "name": "Veteran",
+      "description": "Reach level 100",
+      "category": "progress",
+      "grade": 2,
+      "points": 5,
+      "secret": false,
+      "requirements": {
+        "level": 100
+      }
+    },
+    {
+      "id": 4,
+      "name": "Champion",
+      "description": "Reach level 200",
+      "category": "progress",
+      "grade": 3,
+      "points": 10,
+      "secret": false,
+      "requirements": {
+        "level": 200
+      }
+    },
+    {
+      "id": 5,
+      "name": "Legend",
+      "description": "Reach level 500",
+      "category": "progress",
+      "grade": 3,
+      "points": 20,
+      "secret": false,
+      "requirements": {
+        "level": 500
+      }
+    },
+    {
+      "id": 10,
+      "name": "Ratcatcher",
+      "description": "Kill 100 rats",
+      "category": "hunting",
+      "grade": 1,
+      "points": 1,
+      "secret": false,
+      "requirements": {
+        "kills": {
+          "rat": 100
+        }
+      }
+    },
+    {
+      "id": 11,
+      "name": "Troll Slayer",
+      "description": "Kill 500 trolls",
+      "category": "hunting",
+      "grade": 1,
+      "points": 2,
+      "secret": false,
+      "requirements": {
+        "kills": {
+          "troll": 500
+        }
+      }
+    },
+    {
+      "id": 12,
+      "name": "Dragon Hunter",
+      "description": "Kill 1000 dragons",
+      "category": "hunting",
+      "grade": 2,
+      "points": 5,
+      "secret": false,
+      "requirements": {
+        "kills": {
+          "dragon": 1000
+        }
+      }
+    },
+    {
+      "id": 20,
+      "name": "First Blood",
+      "description": "Win your first PvP battle",
+      "category": "pvp",
+      "grade": 1,
+      "points": 2,
+      "secret": false,
+      "requirements": {
+        "pvpKills": 1
+      }
+    },
+    {
+      "id": 21,
+      "name": "Gladiator",
+      "description": "Win 100 PvP battles",
+      "category": "pvp",
+      "grade": 2,
+      "points": 5,
+      "secret": false,
+      "requirements": {
+        "pvpKills": 100
+      }
+    },
+    {
+      "id": 30,
+      "name": "Guild Founder",
+      "description": "Create a guild",
+      "category": "social",
+      "grade": 1,
+      "points": 3,
+      "secret": false,
+      "requirements": {
+        "guildAction": "create"
+      }
+    },
+    {
+      "id": 31,
+      "name": "Social Butterfly",
+      "description": "Add 50 friends to your VIP list",
+      "category": "social",
+      "grade": 1,
+      "points": 2,
+      "secret": false,
+      "requirements": {
+        "vipCount": 50
+      }
+    },
+    {
+      "id": 40,
+      "name": "Quest Beginner",
+      "description": "Complete 10 quests",
+      "category": "quests",
+      "grade": 1,
+      "points": 2,
+      "secret": false,
+      "requirements": {
+        "questsCompleted": 10
+      }
+    },
+    {
+      "id": 41,
+      "name": "Quest Master",
+      "description": "Complete 100 quests",
+      "category": "quests",
+      "grade": 2,
+      "points": 10,
+      "secret": false,
+      "requirements": {
+        "questsCompleted": 100
+      }
+    },
+    {
+      "id": 50,
+      "name": "Homeowner",
+      "description": "Own a house",
+      "category": "economy",
+      "grade": 2,
+      "points": 5,
+      "secret": false,
+      "requirements": {
+        "houseOwned": true
+      }
+    },
+    {
+      "id": 51,
+      "name": "Millionaire",
+      "description": "Accumulate 1,000,000 gold",
+      "category": "economy",
+      "grade": 2,
+      "points": 5,
+      "secret": false,
+      "requirements": {
+        "goldCollected": 1000000
+      }
+    },
+    {
+      "id": 100,
+      "name": "Shadow Walker",
+      "description": "Discover the secrets of the Shadow Realm",
+      "category": "shadow",
+      "grade": 3,
+      "points": 10,
+      "secret": true,
+      "requirements": {
+        "secret": true
+      }
+    },
+    {
+      "id": 101,
+      "name": "Blockchain Pioneer",
+      "description": "Connect your wallet and mint your first NFT",
+      "category": "shadow",
+      "grade": 2,
+      "points": 5,
+      "secret": false,
+      "requirements": {
+        "walletConnected": true,
+        "nftMinted": 1
+      }
+    },
+    {
+      "id": 102,
+      "name": "Realm Traveler",
+      "description": "Play on all 6 Shadow OT realms",
+      "category": "shadow",
+      "grade": 3,
+      "points": 15,
+      "secret": false,
+      "requirements": {
+        "realmsVisited": 6
+      }
+    }
+  ],
+  "categories": [
+    {"id": "progress", "name": "Progress", "description": "Level and experience achievements"},
+    {"id": "hunting", "name": "Hunting", "description": "Monster hunting achievements"},
+    {"id": "pvp", "name": "PvP", "description": "Player vs Player achievements"},
+    {"id": "social", "name": "Social", "description": "Guild and community achievements"},
+    {"id": "quests", "name": "Quests", "description": "Quest completion achievements"},
+    {"id": "economy", "name": "Economy", "description": "Trading and wealth achievements"},
+    {"id": "shadow", "name": "Shadow OT", "description": "Shadow OT exclusive achievements"}
+  ]
+}
+

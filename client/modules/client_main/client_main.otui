@@ -1,0 +1,101 @@
+MainWindow
+  id: mainMenu
+  size: 400 350
+  anchors.centerIn: parent
+  padding: 20
+  
+  Label
+    id: titleLabel
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    text: Shadow OT
+    font: verdana-11px-antialised
+    color: #ffffff
+    margin-bottom: 20
+  
+  Panel
+    id: loginPanel
+    anchors.top: titleLabel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 180
+    margin-top: 20
+    
+    Label
+      anchors.top: parent.top
+      anchors.left: parent.left
+      text: Account Name:
+      color: #bbbbbb
+    
+    TextEdit
+      id: accountNameField
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 24
+      margin-top: 5
+    
+    Label
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      text: Password:
+      color: #bbbbbb
+      margin-top: 10
+    
+    PasswordTextEdit
+      id: passwordField
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 24
+      margin-top: 5
+    
+    Button
+      id: loginButton
+      anchors.top: prev.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      text: Login
+      width: 120
+      margin-top: 15
+      @onClick: onLoginClick()
+  
+  Panel
+    id: buttonPanel
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 80
+    
+    Button
+      id: createAccountButton
+      anchors.top: parent.top
+      anchors.horizontalCenter: parent.horizontalCenter
+      text: Create Account
+      width: 140
+      @onClick: onCreateAccountClick()
+    
+    HorizontalBox
+      anchors.bottom: parent.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      spacing: 10
+      
+      Button
+        id: settingsButton
+        text: Settings
+        width: 90
+        @onClick: onSettingsClick()
+      
+      Button
+        id: exitButton
+        text: Exit
+        width: 90
+        @onClick: onExitClick()
+  
+  Label
+    id: versionLabel
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    text: v1285
+    color: #666666
+    font: verdana-11px-rounded
+

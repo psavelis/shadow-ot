@@ -141,19 +141,50 @@ make -j$(nproc)
 
 ---
 
-## Agent #4: Assets & Data 🔴 BLOCKING
+## Agent #4: Assets & Data 🟡 IN PROGRESS
 
 **Owner:** AI Agent #4 (or manual)
-**Status:** 20% Complete
-**Priority:** CRITICAL
+**Status:** 60% Complete
+**Priority:** HIGH
 
-### What's Missing
+### What's Now Available
 
-#### 1. Map Files (OTBM) - CRITICAL
+#### ✅ Map Files (OTBM) - COMPLETE
 ```
 Location: data/maps/
-Current: EMPTY
-Required: At minimum 1 starter map (e.g., Rookgaard)
+Files:
+  - canary.otbm (19.7MB) - Full Canary world map
+  - forgotten.otbm (3.4MB) - TFS test map
+```
+
+#### ✅ Server Data - COMPLETE
+```
+Location: data/items/, client/data/things/
+Files:
+  - items.xml (3.5MB) - Item definitions
+  - items.otb (2.3MB) - Item database
+  - appearances.dat (4.5MB) - Item/creature appearances
+```
+
+#### ✅ Game Data JSON - COMPLETE
+```
+Location: data/
+  - items/items.json - Items (759 lines)
+  - monsters/monsters.json - Monsters (696 lines)
+  - npcs/npcs.json - NPCs (453 lines)
+  - spells/spells.json - Spells (567 lines)
+  - quests/quests.json - Quests (367 lines)
+  - vocations/vocations.json - Vocations (NEW)
+  - achievements/achievements.json - Achievements (NEW)
+```
+
+### 🔴 Still Missing
+
+#### 1. Sprite Files (SPR) - CRITICAL
+```
+Location: client/data/things/
+Current: No Tibia.spr file
+Required: Tibia.spr for sprite rendering
 ```
 
 **Sources:**

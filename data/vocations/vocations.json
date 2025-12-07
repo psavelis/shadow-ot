@@ -1,0 +1,207 @@
+{
+  "version": "1.0.0",
+  "vocations": [
+    {
+      "id": 0,
+      "name": "None",
+      "description": "No vocation selected",
+      "baseSpeed": 220,
+      "healthGain": 5,
+      "manaGain": 5,
+      "capGain": 10,
+      "soulMax": 100,
+      "attackSpeed": 2000,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 2.0,
+        "sword": 2.0,
+        "axe": 2.0,
+        "distance": 2.0,
+        "shielding": 1.5,
+        "fishing": 1.1,
+        "magic": 3.0
+      }
+    },
+    {
+      "id": 1,
+      "name": "Sorcerer",
+      "description": "Masters of destructive magic",
+      "baseSpeed": 220,
+      "healthGain": 5,
+      "manaGain": 30,
+      "capGain": 10,
+      "soulMax": 200,
+      "attackSpeed": 2000,
+      "manaShield": true,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 2.0,
+        "sword": 2.0,
+        "axe": 2.0,
+        "distance": 2.0,
+        "shielding": 1.5,
+        "fishing": 1.1,
+        "magic": 1.1
+      },
+      "promotion": 5
+    },
+    {
+      "id": 2,
+      "name": "Druid",
+      "description": "Healers and nature magic experts",
+      "baseSpeed": 220,
+      "healthGain": 5,
+      "manaGain": 30,
+      "capGain": 10,
+      "soulMax": 200,
+      "attackSpeed": 2000,
+      "manaShield": true,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 2.0,
+        "sword": 2.0,
+        "axe": 2.0,
+        "distance": 2.0,
+        "shielding": 1.5,
+        "fishing": 1.1,
+        "magic": 1.1
+      },
+      "promotion": 6
+    },
+    {
+      "id": 3,
+      "name": "Paladin",
+      "description": "Holy warriors with ranged combat skills",
+      "baseSpeed": 220,
+      "healthGain": 10,
+      "manaGain": 15,
+      "capGain": 20,
+      "soulMax": 150,
+      "attackSpeed": 2000,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 1.8,
+        "sword": 1.8,
+        "axe": 1.8,
+        "distance": 1.1,
+        "shielding": 1.1,
+        "fishing": 1.1,
+        "magic": 1.4
+      },
+      "promotion": 7
+    },
+    {
+      "id": 4,
+      "name": "Knight",
+      "description": "Masters of melee combat and defense",
+      "baseSpeed": 220,
+      "healthGain": 15,
+      "manaGain": 5,
+      "capGain": 25,
+      "soulMax": 100,
+      "attackSpeed": 2000,
+      "skillMultipliers": {
+        "fist": 1.1,
+        "club": 1.1,
+        "sword": 1.1,
+        "axe": 1.1,
+        "distance": 1.8,
+        "shielding": 1.1,
+        "fishing": 1.1,
+        "magic": 3.0
+      },
+      "promotion": 8
+    },
+    {
+      "id": 5,
+      "name": "Master Sorcerer",
+      "description": "Promoted Sorcerer with enhanced abilities",
+      "baseSpeed": 220,
+      "healthGain": 5,
+      "manaGain": 30,
+      "capGain": 10,
+      "soulMax": 200,
+      "attackSpeed": 2000,
+      "manaShield": true,
+      "promoted": true,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 2.0,
+        "sword": 2.0,
+        "axe": 2.0,
+        "distance": 2.0,
+        "shielding": 1.5,
+        "fishing": 1.1,
+        "magic": 1.1
+      }
+    },
+    {
+      "id": 6,
+      "name": "Elder Druid",
+      "description": "Promoted Druid with enhanced abilities",
+      "baseSpeed": 220,
+      "healthGain": 5,
+      "manaGain": 30,
+      "capGain": 10,
+      "soulMax": 200,
+      "attackSpeed": 2000,
+      "manaShield": true,
+      "promoted": true,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 2.0,
+        "sword": 2.0,
+        "axe": 2.0,
+        "distance": 2.0,
+        "shielding": 1.5,
+        "fishing": 1.1,
+        "magic": 1.1
+      }
+    },
+    {
+      "id": 7,
+      "name": "Royal Paladin",
+      "description": "Promoted Paladin with enhanced abilities",
+      "baseSpeed": 220,
+      "healthGain": 10,
+      "manaGain": 15,
+      "capGain": 20,
+      "soulMax": 150,
+      "attackSpeed": 2000,
+      "promoted": true,
+      "skillMultipliers": {
+        "fist": 1.5,
+        "club": 1.8,
+        "sword": 1.8,
+        "axe": 1.8,
+        "distance": 1.1,
+        "shielding": 1.1,
+        "fishing": 1.1,
+        "magic": 1.4
+      }
+    },
+    {
+      "id": 8,
+      "name": "Elite Knight",
+      "description": "Promoted Knight with enhanced abilities",
+      "baseSpeed": 220,
+      "healthGain": 15,
+      "manaGain": 5,
+      "capGain": 25,
+      "soulMax": 100,
+      "attackSpeed": 2000,
+      "promoted": true,
+      "skillMultipliers": {
+        "fist": 1.1,
+        "club": 1.1,
+        "sword": 1.1,
+        "axe": 1.1,
+        "distance": 1.8,
+        "shielding": 1.1,
+        "fishing": 1.1,
+        "magic": 3.0
+      }
+    }
+  ]
+}
+

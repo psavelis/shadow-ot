@@ -78,6 +78,7 @@ struct Graphics::Impl {
     GLuint vao{0};
     GLuint vbo{0};
     GLuint shaderProgram{0};
+    GLuint dummyTexture{0};  // 1x1 white texture to avoid macOS warnings
 
     std::vector<Rect> clipStack;
     Color currentColor{255, 255, 255, 255};
@@ -122,10 +123,10 @@ in vec4 Color;
 out vec4 FragColor;
 
 uniform sampler2D tex;
-uniform bool useTexture;
+uniform int useTexture;
 
 void main() {
-    if (useTexture) {
+    if (useTexture != 0) {
         FragColor = texture(tex, TexCoord) * Color;
     } else {
         FragColor = Color;
@@ -199,6 +200,15 @@ bool Graphics::init() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Create a 1x1 white dummy texture to bind when not using textures
+    // This silences macOS Metal-backed OpenGL warnings about unloadable textures
+    glGenTextures(1, &m_impl->dummyTexture);
+    glBindTexture(GL_TEXTURE_2D, m_impl->dummyTexture);
+    uint32_t whitePixel = 0xFFFFFFFF;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &whitePixel);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     return true;
 }
