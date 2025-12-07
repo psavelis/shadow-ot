@@ -500,6 +500,8 @@ Known gaps (Resolved Dec 2025)
   - Register, login, and create character with real API (`/.github/workflows/e2e-kind.yml:121–143`).
 - Local developer shortcut: `make up` provisions the cluster, deploys, asserts health, and runs the user flow; `make down` tears everything down gracefully.
   - CLI: `scripts/shadowctl` provides `up`, `down`, `status`, `iterate`, and `assets` commands to automate iteration.
+  - WebSocket check: `make ws-check` or `shadowctl ws-check` validates HTTP upgrade to `8081`.
+  - Monitoring: `make monitoring` deploys Prometheus and Grafana in `shadow-ot`.
 
 ### Environment Matrix
 

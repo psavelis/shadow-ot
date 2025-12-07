@@ -59,5 +59,7 @@ case "${CMD}" in
   status) status ;;
   iterate) iterate ;;
   assets) assets "$@" ;;
-  *) echo "usage: shadowctl {up|down|status|iterate|assets <urls...>}" ;;
+  ws-check) make ws-check ;;
+  monitoring) make monitoring ;;
+  *) echo "usage: shadowctl {up|down|status|iterate|assets <urls...>|ws-check|monitoring}" ;;
 esac

@@ -4,7 +4,7 @@ SHELL := /bin/bash
 CLUSTER ?= shadow-local
 NAMESPACE ?= shadow-ot
 
-.PHONY: up down kind metallb build-images load-images deploy health user-flow ip
+.PHONY: up down kind metallb build-images load-images deploy health user-flow ip ws-check monitoring
 
 up: kind metallb build-images load-images deploy health user-flow ip
 
@@ -77,6 +77,16 @@ user-flow:
 
 ip:
 	kubectl get svc -n $(NAMESPACE) -o wide
+
+ws-check:
+	@SRV_IP=$$(kubectl get svc shadow-server -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].ip}'); \
+	echo "WS_EXTERNAL_IP=$$SRV_IP"; \
+	R1=$$(printf "GET /ws HTTP/1.1\r\nHost: ws.shadow-ot.com\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n" | nc -w 5 $$SRV_IP 8081 | head -n 1 | grep -c "101" || true); \
+	R2=$$(printf "GET / HTTP/1.1\r\nHost: ws.shadow-ot.com\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n" | nc -w 5 $$SRV_IP 8081 | head -n 1 | grep -c "101" || true); \
+	if [ "$$R1" = "1" ] || [ "$$R2" = "1" ]; then echo "WebSocket handshake OK"; else echo "WebSocket handshake failed" && exit 1; fi
+
+monitoring:
+	kubectl apply -f k8s/base/monitoring.yaml
 
 down:
 	- kubectl delete -k k8s/overlays/dev || true
