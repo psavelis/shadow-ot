@@ -539,6 +539,12 @@ Known gaps (Resolved Dec 2025)
 - Deploy via `kubectl apply -k` for base and overlays.
 - Post-deploy checks: external IPs, liveness/readiness probes, smoke tests, user flow.
 
+### CI Workflows
+
+- E2E Local K8s: provisions kind, installs MetalLB, applies manifests, switches images, waits for readiness, asserts external IPs, smoke tests, and user flow (`.github/workflows/e2e-kind.yml`).
+- Dev Up (Makefile): runs `make up`, `ws-check`, shows IPs, and `make down` (`.github/workflows/dev-up.yml`).
+- Frontend Checks: lints and type-checks `web/landing` and `web/admin` with Node 20 (`.github/workflows/frontend-checks.yml`).
+
 ### Asset Policy
 
 - Downloads source: curated open-source client installers, sprites, and artwork.

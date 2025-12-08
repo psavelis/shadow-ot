@@ -1,0 +1,51 @@
+name: Frontend Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  landing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps (landing)
+        run: |
+          cd web/landing
+          npm ci
+      - name: Lint (landing)
+        run: |
+          cd web/landing
+          npm run lint -- --no-inline-config
+      - name: Type-check (landing)
+        run: |
+          cd web/landing
+          npm run type-check
+
+  admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps (admin)
+        run: |
+          cd web/admin
+          npm ci
+      - name: Lint (admin)
+        run: |
+          cd web/admin
+          npm run lint -- --no-inline-config
+      - name: Type-check (admin)
+        run: |
+          cd web/admin
+          npx tsc --noEmit
