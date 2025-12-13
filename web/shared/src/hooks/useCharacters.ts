@@ -80,7 +80,7 @@ export function useCreateCharacter() {
     mutationFn: (data: { 
       name: string
       vocation: Vocation
-      sex: 'male' | 'female'
+      gender: 'male' | 'female'
       realm: RealmId 
     }) => characterApi.create(data),
     onSuccess: (newCharacter) => {

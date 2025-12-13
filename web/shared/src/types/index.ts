@@ -50,7 +50,7 @@ export interface Character {
   name: string
   level: number
   vocation: Vocation
-  sex: 'male' | 'female'
+  gender: 'male' | 'female'
   realm: RealmId
   online: boolean
   lastLogin: string

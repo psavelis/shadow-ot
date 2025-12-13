@@ -208,8 +208,8 @@ export default function CharacterLookupPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-slate-500" />
-                      <span className="text-slate-400">Sex:</span>
-                      <span className="text-white capitalize">{character.sex}</span>
+                      <span className="text-slate-400">Gender:</span>
+                      <span className="text-white capitalize">{character.gender}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-slate-500" />

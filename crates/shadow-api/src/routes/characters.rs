@@ -4,6 +4,7 @@ use crate::error::ApiError;
 use crate::middleware::get_claims;
 use crate::response::{MessageResponse, OnlineStatusResponse};
 use crate::state::AppState;
+use crate::domain::{Gender, Vocation};
 use crate::ApiResult;
 use axum::{extract::{Path, Request, State}, Json};
 use serde::{Deserialize, Serialize};
@@ -12,10 +13,13 @@ use utoipa::ToSchema;
 
 /// Character response
 #[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct CharacterResponse {
     pub id: i32,
     pub name: String,
-    pub sex: i16,
+    /// Character gender (male/female)
+    #[serde(rename = "gender")]
+    pub gender: String,
     pub vocation: i16,
     pub level: i32,
     pub experience: i64,
@@ -103,10 +107,13 @@ pub async fn get_character(
 
 /// Create character request
 #[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateCharacterRequest {
     pub name: String,
-    pub sex: i16,
-    pub vocation: i16,
+    /// Character gender (male/female)
+    #[serde(alias = "sex")]
+    pub gender: Gender,
+    pub vocation: Vocation,
     pub realm_id: i32,
 }
 
@@ -132,16 +139,6 @@ pub async fn create_character(
 
     // Validate name
     crate::auth::validate_character_name(&body.name)?;
-
-    // Validate sex
-    if body.sex < 0 || body.sex > 1 {
-        return Err(ApiError::Validation("Invalid sex".to_string()));
-    }
-
-    // Validate vocation (0 = none/rookie)
-    if body.vocation < 0 || body.vocation > 4 {
-        return Err(ApiError::Validation("Invalid vocation".to_string()));
-    }
 
     // Check realm exists
     let realm_exists = sqlx::query_scalar::<_, bool>(
@@ -182,12 +179,8 @@ pub async fn create_character(
     // Get starting town (from realm default or first town)
     let town_id = 1; // Default town
 
-    // Get look type based on sex and vocation
-    let look_type = match (body.sex, body.vocation) {
-        (0, _) => 136, // Female
-        (1, _) => 128, // Male
-        _ => 128,
-    };
+    // Get look type based on gender
+    let look_type = body.gender.default_look_type();
 
     // Create character
     let id = sqlx::query_scalar::<_, i32>(
@@ -198,8 +191,8 @@ pub async fn create_character(
     .bind(claims.account_id)
     .bind(body.realm_id)
     .bind(&body.name)
-    .bind(body.sex)
-    .bind(body.vocation)
+    .bind(body.gender.to_protocol_value())
+    .bind(body.vocation.to_i16())
     .bind(look_type)
     .bind(town_id)
     .fetch_one(&state.db)
@@ -278,7 +271,7 @@ pub async fn get_online_status(
 struct CharacterRow {
     id: i32,
     name: String,
-    sex: i16,
+    sex: i16, // DB still uses "sex" column
     vocation: i16,
     level: i32,
     experience: i64,
@@ -304,10 +297,15 @@ struct CharacterRow {
 
 impl From<CharacterRow> for CharacterResponse {
     fn from(row: CharacterRow) -> Self {
+        // Convert DB sex (0=female, 1=male) to gender string
+        let gender = Gender::from_protocol_value(row.sex)
+            .unwrap_or_default()
+            .to_string();
+
         CharacterResponse {
             id: row.id,
             name: row.name,
-            sex: row.sex,
+            gender,
             vocation: row.vocation,
             level: row.level,
             experience: row.experience,
