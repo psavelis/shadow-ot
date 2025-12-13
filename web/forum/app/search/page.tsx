@@ -279,7 +279,7 @@ export default function SearchPage() {
             {/* Results Header */}
             <div className="flex items-center justify-between">
               <p className="text-slate-400">
-                Found <span className="text-white font-medium">{searchResults.length}</span> results for "{query}"
+                Found <span className="text-white font-medium">{searchResults.length}</span> results for &ldquo;{query}&rdquo;
               </p>
             </div>
 

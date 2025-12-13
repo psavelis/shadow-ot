@@ -99,7 +99,7 @@ export default function UserProfilePage() {
                     {userData.title}
                   </span>
                 </div>
-                <p className="text-slate-400 text-sm mt-1">"{userData.signature}"</p>
+                <p className="text-slate-400 text-sm mt-1">&ldquo;{userData.signature}&rdquo;</p>
               </div>
 
               {/* Actions */}
