@@ -348,7 +348,7 @@ export const characterApi = {
   getByName: (name: string) =>
     apiClient.get<Character>(`/characters/name/${name}`),
 
-  create: (data: { name: string; vocation: Vocation; sex: 'male' | 'female'; realm: RealmId }) =>
+  create: (data: { name: string; vocation: Vocation; gender: 'male' | 'female'; realm: RealmId }) =>
     apiClient.post<Character>('/characters', data),
 
   delete: (id: string) =>

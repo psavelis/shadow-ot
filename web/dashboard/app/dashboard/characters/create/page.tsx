@@ -28,7 +28,7 @@ export default function CreateCharacterPage() {
   const [name, setName] = useState('')
   const [realm, setRealm] = useState('')
   const [vocation, setVocation] = useState('none')
-  const [sex, setSex] = useState<'male' | 'female'>('male')
+  const [gender, setGender] = useState<'male' | 'female'>('male')
   const [nameError, setNameError] = useState('')
   const [isChecking, setIsChecking] = useState(false)
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
@@ -76,7 +76,7 @@ export default function CreateCharacterPage() {
       await createCharacter.mutateAsync({
         name,
         vocation: vocation as Vocation,
-        sex,
+        gender,
         realm: realm as RealmId,
       })
       router.push('/dashboard/characters')
@@ -199,15 +199,15 @@ export default function CreateCharacterPage() {
             </div>
           </div>
 
-          {/* Select Sex */}
+          {/* Select Gender */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-white mb-4">Select Sex</h2>
+            <h2 className="text-lg font-semibold text-white mb-4">Select Gender</h2>
             <div className="flex gap-4">
               <button
                 type="button"
-                onClick={() => setSex('male')}
+                onClick={() => setGender('male')}
                 className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                  sex === 'male'
+                  gender === 'male'
                     ? 'border-accent-500 bg-accent-500/10'
                     : 'border-shadow-700 hover:border-shadow-500'
                 }`}
@@ -217,9 +217,9 @@ export default function CreateCharacterPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setSex('female')}
+                onClick={() => setGender('female')}
                 className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                  sex === 'female'
+                  gender === 'female'
                     ? 'border-accent-500 bg-accent-500/10'
                     : 'border-shadow-700 hover:border-shadow-500'
                 }`}
@@ -248,8 +248,8 @@ export default function CreateCharacterPage() {
                   <span className="ml-2 text-white font-medium">{selectedVocation?.name}</span>
                 </div>
                 <div>
-                  <span className="text-shadow-400">Sex:</span>
-                  <span className="ml-2 text-white font-medium capitalize">{sex}</span>
+                  <span className="text-shadow-400">Gender:</span>
+                  <span className="ml-2 text-white font-medium capitalize">{gender}</span>
                 </div>
               </div>
             </div>

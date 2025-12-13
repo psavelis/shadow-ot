@@ -1,6 +1,15 @@
 //! Shadow OT REST API
 //!
 //! Provides HTTP endpoints for the web frontend, admin panel, and external integrations.
+//!
+//! # Architecture
+//!
+//! This crate follows Hexagonal Architecture (Ports and Adapters):
+//!
+//! - **Domain Layer** (`domain/`): Core business entities, value objects, and errors
+//! - **Application Layer** (`application/`): Use cases, commands, queries, and ports
+//! - **Infrastructure Layer** (`infrastructure/`): Database adapters, security implementations
+//! - **Routes** (`routes/`): HTTP handlers (primary adapters)
 
 pub mod auth;
 pub mod error;
@@ -8,6 +17,11 @@ pub mod middleware;
 pub mod response;
 pub mod routes;
 pub mod state;
+
+// Hexagonal Architecture layers
+pub mod domain;
+pub mod application;
+pub mod infrastructure;
 
 pub use auth::{AuthConfig, JwtClaims};
 pub use response::{MessageResponse, SuccessResponse, DeletedResponse, UnreadCountResponse};
