@@ -93,7 +93,7 @@ fn load_config() -> anyhow::Result<ServerConfig> {
     tracing::info!("Loading configuration from {:?}", config_path);
 
     if config_path.exists() {
-        ServerConfig::from_file(&config_path)
+        Ok(ServerConfig::from_file(&config_path)?)
     } else {
         tracing::warn!("Configuration file not found, using defaults");
         Ok(ServerConfig::default())
