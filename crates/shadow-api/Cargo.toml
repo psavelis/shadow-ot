@@ -46,6 +46,9 @@ redis = { version = "0.25", features = ["tokio-comp", "connection-manager"] }
 utoipa = { version = "4", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "6", features = ["axum"] }
 
+# Database (for infrastructure adapters)
+sqlx.workspace = true
+
 shadow-db = { path = "../shadow-db" }
 shadow-core = { path = "../shadow-core" }
 
