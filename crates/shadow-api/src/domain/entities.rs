@@ -202,4 +202,3 @@ mod tests {
         assert!(!account.has_coins(101));
     }
 }
-}
