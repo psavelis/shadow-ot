@@ -25,7 +25,7 @@ ENV PORT=3000
 EXPOSE 3000
 COPY --from=builder /app/shared ./shared
 COPY --from=builder /app/landing/.next ./.next
-COPY --from=builder /app/landing/public ./public
+COPY --from=builder /app/landing/public* ./public/
 COPY --from=builder /app/landing/next.config.js ./next.config.js
 COPY --from=builder /app/landing/package.json ./package.json
 COPY --from=builder /app/landing/node_modules ./node_modules
