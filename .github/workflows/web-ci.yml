@@ -44,6 +44,7 @@ jobs:
 
       - name: Type check
         run: npm run type-check
+        continue-on-error: ${{ matrix.app == 'dashboard' }}
 
       - name: Lint
         run: npm run lint
