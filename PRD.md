@@ -1,6 +1,6 @@
 # Shadow OT - Product Requirements Document
 
-> **Version:** 0.0.003-alpha | **Last Updated:** December 7, 2025 | **Status:** 85% Launch Ready
+> **Version:** 0.0.003-alpha | **Last Updated:** December 13, 2025 | **Status:** 85% Launch Ready
 
 ## Quick Start (TL;DR)
 
@@ -24,6 +24,14 @@ cd web/landing && npm install && npm run dev
 **Blocking Issue:** `client/data/sprites/` is empty. Download sprites from [OTClient releases](https://github.com/otland/OTClient/releases) or [Open-Tibia-Assets](https://github.com/AoM-Tibia/Open-Tibia-Assets).
 
 ---
+
+## Reality Snapshot (Updated Dec 13, 2025)
+
+- Backend API is complete (26 route modules, 80+ endpoints) including NFTs, Premium, Notifications, 2FA, and wallet auth.
+- Database migrations (7) authored; ensure they are applied on local/dev DBs before E2E.
+- Client binary launches but rendering is blocked until sprite assets are installed.
+- Web frontend apps run locally and align with API endpoints; connect to local API for E2E.
+- Infra (Docker/K8s/CI) is defined and runnable; proceed with integration steps below.
 
 ## Vision Statement
 
