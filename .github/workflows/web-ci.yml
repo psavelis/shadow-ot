@@ -95,10 +95,10 @@ jobs:
         include:
           - app: landing
             dockerfile: web/landing/Dockerfile
-            context: web/landing
+            context: web
           - app: admin
             dockerfile: web/admin/Dockerfile
-            context: web/admin
+            context: web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
