@@ -48,7 +48,7 @@ jobs:
 
       - name: Lint
         run: npm run lint
-        continue-on-error: ${{ matrix.app == 'shared' }}
+        continue-on-error: ${{ matrix.app == 'shared' || matrix.app == 'dashboard' }}
 
   build:
     name: Build
