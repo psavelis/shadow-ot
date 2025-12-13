@@ -18,8 +18,8 @@ pub use spr::{SprFile, SpriteData};
 pub use dat::{DatFile, ThingType, ThingCategory};
 pub use otb::{OtbFile, OtbItem, ItemFlags};
 pub use sprite::{Sprite, SpriteSheet, Animation, FrameGroup};
-pub use appearance::{Appearance, AppearanceFlags, Light, Market};
-pub use catalog::{AssetCatalog, CatalogEntry};
+pub use appearance::{Appearance, AppearanceFlags, Light, Market, AppearanceCategory};
+pub use catalog::{AssetCatalog, CatalogEntry, CatalogType, SpriteType};
 pub use exporter::{AssetExporter, ExportFormat};
 
 use thiserror::Error;
