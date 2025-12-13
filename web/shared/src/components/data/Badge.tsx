@@ -67,40 +67,6 @@ export function Badge({
   )
 }
 
-// Realm-specific badge
-interface RealmBadgeProps {
-  realm: string
-  size?: 'sm' | 'md' | 'lg'
-  className?: string
-}
-
-const realmColors: Record<string, string> = {
-  shadowveil: 'bg-red-500/20 text-red-400',
-  aetheria: 'bg-blue-500/20 text-blue-400',
-  warbound: 'bg-orange-500/20 text-orange-400',
-  mythara: 'bg-green-500/20 text-green-400',
-  voidborne: 'bg-purple-500/20 text-purple-400',
-  grimhollow: 'bg-slate-500/20 text-slate-400',
-}
-
-export function RealmBadge({ realm, size = 'md', className }: RealmBadgeProps) {
-  const realmId = realm.toLowerCase()
-  const colorClass = realmColors[realmId] || variants.default
-
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center font-medium rounded-full capitalize',
-        colorClass,
-        sizes[size],
-        className
-      )}
-    >
-      {realm}
-    </span>
-  )
-}
-
 // Status badge
 interface StatusBadgeProps {
   status: 'online' | 'offline' | 'away' | 'busy' | 'maintenance'

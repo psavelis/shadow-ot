@@ -111,9 +111,10 @@ interface TableCellProps {
   children: React.ReactNode
   className?: string
   align?: 'left' | 'center' | 'right'
+  colSpan?: number
 }
 
-export function TableCell({ children, className, align = 'left' }: TableCellProps) {
+export function TableCell({ children, className, align = 'left', colSpan }: TableCellProps) {
   const alignClass = {
     left: 'text-left',
     center: 'text-center',
@@ -121,7 +122,7 @@ export function TableCell({ children, className, align = 'left' }: TableCellProp
   }
 
   return (
-    <td className={cn('py-3 px-4', alignClass[align], className)}>{children}</td>
+    <td className={cn('py-3 px-4', alignClass[align], className)} colSpan={colSpan}>{children}</td>
   )
 }
 
