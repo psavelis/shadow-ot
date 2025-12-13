@@ -43,6 +43,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblua5.4-dev lua5.4 pkg-config libssl-dev
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -103,6 +108,11 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblua5.4-dev lua5.4 pkg-config libssl-dev
       
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
