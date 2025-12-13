@@ -38,6 +38,9 @@ shadow-scripting = { path = "../shadow-scripting" }
 shadow-matchmaking = { path = "../shadow-matchmaking" }
 shadow-anticheat = { path = "../shadow-anticheat" }
 
+# Random number generation
+rand.workspace = true
+
 [dev-dependencies]
 mockall.workspace = true
 fake.workspace = true

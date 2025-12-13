@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { userApi, inventoryApi, Transaction, Notification, InventoryItem } from '../api/endpoints'
+import { userApi, inventoryApi, Transaction, ServerNotification, InventoryItem } from '../api/endpoints'
 
 // ============================================
 // Transactions
@@ -36,7 +36,7 @@ export function useInfiniteTransactions(type?: Transaction['type']) {
 // ============================================
 
 export function useNotifications(params: {
-  type?: Notification['type']
+  type?: ServerNotification['type']
   unreadOnly?: boolean
   page?: number
   pageSize?: number

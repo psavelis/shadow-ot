@@ -134,6 +134,10 @@ impl NetworkMessage {
         self.data.put_i32_le(value);
     }
 
+    pub fn put_f64(&mut self, value: f64) {
+        self.data.put_f64_le(value);
+    }
+
     pub fn put_string(&mut self, value: &str) {
         let bytes = value.as_bytes();
         self.data.put_u16_le(bytes.len() as u16);

@@ -7,8 +7,8 @@ import {
   Loader2
 } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { useBans, useBanPlayer, useUnbanPlayer } from '@/shared/hooks/useAdmin'
-import type { BanRecord } from '@/shared/types'
+import { useBans, useBanPlayer, useUnbanPlayer } from '@shadow-ot/shared'
+import type { BanRecord } from '@shadow-ot/shared'
 
 function formatDate(date: string) {
   return new Date(date).toLocaleString('en-US', { 

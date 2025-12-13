@@ -2,26 +2,23 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Types of damage in the game
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum DamageType {
-    Physical,
-    Energy,
-    Earth,
-    Fire,
-    Ice,
-    Holy,
-    Death,
-    Drown,
-    LifeDrain,
-    ManaDrain,
-    Healing,
-    ManaRestore,
+// Re-export DamageType from shadow-world to ensure type compatibility
+pub use shadow_world::item::DamageType;
+
+/// Extension trait for DamageType with combat-specific methods
+pub trait DamageTypeExt {
+    /// Get the magic effect for this damage type
+    fn get_magic_effect(&self) -> u8;
+    /// Get text color for damage display
+    fn get_text_color(&self) -> u8;
+    /// Check if this is a healing type
+    fn is_healing(&self) -> bool;
+    /// Check if this is a drain type
+    fn is_drain(&self) -> bool;
 }
 
-impl DamageType {
-    /// Get the magic effect for this damage type
-    pub fn get_magic_effect(&self) -> u8 {
+impl DamageTypeExt for DamageType {
+    fn get_magic_effect(&self) -> u8 {
         match self {
             DamageType::Physical => 1,  // CONST_ME_DRAWBLOOD
             DamageType::Energy => 11,   // CONST_ME_ENERGYDAMAGE
@@ -38,8 +35,7 @@ impl DamageType {
         }
     }
 
-    /// Get text color for damage display
-    pub fn get_text_color(&self) -> u8 {
+    fn get_text_color(&self) -> u8 {
         match self {
             DamageType::Physical => 180, // Red
             DamageType::Energy => 35,    // Purple
@@ -56,13 +52,11 @@ impl DamageType {
         }
     }
 
-    /// Check if this is a healing type
-    pub fn is_healing(&self) -> bool {
+    fn is_healing(&self) -> bool {
         matches!(self, DamageType::Healing | DamageType::ManaRestore)
     }
 
-    /// Check if this is a drain type
-    pub fn is_drain(&self) -> bool {
+    fn is_drain(&self) -> bool {
         matches!(self, DamageType::LifeDrain | DamageType::ManaDrain)
     }
 }

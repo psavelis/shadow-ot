@@ -31,7 +31,7 @@ export function useOnlinePlayers(realmId: RealmId) {
   })
 }
 
-export function useRealmStatus(realmId: RealmId) {
+export function useRealmLiveStatus(realmId: RealmId) {
   return useQuery({
     queryKey: ['realm', realmId, 'status'],
     queryFn: () => realmApi.getStatus(realmId),

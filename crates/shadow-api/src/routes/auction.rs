@@ -1,6 +1,7 @@
 //! Auction endpoints for character and item auctions
 
 use crate::auth::JwtClaims;
+use crate::response::SuccessResponse;
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{
@@ -953,7 +954,7 @@ pub async fn cancel_auction(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
     Path((auction_type, id)): Path<(String, Uuid)>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     match auction_type.as_str() {
         "characters" => {
             let result = sqlx::query(
@@ -1015,5 +1016,5 @@ pub async fn cancel_auction(
         }
     }
 
-    Ok(Json(serde_json::json!({ "success": true })))
+    Ok(Json(SuccessResponse::ok("Auction cancelled")))
 }

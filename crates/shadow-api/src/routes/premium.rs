@@ -1,6 +1,7 @@
 //! Premium subscription and coin shop endpoints
 
 use crate::auth::JwtClaims;
+use crate::response::{AutoRenewResponse, SuccessResponse};
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{
@@ -473,7 +474,7 @@ pub async fn get_premium_history(
 pub async fn toggle_auto_renew(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<AutoRenewResponse>> {
     sqlx::query(
         "UPDATE accounts SET auto_renew = NOT COALESCE(auto_renew, false) WHERE id = $1"
     )
@@ -488,10 +489,10 @@ pub async fn toggle_auto_renew(
     .fetch_one(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "auto_renew": result.0
-    })))
+    Ok(Json(AutoRenewResponse {
+        success: true,
+        auto_renew: result.0,
+    }))
 }
 
 /// Cancel premium subscription
@@ -507,7 +508,7 @@ pub async fn toggle_auto_renew(
 pub async fn cancel_premium(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     // Don't remove existing time, just disable auto-renew
     sqlx::query(
         "UPDATE accounts SET auto_renew = false WHERE id = $1"
@@ -516,8 +517,5 @@ pub async fn cancel_premium(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Auto-renewal cancelled. Your premium will remain active until expiration."
-    })))
+    Ok(Json(SuccessResponse::ok("Auto-renewal cancelled. Your premium will remain active until expiration.")))
 }

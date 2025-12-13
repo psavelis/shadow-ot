@@ -6,9 +6,8 @@ import {
   Search, Shield, Target, Wand2, Leaf, User, Globe, Trophy, Skull, Clock, 
   Loader2, AlertCircle
 } from 'lucide-react'
-import { useCharacterByName, useCharacterDeaths } from '@/shared/hooks/useCharacters'
-import { getOutfitSprite } from '@/shared/utils/assets'
-import type { Character, Vocation, RealmId } from '@/shared/types'
+import { useCharacterByName, useCharacterDeaths, getOutfitSprite } from '@shadow-ot/shared'
+import type { Character, Vocation, RealmId } from '@shadow-ot/shared'
 
 const realmOptions: { id: RealmId | 'all'; label: string }[] = [
   { id: 'all' as any, label: 'All Realms' },
@@ -221,7 +220,7 @@ export default function CharacterLookupPage() {
                       <div className="flex items-center gap-2">
                         <Shield className="w-4 h-4 text-slate-500" />
                         <span className="text-slate-400">Guild:</span>
-                        <span className="text-white">{character.guild.name}</span>
+                        <span className="text-white">{character.guild.guildName}</span>
                         <span className="text-slate-500">({character.guild.rank})</span>
                       </div>
                     )}

@@ -1,9 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Target, Wand2, Leaf, User, AlertCircle, CheckCircle } from 'lucide-react'
+import { useCreateCharacter, characterApi } from '@shadow-ot/shared'
+import type { Vocation, RealmId } from '@shadow-ot/shared'
 
 const realms = [
   { id: 'shadowveil', name: 'Shadowveil', description: 'Dark theme, 5x exp rate, open PvP', color: 'border-red-500 hover:bg-red-500/10', icon: '🌑' },
@@ -21,6 +24,7 @@ const vocations = [
 ]
 
 export default function CreateCharacterPage() {
+  const router = useRouter()
   const [name, setName] = useState('')
   const [realm, setRealm] = useState('')
   const [vocation, setVocation] = useState('none')
@@ -28,7 +32,9 @@ export default function CreateCharacterPage() {
   const [nameError, setNameError] = useState('')
   const [isChecking, setIsChecking] = useState(false)
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+
+  const createCharacter = useCreateCharacter()
 
   const validateName = (value: string) => {
     if (value.length < 3) return 'Name must be at least 3 characters'
@@ -47,22 +53,36 @@ export default function CreateCharacterPage() {
     }
     setIsChecking(true)
     setNameError('')
-    // Simulate API check
-    setTimeout(() => {
-      setIsAvailable(name.toLowerCase() !== 'admin')
+
+    try {
+      // Try to fetch character by name - if it exists, name is taken
+      await characterApi.getByName(name)
+      setIsAvailable(false) // Character exists, name is taken
+    } catch {
+      // 404 or error means name is available
+      setIsAvailable(true)
+    } finally {
       setIsChecking(false)
-    }, 500)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !realm || !isAvailable) return
-    
-    setIsCreating(true)
-    // Simulate API call
-    setTimeout(() => {
-      window.location.href = '/dashboard/characters'
-    }, 1000)
+
+    setSubmitError('')
+
+    try {
+      await createCharacter.mutateAsync({
+        name,
+        vocation: vocation as Vocation,
+        sex,
+        realm: realm as RealmId,
+      })
+      router.push('/dashboard/characters')
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to create character')
+    }
   }
 
   const selectedVocation = vocations.find(v => v.id === vocation)
@@ -235,6 +255,17 @@ export default function CreateCharacterPage() {
             </div>
           )}
 
+          {/* Error Message */}
+          {submitError && (
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-500 font-medium">Creation Failed</p>
+                <p className="text-red-400 text-sm">{submitError}</p>
+              </div>
+            </div>
+          )}
+
           {/* Submit */}
           <div className="flex justify-end gap-4">
             <Link href="/dashboard/characters" className="btn-secondary">
@@ -242,10 +273,10 @@ export default function CreateCharacterPage() {
             </Link>
             <button
               type="submit"
-              disabled={!name || !realm || isAvailable !== true || isCreating}
+              disabled={!name || !realm || isAvailable !== true || createCharacter.isPending}
               className="btn-primary px-8 disabled:opacity-50"
             >
-              {isCreating ? 'Creating...' : 'Create Character'}
+              {createCharacter.isPending ? 'Creating...' : 'Create Character'}
             </button>
           </div>
         </form>

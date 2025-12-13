@@ -12,7 +12,7 @@ pub enum CoreError {
     Config(String),
 
     #[error("Database error: {0}")]
-    Database(#[from] sqlx::Error),
+    Database(#[from] shadow_db::DbError),
 
     #[error("Network error: {0}")]
     Network(String),

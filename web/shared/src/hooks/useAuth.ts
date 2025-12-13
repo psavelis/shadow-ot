@@ -66,7 +66,7 @@ export function useRequireRole(allowedRoles: string[], redirectTo = '/unauthoriz
         return
       }
       
-      if (user && allowedRoles.includes(user.role)) {
+      if (user && user.role && allowedRoles.includes(user.role)) {
         setHasAccess(true)
       } else {
         window.location.href = redirectTo

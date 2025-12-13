@@ -26,5 +26,8 @@ thiserror.workspace = true
 # Regex for dialog matching
 regex = "1.10"
 
+# Random number generation
+rand.workspace = true
+
 [dev-dependencies]
 mockall.workspace = true

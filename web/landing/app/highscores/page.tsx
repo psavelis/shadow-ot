@@ -17,9 +17,8 @@ import {
   Loader2,
   AlertCircle
 } from 'lucide-react'
-import { useHighscores, HIGHSCORE_CATEGORIES } from '@/shared/hooks/useHighscores'
-import { getOutfitSprite, getVocationIcon } from '@/shared/utils/assets'
-import type { HighscoreCategory, RealmId, Vocation } from '@/shared/types'
+import { useHighscores, HIGHSCORE_CATEGORIES, getOutfitSprite, getVocationIcon } from '@shadow-ot/shared'
+import type { HighscoreCategory, RealmId, Vocation } from '@shadow-ot/shared'
 
 const vocations: (Vocation | 'All')[] = ['All' as any, 'Knight', 'Elite Knight', 'Paladin', 'Royal Paladin', 'Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid']
 const realms: (RealmId | 'all')[] = ['all' as any, 'shadowveil', 'aetheria', 'warbound', 'mythara', 'voidborne', 'grimhollow']

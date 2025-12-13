@@ -1,8 +1,67 @@
 # Shadow OT
 
-**The Ultimate Open OTServ Platform**
+**The Ultimate Open Tibia Server Platform**
 
-Shadow OT is a revolutionary, multi-realm Open OT server built with Rust for maximum performance and reliability. It features blockchain-native assets, cross-chain NFT support, and the most complete feature set of any OT server.
+Shadow OT is a modern, multi-realm Open Tibia server built with Rust for maximum performance and reliability. It features blockchain-native assets, cross-chain NFT support, and the most complete feature set of any OT server.
+
+## Quick Start
+
+```bash
+# 1. Download sprite assets (required for game client)
+make sprites
+
+# 2. Start all services
+make up
+
+# 3. Check status
+make status
+```
+
+That's it! All services will be available at:
+
+| Service | URL |
+|---------|-----|
+| Web Frontend | http://localhost:3000 |
+| Admin Panel | http://localhost:3001 |
+| REST API | http://localhost:8080 |
+| API Health | http://localhost:8080/health |
+| WebSocket | ws://localhost:8081 |
+| Login Server | localhost:7171 |
+| Game Server | localhost:7172 |
+| Grafana | http://localhost:3002 |
+| Prometheus | http://localhost:9091 |
+
+## Prerequisites
+
+- **Docker** and **Docker Compose** (required)
+- **Make** (for convenience commands)
+- ~500MB disk space for sprite assets
+- ~2GB disk space for Docker images
+
+## Available Commands
+
+```bash
+# === Quick Start (Docker Compose) ===
+make up          # Start all services
+make down        # Stop all services
+make status      # Show service status and URLs
+make logs        # Follow all service logs
+make health      # Check service health
+
+# === Database ===
+make db-migrate  # Apply database migrations
+make db-reset    # Reset database (WARNING: destroys data)
+
+# === Assets ===
+make sprites     # Download sprite files for game client
+
+# === Kubernetes (Advanced) ===
+make k8s-up      # Start with Kind + MetalLB
+make k8s-down    # Stop Kubernetes cluster
+
+# === Help ===
+make help        # Show all available commands
+```
 
 ## Features
 
@@ -16,8 +75,8 @@ Shadow OT is a revolutionary, multi-realm Open OT server built with Rust for max
 - **Quests** - Extensive quest system with custom content support
 
 ### Technical Excellence
-- **Rust Backend** - Ultra-fast, memory-safe game server
-- **Low Latency** - Global edge servers for minimal ping
+- **Rust Backend** - Ultra-fast, memory-safe game server (54K+ lines)
+- **Low Latency** - Optimized for minimal ping
 - **Multi-Protocol** - Support for clients 8.6 to 12.x+
 - **Hot Reload** - Update realm configs without downtime
 - **Kubernetes Native** - Scalable, resilient infrastructure
@@ -44,98 +103,98 @@ Shadow OT is a revolutionary, multi-realm Open OT server built with Rust for max
 | Mythara | Classic Experience | Retro Open | 1x |
 | Voidborne | Seasonal | Mixed | 7x |
 
-## Quick Start
-
-### Prerequisites
-- Rust 1.75+
-- Docker & Docker Compose
-- Node.js 20+
-- PostgreSQL 16
-- Redis 7
-
-### Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/psavelis/shadow-ot.git
-cd shadow-ot
-
-# Start infrastructure
-docker-compose -f docker/docker-compose.yml up -d postgres redis
-
-# Run database migrations
-cd crates/shadow-db
-cargo sqlx migrate run
-
-# Start the server
-cargo run --release --bin shadow-server
-
-# In another terminal, start the web frontend
-cd web/landing
-npm install
-npm run dev
-```
-
-### Production Deployment
-
-```bash
-# Build Docker images
-docker build -f docker/Dockerfile.server -t shadow-ot/server .
-docker build -f web/landing/Dockerfile -t shadow-ot/web ./web/landing
-
-# Deploy to Kubernetes
-kubectl apply -k k8s/overlays/production
-```
-
 ## Project Structure
 
 ```
 shadow-ot/
-├── crates/
-│   ├── shadow-core/        # Core game engine
-│   ├── shadow-protocol/    # OTServ Tib a protocol implementation
-│   ├── shadow-db/          # Database layer
-│   ├── shadow-api/         # REST/WebSocket API
-│   ├── shadow-world/       # World/map management
-│   ├── shadow-combat/      # Combat system
-│   ├── shadow-realm/       # Realm configuration
-│   ├── shadow-matchmaking/ # PvP matchmaking
-│   ├── shadow-anticheat/   # Anti-cheat system
-│   ├── shadow-scripting/   # Lua scripting
-│   └── shadow-blockchain/  # Blockchain integration
-├── web/
-│   ├── landing/            # Main website (Next.js)
-│   ├── dashboard/          # Player dashboard
-│   ├── admin/              # Admin panel
-│   ├── forum/              # Community forum
-│   └── mapmaker/           # Map creation tool
-├── k8s/                    # Kubernetes manifests
-├── docker/                 # Docker configurations
-├── data/                   # Game data files
-├── realms/                 # Realm configurations
-├── assets/                 # Sprites, maps, sounds (see assets/ASSETS.md)
-└── scripts/                # Utility scripts
+├── crates/                    # Rust backend (12 crates, 54K+ lines)
+│   ├── shadow-core/           # Core game engine
+│   ├── shadow-protocol/       # OTServ protocol implementation
+│   ├── shadow-db/             # Database layer + migrations
+│   ├── shadow-api/            # REST/WebSocket API (80+ endpoints)
+│   ├── shadow-world/          # World/map management
+│   ├── shadow-combat/         # Combat system
+│   ├── shadow-realm/          # Realm configuration
+│   ├── shadow-matchmaking/    # PvP matchmaking
+│   ├── shadow-anticheat/      # Anti-cheat system
+│   ├── shadow-scripting/      # Lua scripting
+│   ├── shadow-assets/         # Asset pipeline
+│   └── shadow-blockchain/     # Blockchain integration
+├── web/                       # Frontend applications
+│   ├── landing/               # Main website (Next.js)
+│   ├── dashboard/             # Player dashboard
+│   ├── admin/                 # Admin panel
+│   ├── forum/                 # Community forum
+│   ├── mapmaker/              # Map creation tool
+│   └── shared/                # Shared components & hooks
+├── client/                    # Game client (C++)
+│   ├── src/                   # Source code
+│   ├── data/                  # Client assets
+│   │   ├── sprites/           # Tibia.spr, Tibia.dat
+│   │   └── things/            # appearances.dat, items.otb
+│   └── build/                 # Compiled binary
+├── k8s/                       # Kubernetes manifests
+│   ├── base/                  # Base configuration
+│   └── overlays/              # Environment overlays
+├── docker/                    # Docker configurations
+│   ├── docker-compose.yml     # Local development stack
+│   └── Dockerfile.server      # Server image
+├── data/                      # Game data files (JSON)
+│   ├── items/                 # Item definitions
+│   ├── monsters/              # Monster definitions
+│   ├── npcs/                  # NPC dialogues
+│   ├── spells/                # Spell definitions
+│   └── quests/                # Quest definitions
+├── realms/                    # Realm configurations (TOML)
+├── Makefile                   # Build & run commands
+├── PRD.md                     # Product requirements
+├── AGENTS.md                  # Project status
+└── README.md                  # This file
 ```
 
-## Assets
+## Development
 
-Shadow OT uses open source assets from the OT community. Download assets:
+### Running Individual Services
 
 ```bash
-./scripts/download-assets.sh
+# Start only database services
+docker compose -f docker/docker-compose.yml up -d postgres redis
+
+# View server logs
+make logs-server
+
+# View web logs
+make logs-web
 ```
 
-See [assets/ASSETS.md](assets/ASSETS.md) for full documentation on:
-- Open source sprite repositories
-- Map sources and editors
-- Sound effect libraries
-- How to create custom assets
+### Building from Source
+
+```bash
+# Build server (requires Rust 1.75+)
+cargo build --release --bin shadow-server
+
+# Build client (requires CMake, C++20)
+cd client/build && cmake .. && make
+
+# Build web (requires Node.js 20+)
+cd web/landing && npm install && npm run build
+```
+
+### Database
+
+Migrations are in `crates/shadow-db/migrations/`. Apply them with:
+
+```bash
+make db-migrate
+```
+
+The database schema includes 83 tables covering accounts, characters, guilds, houses, market, achievements, and more.
 
 ## Configuration
 
 ### Server Configuration
 ```toml
-# config/server.toml
+# config/server.toml (or docker/config/server.toml)
 [server]
 name = "Shadow OT"
 max_players_global = 10000
@@ -169,7 +228,41 @@ protection_level = 50
 
 ## API Documentation
 
-API documentation is available at `/docs/api` when running the server, or visit [api.shadow-ot.com/docs](https://api.shadow-ot.com/docs).
+When the server is running, API documentation is available at:
+- Swagger UI: http://localhost:8080/docs
+- OpenAPI JSON: http://localhost:8080/openapi.json
+
+## Troubleshooting
+
+### Services won't start
+```bash
+# Check Docker is running
+docker info
+
+# Check for port conflicts
+lsof -i :3000 -i :8080 -i :7171
+
+# View logs
+make logs
+```
+
+### Database connection issues
+```bash
+# Check PostgreSQL is healthy
+docker exec shadow-postgres pg_isready -U shadow
+
+# Reset database if needed
+make db-reset
+```
+
+### Missing sprites
+```bash
+# Download sprites
+make sprites
+
+# Verify files exist
+ls -la client/data/sprites/
+```
 
 ## Contributing
 
@@ -181,11 +274,10 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 ## Links
 
-- **Website**: [shadow-ot.com](https://shadow-ot.com)
+- **Documentation**: [PRD.md](PRD.md) - Full product requirements
+- **Status**: [AGENTS.md](AGENTS.md) - Current project status
 - **Discord**: [discord.gg/shadowot](https://discord.gg/shadowot)
-- **Documentation**: [docs.shadow-ot.com](https://docs.shadow-ot.com)
-- **API**: [api.shadow-ot.com](https://api.shadow-ot.com)
 
 ---
 
-Built with ❤️ by the Shadow OT Team
+Built with Rust, TypeScript, and C++ by the Shadow OT Team

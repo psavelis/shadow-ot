@@ -7,8 +7,8 @@ import {
   Search, Users, Globe, Crown, Swords, Shield, Trophy, ChevronRight,
   Loader2, AlertCircle
 } from 'lucide-react'
-import { useGuilds } from '@/shared/hooks/useGuilds'
-import type { RealmId } from '@/shared/types'
+import { useGuilds } from '@shadow-ot/shared'
+import type { RealmId } from '@shadow-ot/shared'
 
 const realmOptions: { id: RealmId | 'all'; label: string }[] = [
   { id: 'all' as any, label: 'All Realms' },

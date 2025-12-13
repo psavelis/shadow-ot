@@ -198,7 +198,7 @@ async fn parse_login_packet(
     let decrypted = state.rsa_key.decrypt(&rsa_block)?;
 
     // Parse decrypted data
-    let mut decrypted_msg = NetworkMessage::from_bytes(decrypted.into());
+    let mut decrypted_msg = NetworkMessage::from_bytes(bytes::BytesMut::from(&decrypted[..]));
 
     // First byte should be 0
     let first_byte = decrypted_msg.get_u8()?;
@@ -252,7 +252,7 @@ async fn authenticate_user(
     account_name: &str,
     password: &str,
     state: &Arc<RwLock<LoginServerState>>,
-) -> std::result::Result<(Vec<CharacterEntry>, u32, u64), String> {
+) -> std::result::Result<(Vec<CharacterEntry>, u16, u32), String> {
     if account_name.is_empty() || password.is_empty() {
         return Err("Account name and password are required.".to_string());
     }
@@ -338,10 +338,10 @@ async fn authenticate_user(
         .collect();
 
     // Calculate premium info
-    let premium_days = account.premium_days_purchased.unwrap_or(0) as u32;
+    let premium_days = account.premium_days_purchased.max(0).min(u16::MAX as i32) as u16;
     let premium_until = account
         .premium_until
-        .map(|dt| dt.timestamp() as u64)
+        .map(|dt| dt.timestamp().min(u32::MAX as i64) as u32)
         .unwrap_or(0);
 
     // Update last login info

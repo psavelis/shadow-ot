@@ -346,52 +346,16 @@ impl ShadowServer {
             "{}:{}",
             self.config.network.api_host, self.config.network.api_port
         );
-        let db_pool = self.db_pool.clone();
-        let server_config = self.config.clone();
 
         tokio::spawn(async move {
-            tracing::info!("Starting API server on {}", api_addr);
+            // Note: API server is now handled by shadow-api crate separately
+            // to avoid cyclic dependencies. Run shadow-api as a standalone service.
+            tracing::info!("API server should be started separately on {}", api_addr);
+            tracing::info!("Use 'shadow-api' service for REST API endpoints");
 
-            // Only start API if we have a database pool
-            let Some(pool) = db_pool else {
-                tracing::warn!("API server not started: no database connection");
-                return;
-            };
-
-            // Create API server config
-            let api_server_config = shadow_api::state::ServerConfig {
-                api_url: format!("http://{}:{}", server_config.network.api_host, server_config.network.api_port),
-                frontend_url: server_config.server.website_url.clone(),
-                game_server_host: server_config.network.game_host.clone(),
-                game_server_port: server_config.network.game_port_start,
-                max_characters_per_account: 10,
-                character_deletion_days: 30,
-                premium_features_enabled: true,
-            };
-
-            // Create API state
-            let api_state = Arc::new(shadow_api::AppState::new(
-                pool.pg.clone(),
-                shadow_api::AuthConfig::default(),
-                api_server_config,
-            ));
-
-            // Create router
-            let app = shadow_api::create_router(api_state);
-
-            // Run server
-            let listener = match tokio::net::TcpListener::bind(&api_addr).await {
-                Ok(l) => l,
-                Err(e) => {
-                    tracing::error!("Failed to bind API server: {}", e);
-                    return;
-                }
-            };
-
-            tracing::info!("API server listening on {}", api_addr);
-
-            if let Err(e) = axum::serve(listener, app).await {
-                tracing::error!("API server error: {}", e);
+            // Keep the task alive to avoid immediate completion
+            loop {
+                tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
             }
         })
     }

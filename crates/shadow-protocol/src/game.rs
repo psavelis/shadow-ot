@@ -648,16 +648,16 @@ pub enum TextMessageType {
     StatusSmall = 26,
     ConsoleBlue = 27,
 
-    // Game messages
+    // Game messages (distinct values)
     Damage = 17,
-    Healing = 18,
-    Experience = 19,
-    DamageDealt = 20,
-    DamageReceived = 21,
-    DamageOther = 22,
-    HealingOther = 23,
-    ExperienceOther = 24,
     Loot = 31,
     Login = 28,
     Guild = 29,
+    Healing = 32,
+    Experience = 33,
+    DamageDealt = 34,
+    DamageReceived = 35,
+    DamageOther = 36,
+    HealingOther = 37,
+    ExperienceOther = 38,
 }

@@ -210,7 +210,8 @@ impl Player {
     /// Send self appearance
     pub async fn send_self_appearance(&self) -> Result<()> {
         let mut msg = NetworkMessage::new();
-        msg.put_u8(ServerPacketType::SelfAppear as u8);
+        // SelfAppear and LoginPending share the same opcode (0x0A) in different contexts
+        msg.put_u8(ServerPacketType::LoginPending as u8);
         msg.put_u32(self.creature.id);
         msg.put_u8(0x32); // Can report bugs
         msg.put_u8(0x00); // Can change PvP framing
@@ -448,10 +449,9 @@ impl PlayerManager {
     pub async fn get_players_in_range(&self, center: Position, range: u32) -> Vec<Arc<RwLock<Player>>> {
         let mut result = Vec::new();
         for player in self.players.values() {
-            if let Ok(p) = player.read().await {
-                if p.position().in_range(&center, range) {
-                    result.push(player.clone());
-                }
+            let p = player.read().await;
+            if p.position().in_range(&center, range) {
+                result.push(player.clone());
             }
         }
         result

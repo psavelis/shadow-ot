@@ -382,19 +382,23 @@ impl BankManager {
         to_character: Uuid,
         amount: u64,
     ) -> Result<Transaction, BankError> {
-        // Check source has funds
-        {
+        // Withdraw from source and capture its id
+        let from_account_id = {
             let from_account = self.get_account_mut(from_character);
             from_account.withdraw(amount)?;
-        }
+            from_account.id
+        };
 
-        // Deposit to destination
-        let to_account = self.get_account_mut(to_character);
-        to_account.deposit(amount)?;
+        // Deposit to destination and capture its id
+        let to_account_id = {
+            let to_account = self.get_account_mut(to_character);
+            to_account.deposit(amount)?;
+            to_account.id
+        };
 
         let transaction = Transaction::new(
-            Some(self.accounts[&from_character].id),
-            Some(to_account.id),
+            Some(from_account_id),
+            Some(to_account_id),
             amount,
             TransactionType::TransferOut,
             format!("Transfer of {} gold", amount),

@@ -5,10 +5,12 @@
 pub mod auth;
 pub mod error;
 pub mod middleware;
+pub mod response;
 pub mod routes;
 pub mod state;
 
 pub use auth::{AuthConfig, JwtClaims};
+pub use response::{MessageResponse, SuccessResponse, DeletedResponse, UnreadCountResponse};
 pub use error::ApiError;
 pub use state::AppState;
 
@@ -243,6 +245,14 @@ pub type ApiResult<T> = std::result::Result<T, ApiError>;
             routes::notifications::NotificationType,
             routes::notifications::PaginatedNotifications,
             routes::notifications::MarkReadResponse,
+            // Shared response schemas
+            response::MessageResponse,
+            response::SuccessResponse,
+            response::DeletedResponse,
+            response::UnreadCountResponse,
+            response::OnlineStatusResponse,
+            response::RealmOnlineCountResponse,
+            response::AutoRenewResponse,
         )
     ),
     tags(

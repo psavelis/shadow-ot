@@ -1,12 +1,129 @@
 SHELL := /bin/bash
 
-# Local cluster and namespace
+# Configuration
 CLUSTER ?= shadow-local
 NAMESPACE ?= shadow-ot
+DOCKER_COMPOSE := docker compose -f docker/docker-compose.yml
 
-.PHONY: up down kind metallb build-images load-images deploy health user-flow ip ws-check monitoring
+.PHONY: up down status logs health ps \
+        k8s-up k8s-down kind metallb build-images load-images deploy k8s-health user-flow ip ws-check monitoring \
+        db-migrate db-reset sprites help
 
-up: kind metallb build-images load-images deploy health user-flow ip
+# =============================================================================
+# DEFAULT: Docker Compose (Simple Local Development)
+# =============================================================================
+
+## Start all services (PostgreSQL, Redis, Server, Web, Admin, Monitoring)
+up:
+	@echo "Starting Shadow OT with Docker Compose..."
+	$(DOCKER_COMPOSE) up -d
+	@echo ""
+	@echo "Waiting for services to be healthy..."
+	@sleep 5
+	@$(MAKE) health
+	@echo ""
+	@$(MAKE) status
+
+## Stop all services
+down:
+	@echo "Stopping Shadow OT..."
+	$(DOCKER_COMPOSE) down
+
+## Show service status
+status:
+	@echo "=== Shadow OT Service Status ==="
+	@$(DOCKER_COMPOSE) ps
+	@echo ""
+	@echo "=== Service URLs ==="
+	@echo "  Web Frontend:   http://localhost:3000"
+	@echo "  Admin Panel:    http://localhost:3001"
+	@echo "  REST API:       http://localhost:8080"
+	@echo "  API Health:     http://localhost:8080/health"
+	@echo "  WebSocket:      ws://localhost:8081"
+	@echo "  Login Server:   localhost:7171"
+	@echo "  Game Server:    localhost:7172"
+	@echo "  Grafana:        http://localhost:3002 (admin/admin)"
+	@echo "  Prometheus:     http://localhost:9091"
+	@echo ""
+
+## Show service logs (follow mode)
+logs:
+	$(DOCKER_COMPOSE) logs -f
+
+## Show logs for specific service (usage: make logs-server, logs-web, etc.)
+logs-%:
+	$(DOCKER_COMPOSE) logs -f $*
+
+## List running containers
+ps:
+	$(DOCKER_COMPOSE) ps
+
+## Health check all services
+health:
+	@echo "Checking service health..."
+	@$(DOCKER_COMPOSE) ps --format "table {{.Name}}\t{{.Status}}" | grep -E "(healthy|running)" || true
+	@echo ""
+	@echo "Checking API health endpoint..."
+	@curl -sf http://localhost:8080/health 2>/dev/null && echo "API: OK" || echo "API: Not ready (server may still be starting)"
+	@echo ""
+	@echo "Checking database..."
+	@docker exec shadow-postgres pg_isready -U shadow -d shadow_ot 2>/dev/null && echo "PostgreSQL: OK" || echo "PostgreSQL: Not ready"
+	@echo ""
+	@echo "Checking Redis..."
+	@docker exec shadow-redis redis-cli ping 2>/dev/null && echo "Redis: OK" || echo "Redis: Not ready"
+
+# =============================================================================
+# DATABASE OPERATIONS
+# =============================================================================
+
+## Apply database migrations
+db-migrate:
+	@echo "Applying database migrations..."
+	@for f in crates/shadow-db/migrations/*.sql; do \
+		echo "Applying $$f..."; \
+		docker exec -i shadow-postgres psql -U shadow -d shadow_ot < "$$f" 2>&1 | grep -v "already exists" | grep -v "duplicate key" || true; \
+	done
+	@echo "Migrations complete."
+
+## Reset database (WARNING: destroys all data)
+db-reset:
+	@echo "WARNING: This will destroy all data in the database!"
+	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
+	@docker exec shadow-postgres psql -U shadow -d shadow_ot -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	@$(MAKE) db-migrate
+
+# =============================================================================
+# SPRITE ASSETS
+# =============================================================================
+
+## Download sprite assets (required for game client)
+sprites:
+	@echo "Downloading sprite assets..."
+	@mkdir -p client/data/sprites
+	@if [ ! -f client/data/sprites/Tibia.spr ]; then \
+		echo "Downloading from ots.me..."; \
+		curl -L -o /tmp/sprites_1287.zip "https://downloads.ots.me/data/tibia-clients/dat_and_spr/1287.zip" && \
+		unzip -o /tmp/sprites_1287.zip -d /tmp/sprites_tmp && \
+		mv /tmp/sprites_tmp/1287/Tibia.dat client/data/sprites/ && \
+		mv /tmp/sprites_tmp/1287/Tibia.spr client/data/sprites/ && \
+		rm -rf /tmp/sprites_1287.zip /tmp/sprites_tmp && \
+		echo "Sprites downloaded successfully!"; \
+	else \
+		echo "Sprites already exist in client/data/sprites/"; \
+	fi
+
+# =============================================================================
+# KUBERNETES (Production-like Local Environment)
+# =============================================================================
+
+## Start with Kubernetes (Kind + MetalLB)
+k8s-up: kind metallb build-images load-images deploy k8s-health user-flow ip
+
+## Stop Kubernetes cluster
+k8s-down:
+	-kubectl delete -k k8s/overlays/dev || true
+	-kubectl delete -k k8s/base || true
+	-kind delete cluster --name $(CLUSTER) || true
 
 kind:
 	@if ! kind get clusters | grep -q $(CLUSTER); then \
@@ -51,7 +168,7 @@ deploy:
 	kubectl set image deploy/shadow-web shadow-web=shadow-ot/web:local -n $(NAMESPACE)
 	kubectl set image deploy/shadow-admin shadow-admin=shadow-ot/admin:local -n $(NAMESPACE)
 
-health:
+k8s-health:
 	kubectl wait --for=condition=available deploy/shadow-server -n $(NAMESPACE) --timeout=300s
 	kubectl wait --for=condition=available deploy/shadow-web -n $(NAMESPACE) --timeout=300s
 	kubectl wait --for=condition=available deploy/shadow-admin -n $(NAMESPACE) --timeout=300s
@@ -88,7 +205,34 @@ ws-check:
 monitoring:
 	kubectl apply -f k8s/base/monitoring.yaml
 
-down:
-	- kubectl delete -k k8s/overlays/dev || true
-	- kubectl delete -k k8s/base || true
-	- kind delete cluster --name $(CLUSTER) || true
+# =============================================================================
+# HELP
+# =============================================================================
+
+## Show this help
+help:
+	@echo "Shadow OT - Makefile Commands"
+	@echo ""
+	@echo "=== Quick Start (Docker Compose) ==="
+	@echo "  make up          Start all services"
+	@echo "  make down        Stop all services"
+	@echo "  make status      Show service status and URLs"
+	@echo "  make logs        Follow all service logs"
+	@echo "  make health      Check service health"
+	@echo ""
+	@echo "=== Database ==="
+	@echo "  make db-migrate  Apply database migrations"
+	@echo "  make db-reset    Reset database (WARNING: destroys data)"
+	@echo ""
+	@echo "=== Assets ==="
+	@echo "  make sprites     Download sprite files for game client"
+	@echo ""
+	@echo "=== Kubernetes (Advanced) ==="
+	@echo "  make k8s-up      Start with Kind + MetalLB"
+	@echo "  make k8s-down    Stop Kubernetes cluster"
+	@echo ""
+	@echo "=== First Time Setup ==="
+	@echo "  1. make sprites  (download game assets)"
+	@echo "  2. make up       (start all services)"
+	@echo "  3. make status   (verify everything is running)"
+	@echo ""

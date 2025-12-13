@@ -334,6 +334,7 @@ pub enum ServerPacketType {
     Challenge = 0x1F,
 
     // Game
+    // SelfAppear uses the same opcode as LoginPending (0x0A) in different contexts
     Ping = 0x1D,
     PingBack = 0x1E,
 

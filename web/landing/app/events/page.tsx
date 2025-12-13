@@ -8,12 +8,9 @@ import {
   Zap, Target, PartyPopper, Timer, CalendarDays, Bell,
   Loader2, AlertCircle
 } from 'lucide-react'
-import { useDailyBoosted } from '@/shared/hooks/useBoosted'
-import { useActiveWorldQuests } from '@/shared/hooks/useWorldQuests'
-import { eventApi } from '@/shared/api/endpoints'
+import { useDailyBoosted, useActiveWorldQuests, eventApi, getCreatureSprite, getTimeUntilReset } from '@shadow-ot/shared'
 import { useQuery } from '@tanstack/react-query'
-import { getCreatureSprite, getTimeUntilReset } from '@/shared/utils/assets'
-import type { GameEvent, RealmId } from '@/shared/types'
+import type { GameEvent, RealmId } from '@shadow-ot/shared'
 
 // Event type icons mapping
 const eventTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {

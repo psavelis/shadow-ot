@@ -7,7 +7,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { RainbowKitProvider, darkTheme, getDefaultWallets } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
 import { useState, useEffect, ReactNode } from 'react'
-import { useAuthStore } from '@shadow-ot/shared/stores/authStore'
+import { useAuthStore } from '@shadow-ot/shared'
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, arbitrum, base],

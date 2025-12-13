@@ -53,9 +53,10 @@ services:
       - "8081:8081"  # WebSocket
       - "9090:9090"  # Metrics
     volumes:
-      - ./config:/config:ro
+      - ../config:/config:ro
       - server_data:/data
       - ../realms:/data/realms:ro
+      - ../data:/data/game:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,8 +71,8 @@ services:
   # Web Frontend
   web:
     build:
-      context: ../web/landing
-      dockerfile: Dockerfile
+      context: ../web
+      dockerfile: landing/Dockerfile
     container_name: shadow-web
     environment:
       - NODE_ENV=development
@@ -85,8 +86,8 @@ services:
   # Admin Panel
   admin:
     build:
-      context: ../web/admin
-      dockerfile: Dockerfile
+      context: ../web
+      dockerfile: admin/Dockerfile
     container_name: shadow-admin
     environment:
       - NODE_ENV=development

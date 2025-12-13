@@ -8,8 +8,8 @@ import {
 } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import * as Dialog from '@radix-ui/react-dialog'
-import { usePlayerSearch, useBanPlayer, useWarnPlayer, useOnlinePlayersAdmin, useAdminStats } from '@/shared/hooks/useAdmin'
-import type { User, Character } from '@/shared/types'
+import { usePlayerSearch, useBanPlayer, useWarnPlayer, useOnlinePlayersAdmin, useAdminStats } from '@shadow-ot/shared'
+import type { User, Character } from '@shadow-ot/shared'
 
 const vocationIcons: Record<string, React.ElementType> = {
   'Elite Knight': Shield,

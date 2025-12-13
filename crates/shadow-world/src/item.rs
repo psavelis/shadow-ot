@@ -475,6 +475,7 @@ pub enum DamageType {
     LifeDrain,
     ManaDrain,
     Healing,
+    ManaRestore,
 }
 
 /// Skill types

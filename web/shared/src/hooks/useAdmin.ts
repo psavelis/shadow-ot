@@ -146,7 +146,7 @@ export function usePlayerDetails(id: string) {
 // Realm Management
 // ============================================
 
-export function useRealmStatus(realmId: RealmId) {
+export function useAdminRealmStatus(realmId: RealmId) {
   return useQuery({
     queryKey: ['admin', 'realms', realmId, 'status'],
     queryFn: () => adminApi.getRealmStatus(realmId),

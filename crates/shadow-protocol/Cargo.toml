@@ -33,6 +33,9 @@ rand.workspace = true
 # Compression
 flate2.workspace = true
 
+# Networking
+socket2 = "0.5"
+
 [dev-dependencies]
 mockall.workspace = true
 tokio-test = "0.4"

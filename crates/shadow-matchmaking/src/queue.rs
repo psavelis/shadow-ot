@@ -195,7 +195,7 @@ impl MatchmakingQueue {
     pub fn get_stats(&self) -> QueueStats {
         // Clean up old entries
         let hour_ago = Utc::now() - Duration::hours(1);
-        let recent_matches: Vec<_> = self.matches_in_last_hour.iter()
+        let recent_matches = self.matches_in_last_hour.iter()
             .filter(|&t| *t > hour_ago)
             .count();
 

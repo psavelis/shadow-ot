@@ -1,6 +1,7 @@
 //! NFT and blockchain endpoints
 
 use crate::auth::JwtClaims;
+use crate::response::SuccessResponse;
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{
@@ -473,7 +474,7 @@ pub async fn list_nft(
     Extension(claims): Extension<JwtClaims>,
     Path(nft_id): Path<Uuid>,
     Json(request): Json<ListNftRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     // Verify ownership (similar to transfer)
     let wallet: Option<(String,)> = sqlx::query_as(
         "SELECT wallet_address FROM account_wallets WHERE account_id = $1 LIMIT 1"
@@ -497,10 +498,7 @@ pub async fn list_nft(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "NFT listed for sale"
-    })))
+    Ok(Json(SuccessResponse::ok("NFT listed for sale")))
 }
 
 /// Buy NFT from marketplace
@@ -518,7 +516,7 @@ pub async fn buy_nft(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
     Json(request): Json<BuyNftRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     let wallet: Option<(String,)> = sqlx::query_as(
         "SELECT wallet_address FROM account_wallets WHERE account_id = $1 LIMIT 1"
     )
@@ -539,10 +537,7 @@ pub async fn buy_nft(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "NFT purchased successfully"
-    })))
+    Ok(Json(SuccessResponse::ok("NFT purchased successfully")))
 }
 
 /// Cancel NFT listing
@@ -559,7 +554,7 @@ pub async fn cancel_listing(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
     Path(nft_id): Path<Uuid>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     let wallet: Option<(String,)> = sqlx::query_as(
         "SELECT wallet_address FROM account_wallets WHERE account_id = $1 LIMIT 1"
     )
@@ -579,10 +574,7 @@ pub async fn cancel_listing(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Listing cancelled"
-    })))
+    Ok(Json(SuccessResponse::ok("Listing cancelled")))
 }
 
 /// Helper to build NFT from row

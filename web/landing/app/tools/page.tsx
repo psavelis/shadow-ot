@@ -8,8 +8,7 @@ import {
   Flame, Snowflake, Leaf, Moon, Sun, Sparkles, Info,
   Loader2
 } from 'lucide-react'
-import { useCreatures } from '@/shared/hooks/useCreatures'
-import { getCreatureSprite } from '@/shared/utils/assets'
+import { useCreatures, getCreatureSprite } from '@shadow-ot/shared'
 
 type CalculatorType = 'damage' | 'experience' | 'loot' | 'training' | 'imbue'
 
@@ -29,7 +28,7 @@ export default function ToolsPage() {
   const [activeCalculator, setActiveCalculator] = useState<CalculatorType>('damage')
   
   // Fetch creatures from API for quick reference
-  const { data: creatures, isLoading: creaturesLoading } = useCreatures({ limit: 10, sortBy: 'experience' })
+  const { data: creatures, isLoading: creaturesLoading } = useCreatures({ pageSize: 10 })
   
   // Damage Calculator State
   const [playerLevel, setPlayerLevel] = useState(200)
@@ -523,7 +522,7 @@ export default function ToolsPage() {
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
               </div>
-            ) : creatures && creatures.length > 0 ? (
+            ) : creatures?.data && creatures.data.length > 0 ? (
               <table className="w-full">
                 <thead className="bg-slate-900/50">
                   <tr className="text-slate-400 text-sm">
@@ -534,7 +533,7 @@ export default function ToolsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700/50">
-                  {creatures.map((creature) => (
+                  {creatures.data.map((creature) => (
                     <tr key={creature.id} className="hover:bg-slate-700/30 transition">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
@@ -549,7 +548,7 @@ export default function ToolsPage() {
                           <span className="text-white font-medium">{creature.name}</span>
                         </div>
                       </td>
-                      <td className="p-4 text-right text-red-400">{creature.hitpoints.toLocaleString()}</td>
+                      <td className="p-4 text-right text-red-400">{creature.health.toLocaleString()}</td>
                       <td className="p-4 text-right text-amber-400">{creature.experience.toLocaleString()}</td>
                       <td className="p-4 text-right">
                         <span className={`px-2 py-1 rounded text-xs ${

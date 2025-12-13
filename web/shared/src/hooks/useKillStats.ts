@@ -51,7 +51,7 @@ export function useBossHunters(params?: {
   })
 }
 
-export function useCharacterKills(
+export function useCharacterKillStats(
   characterId: string,
   params?: {
     type?: 'pvp' | 'pve' | 'boss' | 'all'

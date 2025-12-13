@@ -4,8 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Mail, Lock, Eye, EyeOff, Loader2, User, Wallet, ArrowRight, Check, X } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Loader2, User, Wallet, ArrowRight, Check, X, AlertCircle } from 'lucide-react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useAuthStore } from '@shadow-ot/shared'
 
 // Social provider icons
 const GoogleIcon = () => (
@@ -39,7 +40,6 @@ const passwordRequirements = [
 export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [socialLoading, setSocialLoading] = useState<string | null>(null)
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -51,16 +51,24 @@ export default function RegisterPage() {
     subscribeNewsletter: true,
   })
 
+  const { register, isLoading, error, clearError } = useAuthStore()
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (step === 1) {
       setStep(2)
       return
     }
-    
-    setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    router.push('/dashboard?welcome=true')
+
+    clearError()
+
+    try {
+      await register(formData.email, formData.accountName, formData.password)
+      // Redirect to dashboard after successful registration
+      router.push('/dashboard?welcome=true')
+    } catch {
+      // Error is handled by the store
+    }
   }
 
   const handleSocialLogin = async (provider: 'google' | 'discord' | 'twitch') => {
@@ -173,6 +181,17 @@ export default function RegisterPage() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-red-500 font-medium">Registration Failed</p>
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">

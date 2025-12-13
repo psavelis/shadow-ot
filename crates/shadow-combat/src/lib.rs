@@ -13,7 +13,7 @@ pub mod loot;
 pub mod prey;
 pub mod bosstiary;
 
-pub use damage::{DamageInfo, DamageType, ConditionType, DamageOrigin, BlockType};
+pub use damage::{DamageInfo, DamageType, DamageTypeExt, ConditionType, DamageOrigin, BlockType};
 pub use formula::{CombatFormula, MeleeFormula, MagicFormula, DistanceFormula};
 pub use spell::{Spell, SpellType, SpellLoader};
 pub use condition::{CombatCondition, ConditionDamage};

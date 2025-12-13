@@ -1,6 +1,7 @@
 //! Support ticket endpoints
 
 use crate::auth::JwtClaims;
+use crate::response::SuccessResponse;
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{
@@ -409,7 +410,7 @@ pub async fn close_ticket(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
     Path(id): Path<Uuid>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     let result = sqlx::query(
         "UPDATE support_tickets SET status = $1, updated_at = $2
          WHERE id = $3 AND account_id = $4"
@@ -425,7 +426,7 @@ pub async fn close_ticket(
         return Err(crate::error::ApiError::NotFound("Ticket not found".to_string()));
     }
 
-    Ok(Json(serde_json::json!({ "success": true })))
+    Ok(Json(SuccessResponse::ok("Ticket closed")))
 }
 
 /// Get FAQ

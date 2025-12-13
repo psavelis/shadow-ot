@@ -2,6 +2,7 @@
 
 use crate::error::ApiError;
 use crate::middleware::get_claims;
+use crate::response::MessageResponse;
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{extract::{Request, State}, Json};
@@ -132,7 +133,7 @@ pub async fn change_password(
     State(state): State<Arc<AppState>>,
     request: Request,
     Json(body): Json<ChangePasswordRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
 
     // Validate new password
@@ -166,7 +167,7 @@ pub async fn change_password(
         .execute(&state.db)
         .await?;
 
-    Ok(Json(serde_json::json!({ "message": "Password changed successfully" })))
+    Ok(Json(MessageResponse::new("Password changed successfully")))
 }
 
 /// Session info
@@ -210,7 +211,7 @@ pub async fn revoke_session(
     State(state): State<Arc<AppState>>,
     request: Request,
     axum::extract::Path(session_id): axum::extract::Path<i32>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
 
     let result = sqlx::query(
@@ -225,7 +226,7 @@ pub async fn revoke_session(
         return Err(ApiError::NotFound("Session not found".to_string()));
     }
 
-    Ok(Json(serde_json::json!({ "message": "Session revoked" })))
+    Ok(Json(MessageResponse::new("Session revoked")))
 }
 
 // Helper types

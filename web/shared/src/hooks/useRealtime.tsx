@@ -484,7 +484,7 @@ export function useHighscoreLive(category: string, limit = 10) {
   }, [category, joinRoom, leaveRoom, isConnected])
 
   useEffect(() => {
-    return subscribe<typeof highscores>(`highscore.${category}`, (payload) => {
+    return subscribe<typeof highscores>(`highscore.${category}` as RealtimeEventType, (payload) => {
       setHighscores(payload.slice(0, limit))
     })
   }, [subscribe, category, limit])

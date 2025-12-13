@@ -4,7 +4,8 @@
 
 use chrono::{Duration, Utc};
 
-use crate::{CheatType, DetectionMetrics, PlayerAction, PlayerMonitor, ViolationSeverity};
+use crate::{CheatType, PlayerAction, PlayerMonitor, ViolationSeverity};
+use crate::detection::DetectionMetrics;
 use crate::detection::DetectionResult;
 
 /// Behavior analyzer for bot detection

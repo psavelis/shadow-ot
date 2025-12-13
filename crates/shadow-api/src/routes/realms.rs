@@ -1,6 +1,7 @@
 //! Realm information endpoints
 
 use crate::error::ApiError;
+use crate::response::RealmOnlineCountResponse;
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{extract::{Path, State}, Json};
@@ -84,7 +85,7 @@ pub async fn get_realm(
 pub async fn get_online_count(
     State(state): State<Arc<AppState>>,
     Path(id): Path<i32>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<RealmOnlineCountResponse>> {
     let count = sqlx::query_scalar::<_, i64>(
         "SELECT COUNT(*) FROM characters WHERE realm_id = $1 AND online = true"
     )
@@ -92,10 +93,10 @@ pub async fn get_online_count(
     .fetch_one(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "realm_id": id,
-        "online_count": count
-    })))
+    Ok(Json(RealmOnlineCountResponse {
+        realm_id: id,
+        online_count: count,
+    }))
 }
 
 // Helper types

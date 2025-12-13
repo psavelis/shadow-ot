@@ -6,8 +6,8 @@ import {
   FileText, Search, AlertTriangle, AlertCircle, Info, RefreshCw,
   Loader2, ChevronDown, ChevronUp
 } from 'lucide-react'
-import { useAdminLogs } from '@/shared/hooks/useAdmin'
-import type { AdminLog } from '@/shared/types'
+import { useAdminLogs } from '@shadow-ot/shared'
+import type { AdminLog } from '@shadow-ot/shared'
 
 const typeConfig = {
   info: { color: 'text-blue-400', bg: 'bg-blue-500/20', icon: Info },

@@ -2,6 +2,7 @@
 
 use crate::error::ApiError;
 use crate::middleware::get_claims;
+use crate::response::{MessageResponse, OnlineStatusResponse};
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{extract::{Path, Request, State}, Json};
@@ -226,7 +227,7 @@ pub async fn delete_character(
     State(state): State<Arc<AppState>>,
     request: Request,
     Path(id): Path<i32>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
 
     // Verify ownership
@@ -252,16 +253,14 @@ pub async fn delete_character(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "message": format!("Character will be deleted in {} days", deletion_days)
-    })))
+    Ok(Json(MessageResponse::new(format!("Character will be deleted in {} days", deletion_days))))
 }
 
 /// Get online status
 pub async fn get_online_status(
     State(state): State<Arc<AppState>>,
     Path(id): Path<i32>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<OnlineStatusResponse>> {
     let online = sqlx::query_scalar::<_, bool>(
         "SELECT online FROM characters WHERE id = $1"
     )
@@ -270,7 +269,7 @@ pub async fn get_online_status(
     .await?
     .ok_or(ApiError::NotFound("Character not found".to_string()))?;
 
-    Ok(Json(serde_json::json!({ "online": online })))
+    Ok(Json(OnlineStatusResponse::new(online)))
 }
 
 // Helper types

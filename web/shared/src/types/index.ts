@@ -13,6 +13,16 @@ export interface User {
   lastLogin: string
   twoFactorEnabled: boolean
   walletAddress?: string
+  banned?: boolean
+  emailVerified?: boolean
+  role?: 'user' | 'admin' | 'moderator'
+  linkedWallets?: LinkedWallet[]
+}
+
+export interface LinkedWallet {
+  address: string
+  chain: string
+  linkedAt: string
 }
 
 export interface AuthTokens {
@@ -491,6 +501,9 @@ export interface WalletInfo {
 export interface AdminStats {
   playersOnline: number
   playersTotal: number
+  totalAccounts: number
+  bannedAccounts: number
+  pendingReports: number
   activeRealms: number
   ticketsOpen: number
   revenue24h: number
@@ -584,11 +597,16 @@ export type RealtimeEventType =
   | 'player.death'
   | 'player.achievement'
   | 'guild.message'
+  | 'guild.war'
   | 'market.offer'
+  | 'market.update'
   | 'server.status'
+  | 'server.stats'
   | 'server.broadcast'
   | 'event.start'
   | 'event.end'
+  | 'realm.status'
+  | 'chat.message'
 
 // ============================================
 // Spells & Magic

@@ -13,7 +13,7 @@ use crate::shop::Shop;
 use crate::{Result, ScriptError};
 
 /// NPC position in the world
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Position {
     pub x: u16,
     pub y: u16,

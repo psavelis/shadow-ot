@@ -63,6 +63,8 @@ pub const SUPPORTED_PROTOCOL_MAX: u16 = 1310;
 pub type SharedState = Arc<RwLock<GameState>>;
 /// Event broadcast channel for server-wide events
 pub type EventBroadcast = broadcast::Sender<events::GameEvent>;
+/// World reference type for map and entity access
+pub type WorldRef = Arc<RwLock<shadow_world::Map>>;
 
 /// Server capabilities flags
 #[derive(Debug, Clone, Copy)]

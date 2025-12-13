@@ -7,8 +7,8 @@ import {
   Loader2, AlertTriangle
 } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { useAdminEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from '@/shared/hooks/useAdmin'
-import type { GameEvent, RealmId } from '@/shared/types'
+import { useAdminEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from '@shadow-ot/shared'
+import type { GameEvent, RealmId } from '@shadow-ot/shared'
 
 const eventTypeConfig: Record<string, { color: string; icon: typeof Calendar }> = {
   seasonal: { color: 'bg-purple-500/20 text-purple-400', icon: Sparkles },

@@ -18,8 +18,8 @@ import {
   Loader2,
   AlertCircle
 } from 'lucide-react'
-import { useRealms } from '@/shared/hooks/useRealms'
-import type { Realm, RealmId } from '@/shared/types'
+import { useRealms } from '@shadow-ot/shared'
+import type { Realm, RealmId } from '@shadow-ot/shared'
 
 const realmIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   shadowveil: Sparkles,
@@ -139,7 +139,9 @@ export default function RealmsPage() {
                           <div className="flex items-start justify-between mb-4">
                             <div>
                               <div className="flex items-center gap-2 mb-2">
-                                <Icon className="w-5 h-5" style={{ color: accent }} />
+                                <span style={{ color: accent }}>
+                                  <Icon className="w-5 h-5" />
+                                </span>
                                 <span className="text-sm font-medium text-white/70">{realm.theme}</span>
                               </div>
                               <h3 className="text-2xl font-bold text-white">{realm.name}</h3>
@@ -257,7 +259,9 @@ export default function RealmsPage() {
                               className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
                               style={{ backgroundColor: `${accent}20` }}
                             >
-                              <Icon className="w-6 h-6" style={{ color: accent }} />
+                              <span style={{ color: accent }}>
+                                <Icon className="w-6 h-6" />
+                              </span>
                             </div>
                             <div className="flex-grow min-w-0">
                               <div className="flex items-center gap-2 mb-1">

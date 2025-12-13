@@ -72,7 +72,7 @@ const platforms = [
   },
 ]
 
-const clientVersions = [
+const clientVersions: { version: ClientVersion; name: string; features: string[]; recommended?: boolean }[] = [
   { version: '12.85', name: 'Modern', features: ['Store', 'Bosstiary', 'Prey', 'Analytics'], recommended: true },
   { version: '10.98', name: 'Popular', features: ['Classic UI', 'Most OT features', 'Stable'] },
   { version: '8.60', name: 'Classic', features: ['Nostalgic', 'Retro gameplay', '7.x protocol'] },

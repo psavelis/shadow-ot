@@ -7,14 +7,15 @@ import {
   Filter, Calendar, Globe, Users, Crown, Flame, Shield,
   Search, Zap, Clock, Loader2, AlertCircle
 } from 'lucide-react'
-import { 
-  useKillStatistics, 
-  useTopKillers, 
-  useRecentDeaths, 
-  useBossHunters 
-} from '@/shared/hooks/useKillStats'
-import { getCreatureSprite, getVocationIcon } from '@/shared/utils/assets'
-import type { RealmId, Vocation } from '@/shared/types'
+import {
+  useKillStatistics,
+  useTopKillers,
+  useRecentDeaths,
+  useBossHunters,
+  getCreatureSprite,
+  getVocationIcon
+} from '@shadow-ot/shared'
+import type { RealmId, Vocation } from '@shadow-ot/shared'
 
 const timeRanges = ['today', 'week', 'month', 'all'] as const
 const killTypes = ['all', 'pvp', 'pve', 'boss'] as const

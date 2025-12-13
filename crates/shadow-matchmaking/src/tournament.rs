@@ -393,30 +393,36 @@ impl Tournament {
         match_id: Uuid,
         winner_id: Uuid,
     ) -> Result<(), &'static str> {
-        let match_result = self.bracket.iter_mut()
-            .find(|m| m.id == match_id)
-            .ok_or("Match not found")?;
+        // Extract match info first to avoid borrow conflicts
+        let (round, match_number, loser_id) = {
+            let match_result = self.bracket.iter_mut()
+                .find(|m| m.id == match_id)
+                .ok_or("Match not found")?;
 
-        if match_result.winner.is_some() {
-            return Err("Match already has a result");
-        }
+            if match_result.winner.is_some() {
+                return Err("Match already has a result");
+            }
 
-        // Verify winner is a participant
-        if match_result.participant1 != Some(winner_id) && 
-           match_result.participant2 != Some(winner_id) {
-            return Err("Winner is not a participant in this match");
-        }
+            // Verify winner is a participant
+            if match_result.participant1 != Some(winner_id) &&
+               match_result.participant2 != Some(winner_id) {
+                return Err("Winner is not a participant in this match");
+            }
 
-        match_result.winner = Some(winner_id);
-        match_result.completed_at = Some(Utc::now());
+            match_result.winner = Some(winner_id);
+            match_result.completed_at = Some(Utc::now());
 
-        // Update participant records
-        let loser_id = if match_result.participant1 == Some(winner_id) {
-            match_result.participant2
-        } else {
-            match_result.participant1
+            // Determine loser
+            let loser_id = if match_result.participant1 == Some(winner_id) {
+                match_result.participant2
+            } else {
+                match_result.participant1
+            };
+
+            (match_result.round, match_result.match_number, loser_id)
         };
 
+        // Update participant records
         if let Some(winner) = self.participants.get_mut(&winner_id) {
             winner.wins += 1;
         }
@@ -424,7 +430,7 @@ impl Tournament {
         if let Some(loser_id) = loser_id {
             if let Some(loser) = self.participants.get_mut(&loser_id) {
                 loser.losses += 1;
-                
+
                 // Eliminate in single elimination
                 if self.format == TournamentFormat::SingleElimination {
                     loser.eliminated = true;
@@ -433,7 +439,7 @@ impl Tournament {
         }
 
         // Advance winner to next round
-        self.advance_winner(match_result.round, match_result.match_number, winner_id);
+        self.advance_winner(round, match_number, winner_id);
 
         Ok(())
     }

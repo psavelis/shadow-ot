@@ -7,8 +7,8 @@ import {
   Calendar, User, Tag, ChevronRight, MessageSquare, Heart, 
   Loader2, AlertCircle, Newspaper 
 } from 'lucide-react'
-import { useNews, useFeaturedNews, NEWS_CATEGORIES } from '@/shared/hooks/useNews'
-import type { NewsCategory, NewsArticle } from '@/shared/types'
+import { useNews, useFeaturedNews, NEWS_CATEGORIES } from '@shadow-ot/shared'
+import type { NewsCategory, NewsArticle } from '@shadow-ot/shared'
 
 const categoryColors: Record<string, string> = {
   announcement: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
@@ -99,7 +99,7 @@ export default function NewsPage() {
                         </span>
                         <span className="flex items-center gap-1">
                           <User className="w-3 h-3" />
-                          {article.author}
+                          {typeof article.author === 'object' ? article.author.name : article.author}
                         </span>
                         <span className="flex items-center gap-1">
                           <Heart className="w-3 h-3" />

@@ -1,7 +1,7 @@
 //! Spell system - instant spells, runes, and conjurations
 
 use crate::area::AreaType;
-use crate::damage::DamageType;
+use crate::damage::{DamageType, DamageTypeExt};
 use crate::formula::MagicFormula;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

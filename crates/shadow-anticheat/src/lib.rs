@@ -348,10 +348,14 @@ impl AntiCheatSystem {
             return None;
         }
 
-        let monitor = self.get_monitor(character_id);
-        monitor.add_position(x, y, z);
+        // First update the monitor
+        {
+            let monitor = self.get_monitor(character_id);
+            monitor.add_position(x, y, z);
+        }
 
-        // Check for speed hack
+        // Then check for speed hack with a fresh immutable borrow
+        let monitor = self.monitors.get(&character_id)?;
         self.detector.check_speed(monitor)
     }
 
@@ -365,10 +369,14 @@ impl AntiCheatSystem {
             return None;
         }
 
-        let monitor = self.get_monitor(character_id);
-        monitor.add_action(action);
+        // First update the monitor
+        {
+            let monitor = self.get_monitor(character_id);
+            monitor.add_action(action);
+        }
 
-        // Check for action-specific hacks
+        // Then check for action-specific hacks with a fresh immutable borrow
+        let monitor = self.monitors.get(&character_id)?;
         match action {
             PlayerAction::Attack => self.detector.check_attack_speed(monitor),
             PlayerAction::CastSpell => self.detector.check_spell_speed(monitor),

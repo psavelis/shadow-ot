@@ -343,9 +343,9 @@ impl DialogTemplates {
     /// Create a shop NPC dialog handler
     pub fn shop(shop_name: &str) -> DialogHandler {
         let mut handler = DialogHandler::new();
-        handler.set_greeting(&format!(
+        handler.set_greeting(
             "Welcome! Do you want to see my {trade}? I also {buy} items.",
-        ));
+        );
 
         handler.add_response(DialogResponse {
             keywords: vec!["trade".to_string(), "wares".to_string(), "goods".to_string()],
@@ -370,7 +370,7 @@ impl DialogTemplates {
     pub fn spell_trainer(vocation: &str) -> DialogHandler {
         let mut handler = DialogHandler::new();
         handler.set_greeting(&format!(
-            "Greetings, fellow {}! I can teach you powerful {spells}.",
+            "Greetings, fellow {}! I can teach you powerful {{spells}}.",
             vocation
         ));
 

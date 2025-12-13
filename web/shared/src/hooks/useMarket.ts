@@ -135,18 +135,4 @@ export function useAcceptOffer() {
   })
 }
 
-// Format gold amount
-export function formatGold(amount: number): string {
-  if (amount >= 1000000000) {
-    return `${(amount / 1000000000).toFixed(2)}kk`
-  }
-  if (amount >= 1000000) {
-    return `${(amount / 1000000).toFixed(2)}kk`
-  }
-  if (amount >= 1000) {
-    return `${(amount / 1000).toFixed(0)}k`
-  }
-  return amount.toLocaleString()
-}
-
 

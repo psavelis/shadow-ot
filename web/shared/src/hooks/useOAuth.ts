@@ -148,7 +148,7 @@ export function useOAuth() {
       // Exchange code for tokens via backend
       const response = await apiClient.post<{
         user: any
-        tokens: { accessToken: string; refreshToken: string }
+        tokens: { accessToken: string; refreshToken: string; expiresAt: number }
       }>(`/auth/oauth/${provider}/callback`, { code, state })
       
       // Store tokens

@@ -5,6 +5,7 @@ use crate::auth::{
     validate_password_strength, validate_refresh_token, verify_password, JwtClaims, RefreshClaims,
 };
 use crate::error::ApiError;
+use crate::response::{MessageResponse, SuccessResponse};
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{extract::State, Json};
@@ -211,10 +212,10 @@ pub struct LogoutRequest {
 pub async fn logout(
     State(_state): State<Arc<AppState>>,
     Json(_request): Json<LogoutRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     // In a real implementation, we'd invalidate the refresh token
     // For now, just return success (client should discard tokens)
-    Ok(Json(serde_json::json!({ "message": "Logged out successfully" })))
+    Ok(Json(MessageResponse::new("Logged out successfully")))
 }
 
 /// Refresh token request
@@ -292,27 +293,27 @@ pub async fn refresh_token(
 pub async fn verify_email(
     State(_state): State<Arc<AppState>>,
     Json(_request): Json<serde_json::Value>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     // Implementation would verify email token
-    Ok(Json(serde_json::json!({ "message": "Email verified" })))
+    Ok(Json(MessageResponse::new("Email verified")))
 }
 
 /// Forgot password endpoint
 pub async fn forgot_password(
     State(_state): State<Arc<AppState>>,
     Json(_request): Json<serde_json::Value>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     // Implementation would send password reset email
-    Ok(Json(serde_json::json!({ "message": "If the email exists, a reset link has been sent" })))
+    Ok(Json(MessageResponse::new("If the email exists, a reset link has been sent")))
 }
 
 /// Reset password endpoint
 pub async fn reset_password(
     State(_state): State<Arc<AppState>>,
     Json(_request): Json<serde_json::Value>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     // Implementation would reset password with token
-    Ok(Json(serde_json::json!({ "message": "Password reset successful" })))
+    Ok(Json(MessageResponse::new("Password reset successful")))
 }
 
 // ============================================
@@ -393,7 +394,7 @@ pub async fn verify_2fa(
     State(state): State<Arc<AppState>>,
     axum::Extension(claims): axum::Extension<JwtClaims>,
     Json(request): Json<Verify2FARequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     // Get pending secret
     let secret: Option<(Option<String>,)> = sqlx::query_as(
         "SELECT totp_pending_secret FROM accounts WHERE id = $1"
@@ -420,10 +421,7 @@ pub async fn verify_2fa(
     .execute(&state.db)
     .await?;
     
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "2FA has been enabled"
-    })))
+    Ok(Json(SuccessResponse::ok("2FA has been enabled")))
 }
 
 /// Disable 2FA
@@ -441,7 +439,7 @@ pub async fn disable_2fa(
     State(state): State<Arc<AppState>>,
     axum::Extension(claims): axum::Extension<JwtClaims>,
     Json(request): Json<Verify2FARequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     // Verify current code before disabling
     if request.code.len() != 6 || !request.code.chars().all(|c| c.is_ascii_digit()) {
         return Err(ApiError::BadRequest("Invalid 2FA code".to_string()));
@@ -454,10 +452,7 @@ pub async fn disable_2fa(
     .execute(&state.db)
     .await?;
     
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "2FA has been disabled"
-    })))
+    Ok(Json(SuccessResponse::ok("2FA has been disabled")))
 }
 
 // ============================================
@@ -661,7 +656,7 @@ pub async fn connect_wallet(
     State(state): State<Arc<AppState>>,
     axum::Extension(claims): axum::Extension<JwtClaims>,
     Json(request): Json<ConnectWalletRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     let address = request.address.to_lowercase();
     
     // Verify signature (simplified)
@@ -681,10 +676,7 @@ pub async fn connect_wallet(
         if id != claims.account_id {
             return Err(ApiError::Conflict("Wallet already linked to another account".to_string()));
         }
-        return Ok(Json(serde_json::json!({
-            "success": true,
-            "message": "Wallet already connected"
-        })));
+        return Ok(Json(SuccessResponse::ok("Wallet already connected")));
     }
     
     // Link wallet
@@ -697,10 +689,7 @@ pub async fn connect_wallet(
     .execute(&state.db)
     .await?;
     
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Wallet connected successfully"
-    })))
+    Ok(Json(SuccessResponse::ok("Wallet connected successfully")))
 }
 
 /// Disconnect wallet from account
@@ -716,7 +705,7 @@ pub async fn connect_wallet(
 pub async fn disconnect_wallet(
     State(state): State<Arc<AppState>>,
     axum::Extension(claims): axum::Extension<JwtClaims>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     // Remove non-primary wallets
     sqlx::query(
         "DELETE FROM account_wallets WHERE account_id = $1 AND primary_wallet = false"
@@ -725,21 +714,15 @@ pub async fn disconnect_wallet(
     .execute(&state.db)
     .await?;
     
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Wallet disconnected"
-    })))
+    Ok(Json(SuccessResponse::ok("Wallet disconnected")))
 }
 
 /// Resend verification email
 pub async fn resend_verification(
     State(_state): State<Arc<AppState>>,
     axum::Extension(_claims): axum::Extension<JwtClaims>,
-) -> ApiResult<Json<serde_json::Value>> {
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Verification email sent"
-    })))
+) -> ApiResult<Json<SuccessResponse>> {
+    Ok(Json(SuccessResponse::ok("Verification email sent")))
 }
 
 // Helper types

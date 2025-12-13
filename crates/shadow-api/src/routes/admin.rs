@@ -2,6 +2,7 @@
 
 use crate::error::ApiError;
 use crate::middleware::get_claims;
+use crate::response::MessageResponse;
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{extract::{Request, State}, Json};
@@ -125,7 +126,7 @@ pub async fn ban_account(
     State(state): State<Arc<AppState>>,
     request: Request,
     Json(body): Json<BanRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
     if !claims.is_admin() {
         return Err(ApiError::Forbidden);
@@ -164,7 +165,7 @@ pub async fn ban_account(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({ "message": "Account banned" })))
+    Ok(Json(MessageResponse::new("Account banned")))
 }
 
 /// Broadcast request
@@ -179,7 +180,7 @@ pub async fn broadcast_message(
     State(_state): State<Arc<AppState>>,
     request: Request,
     Json(_body): Json<BroadcastRequest>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
     if !claims.is_admin() {
         return Err(ApiError::Forbidden);
@@ -188,7 +189,7 @@ pub async fn broadcast_message(
     // In a real implementation, this would send message to game server(s)
     // For now, just acknowledge
 
-    Ok(Json(serde_json::json!({ "message": "Broadcast queued" })))
+    Ok(Json(MessageResponse::new("Broadcast queued")))
 }
 
 #[derive(sqlx::FromRow)]

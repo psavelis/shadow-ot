@@ -282,9 +282,9 @@ export interface Transaction {
 }
 
 // ============================================
-// Notification Type
+// Server Notification Type
 // ============================================
-export interface Notification {
+export interface ServerNotification {
   id: string
   type: 'levelup' | 'trade' | 'achievement' | 'guild' | 'system'
   title: string
@@ -554,6 +554,10 @@ export const forumApi = {
 // ============================================
 // Achievement Endpoints
 // ============================================
+export interface PlayerAchievement extends Achievement {
+  earnedAt?: string
+}
+
 export const achievementApi = {
   getAll: () =>
     apiClient.get<Achievement[]>('/achievements'),
@@ -563,6 +567,14 @@ export const achievementApi = {
 
   getProgress: (characterId: string) =>
     apiClient.get<Achievement[]>(`/characters/${characterId}/achievements`),
+
+  getPlayerAchievements: (characterId?: string) =>
+    apiClient.get<PlayerAchievement[]>(characterId ? `/characters/${characterId}/achievements` : '/achievements/me'),
+
+  getLeaderboard: (params: { page?: number; pageSize?: number }) =>
+    apiClient.get<{ players: Array<{ name: string; points: number }>; total: number }>(
+      `/achievements/leaderboard?page=${params.page || 1}&pageSize=${params.pageSize || 20}`
+    ),
 }
 
 // ============================================
@@ -812,61 +824,14 @@ export const creatureApi = {
 // ============================================
 // OAuth Endpoints
 // ============================================
-export const authApi = {
-  ...{
-    login: (data: LoginRequest) =>
-      apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/login', data),
-
-    register: (data: RegisterRequest) =>
-      apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/register', data),
-
-    logout: () => apiClient.post('/auth/logout'),
-
-    refreshToken: (data: { refreshToken: string }) =>
-      apiClient.post<{ tokens: AuthTokens }>('/auth/refresh', data),
-
-    requestPasswordReset: (data: { email: string }) =>
-      apiClient.post('/auth/forgot-password', data),
-
-    resetPassword: (data: { token: string; newPassword: string }) =>
-      apiClient.post('/auth/reset-password', data),
-
-    verifyEmail: (data: { token: string }) =>
-      apiClient.post('/auth/verify-email', data),
-
-    resendVerification: () =>
-      apiClient.post('/auth/resend-verification'),
-
-    enable2FA: () =>
-      apiClient.post<{ secret: string; qrCode: string }>('/auth/2fa/enable'),
-
-    verify2FA: (code: string) =>
-      apiClient.post('/auth/2fa/verify', { code }),
-
-    disable2FA: (code: string) =>
-      apiClient.post('/auth/2fa/disable', { code }),
-
-    getWalletNonce: (address: string) =>
-      apiClient.get<{ nonce: string }>(`/auth/wallet/nonce/${address}`),
-
-    loginWithWallet: (data: { address: string; signature: string; chain: string }) =>
-      apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/wallet/login', data),
-
-    connectWallet: (address: string, signature: string) =>
-      apiClient.post('/auth/wallet/connect', { address, signature }),
-
-    disconnectWallet: () =>
-      apiClient.post('/auth/wallet/disconnect'),
-  },
-
-  // OAuth providers
-  oauthCallback: (data: { provider: string; code: string; state: string }) =>
+export const oauthApi = {
+  callback: (data: { provider: string; code: string; state: string }) =>
     apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/oauth/callback', data),
 
-  linkOAuth: (provider: string) =>
+  link: (provider: string) =>
     apiClient.post<{ redirectUrl: string }>(`/auth/oauth/${provider}/link`),
 
-  unlinkOAuth: (provider: string) =>
+  unlink: (provider: string) =>
     apiClient.post(`/auth/oauth/${provider}/unlink`),
 
   getLinkedAccounts: () =>
@@ -875,12 +840,16 @@ export const authApi = {
       discord?: { username: string; linkedAt: string }
       twitch?: { username: string; linkedAt: string }
     }>('/auth/oauth/linked'),
+}
 
-  // Security Keys (FIDO2/WebAuthn)
-  registerSecurityKey: (data: { name: string; credential: unknown }) =>
+// ============================================
+// Security Keys (FIDO2/WebAuthn) Endpoints
+// ============================================
+export const securityKeyApi = {
+  register: (data: { name: string; credential: unknown }) =>
     apiClient.post<{ id: string; name: string; type: string; createdAt: string }>('/auth/security-keys/register', data),
 
-  getSecurityKeys: () =>
+  getAll: () =>
     apiClient.get<{
       id: string
       name: string
@@ -889,23 +858,27 @@ export const authApi = {
       lastUsed: string
     }[]>('/auth/security-keys'),
 
-  deleteSecurityKey: (id: string) =>
+  delete: (id: string) =>
     apiClient.delete(`/auth/security-keys/${id}`),
 
-  challengeSecurityKey: () =>
+  challenge: () =>
     apiClient.post<{ challenge: string; allowCredentials: unknown[] }>('/auth/security-keys/challenge'),
 
-  verifySecurityKey: (data: { credential: unknown }) =>
+  verify: (data: { credential: unknown }) =>
     apiClient.post<{ user: User; tokens: AuthTokens }>('/auth/security-keys/verify', data),
+}
 
-  // SSO
-  getSsoSettings: () =>
+// ============================================
+// SSO Endpoints
+// ============================================
+export const ssoApi = {
+  getSettings: () =>
     apiClient.get<{
       enabled: boolean
       realms: { id: RealmId; enabled: boolean; lastSync: string }[]
     }>('/auth/sso'),
 
-  updateSsoSettings: (data: { enabled: boolean; realms: { id: RealmId; enabled: boolean }[] }) =>
+  updateSettings: (data: { enabled: boolean; realms: { id: RealmId; enabled: boolean }[] }) =>
     apiClient.patch('/auth/sso', data),
 }
 
@@ -1099,47 +1072,5 @@ export const houseApi = {
 
   payRent: (id: string) =>
     apiClient.post(`/houses/${id}/pay-rent`),
-}
-
-// ============================================
-// Achievement Endpoints
-// ============================================
-export interface Achievement {
-  id: string
-  name: string
-  description: string
-  category: 'exploration' | 'combat' | 'social' | 'economy' | 'collection' | 'special'
-  points: number
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
-  secret: boolean
-  icon?: string
-  requirements?: string
-}
-
-export interface PlayerAchievement extends Achievement {
-  unlocked: boolean
-  unlockedAt?: string
-  progress?: { current: number; required: number }
-}
-
-export const achievementApi = {
-  getAll: (params?: { category?: Achievement['category']; page?: number; pageSize?: number }) =>
-    apiClient.get<PaginatedResponse<Achievement>>('/achievements', params),
-
-  getPlayerAchievements: (characterId?: string) =>
-    apiClient.get<{
-      achievements: PlayerAchievement[]
-      totalPoints: number
-      completedCount: number
-      totalCount: number
-    }>('/achievements/player', characterId ? { characterId } : undefined),
-
-  getLeaderboard: (params?: { page?: number; pageSize?: number }) =>
-    apiClient.get<PaginatedResponse<{
-      rank: number
-      character: { id: string; name: string; level: number; vocation: Vocation }
-      points: number
-      completedCount: number
-    }>>('/achievements/leaderboard', params),
 }
 

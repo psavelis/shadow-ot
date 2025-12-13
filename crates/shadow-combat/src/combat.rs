@@ -2,7 +2,7 @@
 
 use crate::area::{AreaEffect, AreaType};
 use crate::condition::CombatCondition;
-use crate::damage::{BlockType, ConditionType, DamageInfo, DamageOrigin, DamageType};
+use crate::damage::{BlockType, ConditionType, DamageInfo, DamageOrigin, DamageType, DamageTypeExt};
 use crate::formula::{CombatFormula, MeleeFormula, DistanceFormula};
 use crate::spell::{Spell, SpellLoader};
 use crate::{CombatError, Result};
@@ -396,13 +396,18 @@ impl CombatSystem {
 
         // Handle different spell types
         if spell.is_healing() {
-            // Healing spell
-            let heal_target = target.unwrap_or(caster);
-            if let Some(heal_amount) = spell.calculate_damage(caster.stats.level, caster.stats.magic_level) {
+            // Healing spell - capture stats before borrowing caster
+            let caster_level = caster.stats.level;
+            let caster_magic_level = caster.stats.magic_level;
+            let caster_id = caster.id;
+
+            if let Some(heal_amount) = spell.calculate_damage(caster_level, caster_magic_level) {
+                let heal_target = target.unwrap_or(caster);
+                let target_id = heal_target.id;
                 let actual_heal = heal_target.heal(heal_amount.abs());
                 events.push(CombatEvent::Heal {
-                    caster_id: caster.id,
-                    target_id: heal_target.id,
+                    caster_id,
+                    target_id,
                     amount: actual_heal,
                     effect: spell.effect,
                 });

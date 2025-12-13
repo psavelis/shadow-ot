@@ -1,6 +1,7 @@
 //! User notification endpoints
 
 use crate::auth::JwtClaims;
+use crate::response::{SuccessResponse, UnreadCountResponse};
 use crate::state::AppState;
 use crate::ApiResult;
 use axum::{
@@ -180,7 +181,7 @@ pub async fn mark_notification_read(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
     Path(id): Path<Uuid>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     sqlx::query(
         "UPDATE notifications SET read_at = CURRENT_TIMESTAMP
          WHERE id = $1 AND account_id = $2 AND read_at IS NULL"
@@ -190,9 +191,7 @@ pub async fn mark_notification_read(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true
-    })))
+    Ok(Json(SuccessResponse::ok("Notification marked as read")))
 }
 
 /// Mark all notifications as read
@@ -240,7 +239,7 @@ pub async fn delete_notification(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
     Path(id): Path<Uuid>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<SuccessResponse>> {
     sqlx::query(
         "DELETE FROM notifications WHERE id = $1 AND account_id = $2"
     )
@@ -249,9 +248,7 @@ pub async fn delete_notification(
     .execute(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "success": true
-    })))
+    Ok(Json(SuccessResponse::ok("Notification deleted")))
 }
 
 /// Get unread notification count
@@ -267,7 +264,7 @@ pub async fn delete_notification(
 pub async fn get_unread_count(
     State(state): State<Arc<AppState>>,
     Extension(claims): Extension<JwtClaims>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Json<UnreadCountResponse>> {
     let count: (i64,) = sqlx::query_as(
         "SELECT COUNT(*) FROM notifications WHERE account_id = $1 AND read_at IS NULL"
     )
@@ -275,7 +272,5 @@ pub async fn get_unread_count(
     .fetch_one(&state.db)
     .await?;
 
-    Ok(Json(serde_json::json!({
-        "count": count.0
-    })))
+    Ok(Json(UnreadCountResponse::new(count.0)))
 }

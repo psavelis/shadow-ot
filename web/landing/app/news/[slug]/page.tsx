@@ -6,7 +6,7 @@ import {
   Calendar, User, Tag, Heart, MessageSquare, Share2, ArrowLeft, Clock,
   Loader2, AlertCircle
 } from 'lucide-react'
-import { useNewsArticle } from '@/shared/hooks/useNews'
+import { useNewsArticle } from '@shadow-ot/shared'
 import ReactMarkdown from 'react-markdown'
 
 const categoryColors: Record<string, string> = {
@@ -110,14 +110,16 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
             {/* Meta */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
               <div className="flex items-center gap-2">
-                {article.author?.avatar && (
-                  <img 
-                    src={article.author.avatar} 
+                {typeof article.author === 'object' && article.author?.avatar && (
+                  <img
+                    src={article.author.avatar}
                     alt={article.author.name}
                     className="w-8 h-8 rounded-full"
                   />
                 )}
-                <span className="text-slate-300">{article.author?.name || article.author}</span>
+                <span className="text-slate-300">
+                  {typeof article.author === 'object' ? article.author.name : article.author}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />

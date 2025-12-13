@@ -7,8 +7,8 @@ import {
   Sun, Moon, Heart, Shield, Swords, Target,
   Book, Star, Gem, Loader2, AlertCircle
 } from 'lucide-react'
-import { useSpells } from '@/shared/hooks/useSpells'
-import type { Spell, SpellElement, SpellType, Vocation } from '@/shared/types'
+import { useSpells } from '@shadow-ot/shared'
+import type { Spell, SpellElement, SpellType, Vocation } from '@shadow-ot/shared'
 
 const elementIcons: Record<SpellElement, React.ComponentType<{ className?: string }>> = {
   fire: Flame,
