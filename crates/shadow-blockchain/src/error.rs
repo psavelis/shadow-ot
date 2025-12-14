@@ -31,8 +31,8 @@ pub enum BlockchainError {
     #[error("NFT not found: {0}")]
     NftNotFound(String),
 
-    #[error("Insufficient funds: need {needed}, have {available}")]
-    InsufficientFunds { needed: String, available: String },
+    #[error("Insufficient funds: {0}")]
+    InsufficientFunds(String),
 
     #[error("Bridge error: {0}")]
     Bridge(String),
@@ -58,8 +58,14 @@ pub enum BlockchainError {
     #[error("Network error: {0}")]
     Network(String),
 
+    #[error("RPC error: {0}")]
+    RpcError(String),
+
+    #[error("Signature error: {0}")]
+    SignatureError(String),
+
     #[error("Serialization error: {0}")]
-    SerializationError(String),
+    Serialization(String),
 
     #[error("Timeout waiting for {0}")]
     Timeout(String),

@@ -6,6 +6,7 @@
 use async_trait::async_trait;
 use bitcoincore_rpc::{Auth, Client as BtcClient, RpcApi};
 use serde::{Deserialize, Serialize};
+use sha2::Digest;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -362,7 +363,7 @@ impl ChainProvider for BitcoinProvider {
                     // The inscription owner is typically the first output address
                     if let Some(vout) = tx_info.vout.first() {
                         if let Some(ref addr) = vout.script_pub_key.address {
-                            return Ok(addr.to_string());
+                            return Ok(addr.clone().assume_checked().to_string());
                         }
                     }
                     Ok("unknown".to_string())
@@ -393,8 +394,11 @@ impl ChainProvider for BitcoinProvider {
                 .map_err(|e| BlockchainError::InvalidAddress(e.to_string()))?
                 .assume_checked();
 
-            match client.verify_message(&addr, &bitcoin::sign_message::MessageSignature::from_base64(signature)
-                .map_err(|e| BlockchainError::SignatureError(e.to_string()))?, message) 
+            // Parse the base64 signature
+            let sig = bitcoin::sign_message::MessageSignature::from_str(signature)
+                .map_err(|e| BlockchainError::SignatureError(e.to_string()))?;
+
+            match client.verify_message(&addr, &sig, message) 
             {
                 Ok(valid) => Ok(valid),
                 Err(e) => {

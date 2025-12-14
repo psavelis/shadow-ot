@@ -305,6 +305,7 @@ pub struct BridgeRequest {
     pub asset: AssetType,
     pub status: BridgeStatus,
     pub created_at: chrono::DateTime<chrono::Utc>,
+    pub source_tx_hash: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]

@@ -694,6 +694,6 @@ impl TwoFactorAuth {
             return Ok(config.backup_codes.clone());
         }
 
-        Err(ApiError::NotFound)
+        Err(ApiError::NotFound("TOTP config not found".to_string()))
     }
 }

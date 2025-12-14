@@ -28,7 +28,7 @@ pub async fn get_stats(
 ) -> ApiResult<Json<ServerStats>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
     if !claims.is_admin() {
-        return Err(ApiError::Forbidden);
+        return Err(ApiError::Forbidden("Admin access required".to_string()));
     }
 
     let accounts = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM accounts")
@@ -88,7 +88,7 @@ pub async fn get_online_players(
 ) -> ApiResult<Json<Vec<OnlinePlayer>>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
     if !claims.is_admin() {
-        return Err(ApiError::Forbidden);
+        return Err(ApiError::Forbidden("Admin access required".to_string()));
     }
 
     let players = sqlx::query_as::<_, OnlinePlayerRow>(
@@ -129,7 +129,7 @@ pub async fn ban_account(
 ) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
     if !claims.is_admin() {
-        return Err(ApiError::Forbidden);
+        return Err(ApiError::Forbidden("Admin access required".to_string()));
     }
 
     let expires_at = body.duration_days.map(|days| {
@@ -183,7 +183,7 @@ pub async fn broadcast_message(
 ) -> ApiResult<Json<MessageResponse>> {
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
     if !claims.is_admin() {
-        return Err(ApiError::Forbidden);
+        return Err(ApiError::Forbidden("Admin access required".to_string()));
     }
 
     // In a real implementation, this would send message to game server(s)
