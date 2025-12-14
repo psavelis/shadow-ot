@@ -65,7 +65,7 @@ pub async fn optional_auth_middleware(
 
 /// Admin-only middleware
 pub async fn admin_middleware(
-    State(state): State<Arc<AppState>>,
+    State(_state): State<Arc<AppState>>,
     request: Request,
     next: Next,
 ) -> Result<Response, ApiError> {

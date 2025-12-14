@@ -31,6 +31,7 @@ pub use state::AppState;
 use axum::{
     routing::{get, post, put, delete},
     Router,
+    middleware::from_fn_with_state,
 };
 use tower_http::cors::{CorsLayer, Any};
 use tower_http::trace::TraceLayer;
@@ -304,11 +305,11 @@ pub struct ApiDoc;
 
 /// Create the API router
 pub fn create_router(state: Arc<AppState>) -> Router {
-    // Build routes
-    let api_routes = Router::new()
+    // Public routes (no auth required)
+    let public_routes = Router::new()
         // Health
         .route("/health", get(routes::health::health_check))
-        // Auth
+        // Auth - public endpoints
         .route("/auth/login", post(routes::auth::login))
         .route("/auth/register", post(routes::auth::register))
         .route("/auth/logout", post(routes::auth::logout))
@@ -316,13 +317,88 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/auth/verify-email", post(routes::auth::verify_email))
         .route("/auth/forgot-password", post(routes::auth::forgot_password))
         .route("/auth/reset-password", post(routes::auth::reset_password))
+        .route("/auth/wallet/nonce/:address", get(routes::auth::get_wallet_nonce))
+        .route("/auth/wallet/login", post(routes::auth::login_with_wallet))
+        // Realms (public)
+        .route("/realms", get(routes::realms::list_realms))
+        .route("/realms/:id", get(routes::realms::get_realm))
+        .route("/realms/:id/online", get(routes::realms::get_online_count))
+        // Highscores (public)
+        .route("/highscores/:realm", get(routes::highscores::get_highscores))
+        .route("/highscores/:realm/:type", get(routes::highscores::get_highscores_by_type))
+        // Guilds (public)
+        .route("/guilds", get(routes::guilds::list_guilds))
+        .route("/guilds/:id", get(routes::guilds::get_guild))
+        .route("/guilds/:id/members", get(routes::guilds::get_guild_members))
+        .route("/guilds/:id/wars", get(routes::guilds::get_guild_wars))
+        // Market (public)
+        .route("/market/offers", get(routes::market::list_offers))
+        .route("/market/offers/:id", get(routes::market::get_offer))
+        .route("/market/history", get(routes::market::get_history))
+        // News (public)
+        .route("/news", get(routes::news::list_news))
+        .route("/news/:id", get(routes::news::get_article))
+        // Forum (public reads)
+        .route("/forum/categories", get(routes::forum::list_categories))
+        .route("/forum/threads", get(routes::forum::list_threads))
+        .route("/forum/threads/:id", get(routes::forum::get_thread))
+        // Houses (public)
+        .route("/houses/:realm", get(routes::houses::list_houses))
+        .route("/houses/:realm/:id", get(routes::houses::get_house))
+        // Kill statistics (public)
+        .route("/kill-statistics", get(routes::kill_statistics::get_statistics))
+        .route("/kill-statistics/top-killers", get(routes::kill_statistics::get_top_killers))
+        .route("/kill-statistics/recent", get(routes::kill_statistics::get_recent_deaths))
+        .route("/kill-statistics/boss-hunters", get(routes::kill_statistics::get_boss_hunters))
+        .route("/kill-statistics/character/:character_id", get(routes::kill_statistics::get_character_kills))
+        // Boosted (public)
+        .route("/boosted/creature", get(routes::boosted::get_boosted_creature))
+        .route("/boosted/boss", get(routes::boosted::get_boosted_boss))
+        .route("/boosted/creature/history", get(routes::boosted::get_creature_history))
+        .route("/boosted/boss/history", get(routes::boosted::get_boss_history))
+        // Creatures (public)
+        .route("/creatures", get(routes::creatures::list_creatures))
+        .route("/creatures/:id", get(routes::creatures::get_creature))
+        .route("/creatures/name/:name", get(routes::creatures::get_creature_by_name))
+        // Achievements (public list)
+        .route("/achievements", get(routes::achievements::list_achievements))
+        .route("/achievements/leaderboard", get(routes::achievements::get_leaderboard))
+        // World Quests (public)
+        .route("/world-quests", get(routes::world_quests::list_world_quests))
+        .route("/world-quests/active", get(routes::world_quests::get_active_quests))
+        .route("/world-quests/:id", get(routes::world_quests::get_world_quest))
+        // Spells (public)
+        .route("/spells", get(routes::spells::list_spells))
+        .route("/spells/runes", get(routes::spells::get_runes))
+        .route("/spells/vocation/:vocation", get(routes::spells::get_spells_by_vocation))
+        .route("/spells/element/:element", get(routes::spells::get_spells_by_element))
+        .route("/spells/words/:words", get(routes::spells::get_spell_by_words))
+        .route("/spells/:id", get(routes::spells::get_spell))
+        // Events (public)
+        .route("/events", get(routes::events::list_events))
+        .route("/events/active", get(routes::events::get_active_events))
+        .route("/events/upcoming", get(routes::events::get_upcoming_events))
+        .route("/events/:id", get(routes::events::get_event))
+        // Public auction reads
+        .route("/auctions/characters", get(routes::auction::list_character_auctions))
+        .route("/auctions/characters/:id", get(routes::auction::get_character_auction))
+        .route("/auctions/items", get(routes::auction::list_item_auctions))
+        .route("/auctions/items/:id", get(routes::auction::get_item_auction))
+        // Support (public FAQs)
+        .route("/support/faq", get(routes::support::get_faq))
+        // NFT marketplace (public reads)
+        .route("/nft/marketplace", get(routes::nft::get_marketplace))
+        .route("/nft/:chain/:token_id", get(routes::nft::get_nft))
+        // Premium packages (public)
+        .route("/users/me/premium/packages", get(routes::premium::get_coin_packages));
+
+    // Authenticated routes (require JWT)
+    let auth_routes = Router::new()
         // 2FA
         .route("/auth/2fa/enable", post(routes::auth::enable_2fa))
         .route("/auth/2fa/verify", post(routes::auth::verify_2fa))
         .route("/auth/2fa/disable", post(routes::auth::disable_2fa))
-        // Wallet auth
-        .route("/auth/wallet/nonce/:address", get(routes::auth::get_wallet_nonce))
-        .route("/auth/wallet/login", post(routes::auth::login_with_wallet))
+        // Wallet auth (authenticated)
         .route("/auth/wallet/connect", post(routes::auth::connect_wallet))
         .route("/auth/wallet/disconnect", post(routes::auth::disconnect_wallet))
         .route("/auth/resend-verification", post(routes::auth::resend_verification))
@@ -338,122 +414,68 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .route("/characters/:id", get(routes::characters::get_character))
         .route("/characters/:id", delete(routes::characters::delete_character))
         .route("/characters/:id/online", get(routes::characters::get_online_status))
-        // Realms
-        .route("/realms", get(routes::realms::list_realms))
-        .route("/realms/:id", get(routes::realms::get_realm))
-        .route("/realms/:id/online", get(routes::realms::get_online_count))
-        // Highscores
-        .route("/highscores/:realm", get(routes::highscores::get_highscores))
-        .route("/highscores/:realm/:type", get(routes::highscores::get_highscores_by_type))
-        // Guilds
-        .route("/guilds", get(routes::guilds::list_guilds))
-        .route("/guilds/:id", get(routes::guilds::get_guild))
-        .route("/guilds/:id/members", get(routes::guilds::get_guild_members))
-        .route("/guilds/:id/wars", get(routes::guilds::get_guild_wars))
-        // Market
-        .route("/market/offers", get(routes::market::list_offers))
-        .route("/market/offers/:id", get(routes::market::get_offer))
-        .route("/market/history", get(routes::market::get_history))
-        // News
-        .route("/news", get(routes::news::list_news))
-        .route("/news/:id", get(routes::news::get_article))
-        // Forum
-        .route("/forum/categories", get(routes::forum::list_categories))
-        .route("/forum/threads", get(routes::forum::list_threads))
-        .route("/forum/threads/:id", get(routes::forum::get_thread))
+        // Forum (write actions)
         .route("/forum/threads", post(routes::forum::create_thread))
         .route("/forum/threads/:id/posts", post(routes::forum::create_post))
-        // Houses
-        .route("/houses/:realm", get(routes::houses::list_houses))
-        .route("/houses/:realm/:id", get(routes::houses::get_house))
         // Support tickets
         .route("/support/tickets", get(routes::support::list_tickets))
         .route("/support/tickets", post(routes::support::create_ticket))
         .route("/support/tickets/:id", get(routes::support::get_ticket))
         .route("/support/tickets/:id/reply", post(routes::support::reply_to_ticket))
         .route("/support/tickets/:id/close", axum::routing::patch(routes::support::close_ticket))
-        .route("/support/faq", get(routes::support::get_faq))
-        // Auctions
-        .route("/auctions/characters", get(routes::auction::list_character_auctions))
+        // Auctions (write actions)
         .route("/auctions/characters", post(routes::auction::create_character_auction))
-        .route("/auctions/characters/:id", get(routes::auction::get_character_auction))
         .route("/auctions/characters/:id/bid", post(routes::auction::bid_on_character_auction))
-        .route("/auctions/items", get(routes::auction::list_item_auctions))
         .route("/auctions/items", post(routes::auction::create_item_auction))
-        .route("/auctions/items/:id", get(routes::auction::get_item_auction))
         .route("/auctions/items/:id/bid", post(routes::auction::bid_on_item_auction))
         .route("/auctions/:auction_type/:id", delete(routes::auction::cancel_auction))
-        // Kill statistics
-        .route("/kill-statistics", get(routes::kill_statistics::get_statistics))
-        .route("/kill-statistics/top-killers", get(routes::kill_statistics::get_top_killers))
-        .route("/kill-statistics/recent", get(routes::kill_statistics::get_recent_deaths))
-        .route("/kill-statistics/boss-hunters", get(routes::kill_statistics::get_boss_hunters))
-        .route("/kill-statistics/character/:character_id", get(routes::kill_statistics::get_character_kills))
-        // Boosted creatures/bosses
-        .route("/boosted/creature", get(routes::boosted::get_boosted_creature))
-        .route("/boosted/boss", get(routes::boosted::get_boosted_boss))
-        .route("/boosted/creature/history", get(routes::boosted::get_creature_history))
-        .route("/boosted/boss/history", get(routes::boosted::get_boss_history))
-        // Creatures/Bestiary
-        .route("/creatures", get(routes::creatures::list_creatures))
-        .route("/creatures/:id", get(routes::creatures::get_creature))
-        .route("/creatures/name/:name", get(routes::creatures::get_creature_by_name))
+        // Bestiary (authenticated)
         .route("/characters/:character_id/bestiary", get(routes::creatures::get_bestiary_progress))
         .route("/characters/:character_id/bestiary/:creature_id", get(routes::creatures::get_bestiary_entry))
-        // Achievements
-        .route("/achievements", get(routes::achievements::list_achievements))
+        // Achievements (player-specific)
         .route("/achievements/player", get(routes::achievements::get_player_achievements))
-        .route("/achievements/leaderboard", get(routes::achievements::get_leaderboard))
-        // World Quests
-        .route("/world-quests", get(routes::world_quests::list_world_quests))
-        .route("/world-quests/active", get(routes::world_quests::get_active_quests))
-        .route("/world-quests/:id", get(routes::world_quests::get_world_quest))
+        // World Quests (contribute)
         .route("/world-quests/:id/contribute", post(routes::world_quests::contribute_to_quest))
         // Inventory
         .route("/inventory", get(routes::inventory::get_inventory_items))
         .route("/inventory/:id", get(routes::inventory::get_inventory_item))
         .route("/inventory/:id/transfer", post(routes::inventory::transfer_item))
         .route("/inventory/:id/list-on-market", post(routes::inventory::list_on_market))
-        // Spells
-        .route("/spells", get(routes::spells::list_spells))
-        .route("/spells/runes", get(routes::spells::get_runes))
-        .route("/spells/vocation/:vocation", get(routes::spells::get_spells_by_vocation))
-        .route("/spells/element/:element", get(routes::spells::get_spells_by_element))
-        .route("/spells/words/:words", get(routes::spells::get_spell_by_words))
-        .route("/spells/:id", get(routes::spells::get_spell))
-        // Events
-        .route("/events", get(routes::events::list_events))
-        .route("/events/active", get(routes::events::get_active_events))
-        .route("/events/upcoming", get(routes::events::get_upcoming_events))
-        .route("/events/:id", get(routes::events::get_event))
-        // NFT
+        // NFT (authenticated)
         .route("/nft/owned", get(routes::nft::get_owned_nfts))
         .route("/nft/mint", post(routes::nft::mint_nft))
         .route("/nft/buy", post(routes::nft::buy_nft))
-        .route("/nft/marketplace", get(routes::nft::get_marketplace))
-        .route("/nft/:chain/:token_id", get(routes::nft::get_nft))
         .route("/nft/:id/transfer", post(routes::nft::transfer_nft))
         .route("/nft/:id/list", post(routes::nft::list_nft))
         .route("/nft/:id/cancel-listing", post(routes::nft::cancel_listing))
-        // Premium
+        // Premium (authenticated)
         .route("/users/me/premium", get(routes::premium::get_premium_status))
         .route("/users/me/premium", delete(routes::premium::cancel_premium))
         .route("/users/me/premium/purchase", post(routes::premium::purchase_premium))
-        .route("/users/me/premium/packages", get(routes::premium::get_coin_packages))
         .route("/users/me/premium/coins", post(routes::premium::purchase_coins))
         .route("/users/me/premium/history", get(routes::premium::get_premium_history))
         .route("/users/me/premium/auto-renew", post(routes::premium::toggle_auto_renew))
-        // Notifications
+        // Notifications (authenticated)
         .route("/users/me/notifications", get(routes::notifications::get_notifications))
         .route("/users/me/notifications/count", get(routes::notifications::get_unread_count))
         .route("/users/me/notifications/read-all", post(routes::notifications::mark_all_read))
         .route("/users/me/notifications/:id/read", axum::routing::patch(routes::notifications::mark_notification_read))
         .route("/users/me/notifications/:id", delete(routes::notifications::delete_notification))
-        // Admin routes (protected)
+        .layer(from_fn_with_state(state.clone(), middleware::auth_middleware));
+
+    // Admin routes (require admin auth)
+    let admin_routes = Router::new()
         .route("/admin/stats", get(routes::admin::get_stats))
         .route("/admin/players/online", get(routes::admin::get_online_players))
         .route("/admin/ban", post(routes::admin::ban_account))
-        .route("/admin/broadcast", post(routes::admin::broadcast_message));
+        .route("/admin/broadcast", post(routes::admin::broadcast_message))
+        .layer(from_fn_with_state(state.clone(), middleware::admin_middleware))
+        .layer(from_fn_with_state(state.clone(), middleware::auth_middleware));
+
+    // Combine all API routes
+    let api_routes = public_routes
+        .merge(auth_routes)
+        .merge(admin_routes);
 
     // Main router with middleware
     Router::new()
