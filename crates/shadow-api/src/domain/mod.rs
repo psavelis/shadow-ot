@@ -14,4 +14,3 @@ mod tests;
 pub use entities::*;
 pub use value_objects::*;
 pub use errors::DomainError;
-pub use errors::DomainError;

@@ -27,7 +27,7 @@ pub enum TicketCategory {
 }
 
 /// Support ticket status
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema, sqlx::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema, sqlx::Type)]
 #[sqlx(type_name = "ticket_status", rename_all = "lowercase")]
 pub enum TicketStatus {
     Open,

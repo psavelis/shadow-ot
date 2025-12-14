@@ -76,7 +76,7 @@ pub async fn admin_middleware(
         .ok_or(ApiError::Unauthorized)?;
 
     if !claims.is_admin() {
-        return Err(ApiError::Forbidden);
+        return Err(ApiError::Forbidden("Admin access required".to_string()));
     }
 
     Ok(next.run(request).await)

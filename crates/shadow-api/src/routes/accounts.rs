@@ -188,7 +188,7 @@ pub async fn list_sessions(
     let claims = get_claims(&request).ok_or(ApiError::Unauthorized)?;
 
     let sessions = sqlx::query_as::<_, SessionRow>(
-        "SELECT id, ip_address, user_agent, created_at, last_activity
+        "SELECT id, ip_address::text as ip_address, user_agent, created_at, last_activity
          FROM account_sessions
          WHERE account_id = $1 AND revoked = false AND expires_at > CURRENT_TIMESTAMP
          ORDER BY last_activity DESC"
@@ -199,7 +199,7 @@ pub async fn list_sessions(
 
     Ok(Json(sessions.into_iter().map(|s| SessionInfo {
         id: s.id,
-        ip_address: s.ip_address.to_string(),
+        ip_address: s.ip_address,
         user_agent: s.user_agent,
         created_at: s.created_at.to_rfc3339(),
         last_activity: s.last_activity.to_rfc3339(),
@@ -250,7 +250,7 @@ struct AccountRow {
 #[derive(sqlx::FromRow)]
 struct SessionRow {
     id: i32,
-    ip_address: std::net::IpAddr,
+    ip_address: String,
     user_agent: Option<String>,
     created_at: chrono::DateTime<chrono::Utc>,
     last_activity: chrono::DateTime<chrono::Utc>,

@@ -20,8 +20,8 @@ pub enum ApiError {
     #[error("Token expired")]
     TokenExpired,
 
-    #[error("Forbidden")]
-    Forbidden,
+    #[error("Forbidden: {0}")]
+    Forbidden(String),
 
     #[error("Not found: {0}")]
     NotFound(String),
@@ -63,7 +63,7 @@ impl IntoResponse for ApiError {
             ApiError::Unauthorized => (StatusCode::UNAUTHORIZED, "unauthorized"),
             ApiError::InvalidCredentials => (StatusCode::UNAUTHORIZED, "invalid_credentials"),
             ApiError::TokenExpired => (StatusCode::UNAUTHORIZED, "token_expired"),
-            ApiError::Forbidden => (StatusCode::FORBIDDEN, "forbidden"),
+            ApiError::Forbidden(_) => (StatusCode::FORBIDDEN, "forbidden"),
             ApiError::NotFound(_) => (StatusCode::NOT_FOUND, "not_found"),
             ApiError::BadRequest(_) => (StatusCode::BAD_REQUEST, "bad_request"),
             ApiError::Validation(_) => (StatusCode::UNPROCESSABLE_ENTITY, "validation_error"),

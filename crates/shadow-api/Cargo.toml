@@ -36,6 +36,9 @@ rand.workspace = true
 urlencoding = "2.1"
 hex = "0.4"
 
+# Base64 encoding
+base64 = "0.21"
+
 # Validation
 validator = { version = "0.16", features = ["derive"] }
 

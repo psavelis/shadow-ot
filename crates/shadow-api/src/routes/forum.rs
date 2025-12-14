@@ -160,7 +160,7 @@ pub struct CreateThreadRequest {
 /// Create thread
 pub async fn create_thread(
     State(_state): State<Arc<AppState>>,
-    axum::extract::Request(request): axum::extract::Request,
+    request: axum::extract::Request,
     Json(_body): Json<CreateThreadRequest>,
 ) -> ApiResult<Json<ForumThread>> {
     let _claims = crate::middleware::get_claims(&request)
@@ -180,7 +180,7 @@ pub struct CreatePostRequest {
 /// Create post
 pub async fn create_post(
     State(_state): State<Arc<AppState>>,
-    axum::extract::Request(request): axum::extract::Request,
+    request: axum::extract::Request,
     Path(_thread_id): Path<i32>,
     Json(_body): Json<CreatePostRequest>,
 ) -> ApiResult<Json<ForumPost>> {

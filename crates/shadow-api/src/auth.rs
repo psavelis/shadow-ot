@@ -39,7 +39,7 @@ impl Default for AuthConfig {
 }
 
 /// JWT Claims
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JwtClaims {
     pub sub: String,           // Account UUID
     pub account_id: i32,
@@ -486,7 +486,7 @@ impl TotpConfig {
         use rand::Rng;
         let mut rng = rand::thread_rng();
         let secret_bytes: [u8; 20] = rng.gen();
-        let secret = base32::encode(base32::Alphabet::Rfc4648 { padding: false }, &secret_bytes);
+        let secret = base32::encode(base32::Alphabet::RFC4648 { padding: false }, &secret_bytes);
 
         // Generate backup codes
         let backup_codes: Vec<String> = (0..10)
@@ -526,7 +526,7 @@ impl TotpConfig {
         };
 
         // Decode the secret
-        let secret_bytes = match base32::decode(base32::Alphabet::Rfc4648 { padding: false }, &self.secret) {
+        let secret_bytes = match base32::decode(base32::Alphabet::RFC4648 { padding: false }, &self.secret) {
             Some(b) => b,
             None => return false,
         };

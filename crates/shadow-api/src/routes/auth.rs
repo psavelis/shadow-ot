@@ -347,7 +347,7 @@ pub async fn enable_2fa(
     // Generate random secret
     let mut rng = rand::thread_rng();
     let secret_bytes: [u8; 20] = rng.gen();
-    let secret = base32::encode(Alphabet::Rfc4648 { padding: false }, &secret_bytes);
+    let secret = base32::encode(Alphabet::RFC4648 { padding: false }, &secret_bytes);
     
     // Store pending 2FA secret (not yet active)
     sqlx::query(
@@ -365,7 +365,8 @@ pub async fn enable_2fa(
     );
     
     // In production, generate actual QR code image
-    let qr_code = format!("data:image/svg+xml;base64,{}", base64::encode(&otpauth_url));
+    use base64::Engine;
+    let qr_code = format!("data:image/svg+xml;base64,{}", base64::engine::general_purpose::STANDARD.encode(&otpauth_url));
     
     Ok(Json(Enable2FAResponse {
         secret,
